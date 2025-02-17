@@ -1,95 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Product Details</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/abu-bakr-store-v2/styles/main.css">
-    <link rel="stylesheet" href="/abu-bakr-store-v2/styles/components/header.css">
-    <link rel="stylesheet" href="/abu-bakr-store-v2/pages/product/product-page.css">
-    <link rel="stylesheet" href="/abu-bakr-store-v2/components/cart/cart.css" type="text/css">
-    <link rel="stylesheet" href="/abu-bakr-store-v2/components/footer/footer.css">
-
-</head>
-<body>
+    <link rel="stylesheet" href="/styles/main.css" />
+    <link rel="stylesheet" href="/styles/components/header.css" />
+    <link rel="stylesheet" href="/pages/product/product-page.css" />
+    <link rel="stylesheet" href="/components/cart/cart.css" type="text/css" />
+    <link rel="stylesheet" href="/components/footer/footer.css" />
+  </head>
+  <body>
     <div id="header"></div>
-    
+
     <main class="container my-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/abu-bakr-store-v2/">Home</a></li>
-                <li class="breadcrumb-item active" id="product-name-breadcrumb"></li>
-            </ol>
-        </nav>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item active" id="product-name-breadcrumb"></li>
+        </ol>
+      </nav>
 
-        <div class="row">
-            <div class="col-md-6">
-                <div class="product-image">
-                    <img id="product-image" src="" alt="">
-                </div>
-                <p class="product-description mt-4" id="product-description"></p>
-            </div>
-            <div class="col-md-6">
-                <div class="product-details">
-                    <h1 id="product-title"></h1>
-                    <p class="sku">SKU: <span id="product-sku"></span></p>
-                    <div class="price-info">
-                        <span id="product-old-price" class="old-price"></span>
-                        <span id="product-price" class="current-price"></span>
-                    </div>
-                    
-                    <div class="quantity-section">
-                        <label>Quantity</label>
-                        <div class="quantity-control">
-                            <button class="minus">−</button>
-                            <input type="number" value="1" min="1" max="99">
-                            <button class="plus">+</button>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button class="add-to-cart-btn">Add to Cart</button>
-                        <button class="wishlist-btn"><i class="far fa-heart"></i></button>
-                    </div>
-
-                    <div class="product-sections">
-                        <div class="section-item">
-                            <div class="section-header active" data-section="info">
-                                <h2>Product Info <span class="toggle-icon">−</span></h2>
-                            </div>
-                            <div class="section-content" id="product-info-content"></div>
-                        </div>
-
-                        <div class="section-item">
-                            <div class="section-header" data-section="return">
-                                <h2>Return & Refund Policy <span class="toggle-icon">+</span></h2>
-                            </div>
-                            <div class="section-content" id="return-policy-content"></div>
-                        </div>
-
-                        <div class="section-item">
-                            <div class="section-header" data-section="shipping">
-                                <h2>Shipping Info <span class="toggle-icon">+</span></h2>
-                            </div>
-                            <div class="section-content" id="shipping-info-content"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="product-image">
+            <img id="product-image" src="" alt="" />
+          </div>
+          <p class="product-description mt-4" id="product-description"></p>
         </div>
+        <div class="col-md-6">
+          <div class="product-details">
+            <h1 id="product-title"></h1>
+            <p class="sku">SKU: <span id="product-sku"></span></p>
+            <div class="price-info">
+              <span id="product-old-price" class="old-price"></span>
+              <span id="product-price" class="current-price"></span>
+            </div>
 
+            <div class="quantity-section">
+              <label>Quantity</label>
+              <div class="quantity-control">
+                <button class="minus">−</button>
+                <input type="number" value="1" min="1" max="99" />
+                <button class="plus">+</button>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <button class="add-to-cart-btn">Add to Cart</button>
+              <button class="wishlist-btn"><i class="far fa-heart"></i></button>
+            </div>
+
+            <div class="product-sections">
+              <div class="section-item">
+                <div class="section-header active" data-section="info">
+                  <h2>Product Info <span class="toggle-icon">−</span></h2>
+                </div>
+                <div class="section-content" id="product-info-content"></div>
+              </div>
+
+              <div class="section-item">
+                <div class="section-header" data-section="return">
+                  <h2>
+                    Return & Refund Policy <span class="toggle-icon">+</span>
+                  </h2>
+                </div>
+                <div class="section-content" id="return-policy-content"></div>
+              </div>
+
+              <div class="section-item">
+                <div class="section-header" data-section="shipping">
+                  <h2>Shipping Info <span class="toggle-icon">+</span></h2>
+                </div>
+                <div class="section-content" id="shipping-info-content"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
     <div id="footer"></div>
-
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom JS -->
-    <script type="module" src="/abu-bakr-store-v2/pages/product/product-page.js"></script>
-</body>
+    <script type="module" src="/pages/product/product-page.js"></script>
+  </body>
 </html>
