@@ -3,13 +3,17 @@ import { loadComponent } from "./utils/components.js";
 import { initCarousel } from "../components/carousel/carousel.js";
 import { ProductCard } from "../components/product-card/product-card.js";
 import { Cart } from "./modules/cart.js";
-import { productData } from "./services/product-service.js";
+import { ProductService } from "./services/product-service.js";
 import { initPopularCategories } from "../components/popular-categories/popular-categories.js";
 import { initStartCartSlider } from "../components/start-cart/start-cart.js";
 import { initMostPopularSlider } from "../components/most-popular/most-popular.js";
 import { CategoryManager } from "./modules/category-manager.js";
 import { SearchService } from "./services/search-service.js";
 import { HeaderSearch } from "./modules/header-search.js";
+
+
+// components/best-deals/best-deals.js
+
 
 let cart; // Global cart instance
 
@@ -36,10 +40,7 @@ async function initializeApp() {
         "featured-deals-container",
         "/components/featured-deals/featured-deals.html"
       ),
-      loadComponent(
-        "best-deals-container",
-        "/components/best-deals/best-deals.html"
-      ),
+    
       loadComponent(
         "popular-categories",
         "/components/popular-categories/popular-categories.html"
@@ -62,6 +63,10 @@ async function initializeApp() {
         "/components/subscribe/subscribe.html"
       ),
       await loadComponent("footer", "/components/footer/footer.html"),
+      await loadComponent(
+        "best-deals-container",
+        "/components/best-deals/best-deals.html"
+    )
     ]);
     categoryManager.initializeNavigation();
 
@@ -109,40 +114,64 @@ function initializeMobileMenu() {
   });
 }
 
-async function initializeBestDeals() {
-  const slider = document.getElementById("deals-slider");
-  if (!slider) return;
-
-  try {
-    slider.innerHTML = "";
-
-    // Use products from the service
-    for (const product of productData.products) {
-      const productCard = new ProductCard(product);
-      const cardHtml = await productCard.render();
-
-      const processedHtml = cardHtml
-        .replace(/\${name}/g, product.name)
-        .replace(/\${price}/g, product.price.toFixed(2))
-        .replace(/\${id}/g, product.id)
-        .replace(/\${imageUrl}/g, product.imageUrl);
-
-      slider.insertAdjacentHTML("beforeend", processedHtml);
+// components/best-deals/best-deals.js
+export async function initializeBestDeals() {
+    const slider = document.getElementById('deals-slider');
+    if (!slider) {
+        console.error('Deals slider element not found');
+        return;
     }
 
-    initializeSliderControls();
-    initializeQuantityControls();
-    initializeAddToCart();
-  } catch (error) {
-    console.error("Error initializing best deals:", error);
-  }
+    try {
+        slider.innerHTML = '<div class="loading">Loading deals...</div>';
+        
+        const dealsProducts = await ProductService.getDealsProducts();
+        console.log('API Response Products:', dealsProducts);
+        
+        if (!dealsProducts?.length) {
+            console.warn('No deals products returned');
+            slider.innerHTML = '<div class="no-deals">No deals available at the moment</div>';
+            return;
+        }
+
+        slider.innerHTML = '';
+        
+        for (const product of dealsProducts) {
+            console.log('Processing product:', product);
+            const productCard = new ProductCard(product);
+            const cardHtml = await productCard.render();
+            slider.insertAdjacentHTML('beforeend', cardHtml);
+        }
+        
+        // Initialize controls after content is loaded
+        const cards = slider.querySelectorAll('.product-card');
+        console.log(`Rendered ${cards.length} product cards`);
+        
+        initializeSliderControls();
+        cards.forEach(card => ProductCard.initializeCardListeners(card));
+        
+    } catch (error) {
+        console.error('Error initializing best deals:', error);
+        slider.innerHTML = '<div class="error">Failed to load deals</div>';
+    }
 }
 
 function initializeSliderControls() {
-  const prevBtn = document.querySelector(".prev-btn");
-  const nextBtn = document.querySelector(".next-btn");
-  const slider = document.querySelector(".products-slider");
-  const cards = slider.querySelectorAll(".product-card");
+    const prevBtn = document.querySelector(".prev-btn");
+    const nextBtn = document.querySelector(".next-btn");
+    const slider = document.querySelector(".products-slider");
+    
+    if (!slider || !prevBtn || !nextBtn) {
+        console.error('Slider controls not found');
+        return;
+    }
+
+    const cards = slider.querySelectorAll(".product-card");
+    if (!cards.length) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        return;
+    }
 
   let currentIndex = 0;
   const totalCards = cards.length;
@@ -197,34 +226,29 @@ function initializeQuantityControls() {
 }
 
 function initializeAddToCart() {
-  document.querySelectorAll(".add-to-cart-btn").forEach((button) => {
-    button.addEventListener("click", (e) => {
-      const card = e.target.closest(".product-card");
-      const product = {
-        id: card.dataset.productId,
-        name: card.querySelector(".product-name").textContent.trim(),
-        price: parseFloat(
-          card.querySelector(".price").textContent.replace("£", "")
-        ),
-        quantity: parseInt(card.querySelector(".quantity-control input").value),
-        imageUrl: card.querySelector("img").src,
-        oldPrice: card.querySelector(".old-price")
-          ? parseFloat(
-              card.querySelector(".old-price").textContent.replace("£", "")
-            )
-          : null,
-      };
-
-      if (cart) {
-        cart.addItem(product);
-        button.textContent = "Added!";
-        setTimeout(() => {
-          button.textContent = "Add to Cart";
-        }, 2000);
-      }
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const card = e.target.closest('.product-card');
+            const product = {
+                uid: card.dataset.productId,
+                name: card.querySelector('.product-name').textContent,
+                price: parseFloat(card.querySelector('.price').textContent.replace('£', '')),
+                quantity: parseInt(card.querySelector('.quantity-control input').value),
+                size: card.querySelector('.size')?.textContent || null,
+                imageUrl: card.querySelector('img').src
+            };
+            
+            if (cart) {
+                cart.addItem(product);
+                button.textContent = 'Added!';
+                setTimeout(() => {
+                    button.textContent = 'Add to Cart';
+                }, 2000);
+            }
+        });
     });
-  });
 }
+
 
 function initializeCartIcon() {
   const cartIcon = document.querySelector(".cart-icon");
@@ -245,7 +269,7 @@ async function initializeStartCart() {
 
   try {
     slider.innerHTML = "";
-    const startProducts = productData.products.slice(0, 5);
+    const startProducts = ProductService.products.slice(0, 5);
 
     for (const product of startProducts) {
       const productCard = new ProductCard(product);
@@ -274,7 +298,7 @@ async function initializeFreshFinds() {
     slider.innerHTML = "";
 
     // Use products from the service
-    for (const product of productData.products) {
+    for (const product of ProductService.products) {
       const productCard = new ProductCard(product);
       const cardHtml = await productCard.render();
 
@@ -362,7 +386,7 @@ async function initializeMostPopular() {
 
   try {
     slider.innerHTML = "";
-    const popularProducts = productData.products.slice(0, 5);
+    const popularProducts = ProductService.products.slice(0, 5);
 
     for (const product of popularProducts) {
       const productCard = new ProductCard(product);

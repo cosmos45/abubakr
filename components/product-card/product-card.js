@@ -4,6 +4,7 @@ export class ProductCard {
     this.product = productData;
   }
 
+
   static async loadTemplate() {
     try {
       const response = await fetch(
@@ -78,16 +79,23 @@ export class ProductCard {
     const addToCartBtn = cardElement.querySelector(".add-to-cart-btn");
     const productId = cardElement.dataset.productId;
 
-    minusBtn?.addEventListener("click", () =>
-      this.handleQuantityChange(input, false)
-    );
-    plusBtn?.addEventListener("click", () =>
-      this.handleQuantityChange(input, true)
-    );
+    minusBtn?.addEventListener("click", () => {
+      const currentValue = parseInt(quantityInput.value);
+      if (currentValue > 1) quantityInput.value = currentValue - 1;
+    });
+    plusBtn?.addEventListener("click", () => {
+      const currentValue = parseInt(quantityInput.value);
+      if (currentValue < 99) quantityInput.value = currentValue + 1;
+    });
+
 
     addToCartBtn?.addEventListener("click", async () => {
       const success = await this.handleAddToCart(productId, input.value);
       addToCartBtn.textContent = success ? "Added!" : "Error";
+      if (success) {
+        // Redirect to product page
+        window.location.href = `/pages/product/product-page.html?id=${productId}`;
+      }
       setTimeout(() => {
         addToCartBtn.textContent = "Add to Cart";
       }, 2000);

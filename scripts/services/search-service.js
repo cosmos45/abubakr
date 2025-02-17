@@ -1,4 +1,4 @@
-import { productData } from './product-service.js';
+import { ProductService } from './product-service.js';
 import { categoryData } from './category-service.js';
 
 export class SearchService {
@@ -13,7 +13,7 @@ export class SearchService {
             // Initialize categories first
             this.categories = await categoryData.fetchCategories();
             // Initialize products (assuming you have a method to fetch products)
-            this.products = [...productData.products];
+            this.products = [...ProductService.products];
         } catch (error) {
             console.error('Error initializing SearchService:', error);
         }

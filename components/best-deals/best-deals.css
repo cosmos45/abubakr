@@ -1,4 +1,37 @@
 /* components/best-deals/best-deals.css */
+/* components/best-deals/best-deals.css */
+.loading, .error, .no-deals {
+    width: 100%;
+    text-align: center;
+    padding: 2rem;
+    font-family: Avenir, sans-serif;
+}
+
+.error {
+    color: #dc3545;
+}
+
+.product-size {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0.3rem 0;
+}
+
+/* Mobile responsiveness improvements */
+@media screen and (max-width: 768px) {
+    .products-slider {
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .product-card {
+        scroll-snap-align: start;
+    }
+}
+
+
+
+
 .best-deals-section {
     padding: 40px 0;
     max-width: 1400px;

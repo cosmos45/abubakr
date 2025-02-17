@@ -1,6 +1,6 @@
 import { loadComponent } from "../../scripts/utils/components.js";
 import { Cart } from "../../scripts/modules/cart.js";
-import { productData } from "../../scripts/services/product-service.js";
+import { ProductService } from "../../scripts/services/product-service.js";
 
 class ProductPage {
   constructor() {
@@ -94,40 +94,29 @@ class ProductPage {
     closeBtn?.addEventListener("click", () => this.cart.hideCart());
     overlay?.addEventListener("click", () => this.cart.hideCart());
   }
-
   async loadProductData() {
-    const product = productData.getProductById(this.productId);
-    if (!product) {
-      console.error("Product not found");
-      return;
+    const productId = new URLSearchParams(window.location.search).get("id");
+    
+    try {
+      const products = await ProductService.getDealsProducts(); // Fetch all products
+      const product = products.find(p => p.id === productId);
+  
+      if (!product) throw new Error("Product not found");
+  
+      // Populate page elements with product data
+      document.title = `${product.name} - Store`;
+      document.getElementById("product-title").textContent = product.name;
+      document.getElementById("product-image").src = product.imageUrl;
+      document.getElementById("product-price").textContent = `£${product.price}`;
+      document.getElementById("product-description").textContent =
+        product.description || "No description available.";
+    } catch (error) {
+      console.error("Error loading product data:", error);
+      document.querySelector(".container").innerHTML =
+        "<p>Failed to load product details. Please try again later.</p>";
     }
-
-    // Update page elements
-    document.title = `${product.name} - Abu Bakr Store`;
-    document.getElementById("product-name-breadcrumb").textContent =
-      product.name;
-    document.getElementById("product-title").textContent = product.name;
-    document.getElementById("product-image").src = product.imageUrl;
-    document.getElementById("product-image").alt = product.name;
-    document.getElementById(
-      "product-price"
-    ).textContent = `£${product.price.toFixed(2)}`;
-    document.getElementById("product-sku").textContent = `00${product.id}`;
-
-    if (product.oldPrice) {
-      document.getElementById(
-        "product-old-price"
-      ).textContent = `£${product.oldPrice.toFixed(2)}`;
-    }
-
-    // Set section contents
-    document.getElementById("product-info-content").innerHTML =
-      product.description || "Product information will be updated soon.";
-    document.getElementById("return-policy-content").innerHTML =
-      "We have a 30-day return policy, which means you have 30 days after receiving your item to request a return.";
-    document.getElementById("shipping-info-content").innerHTML =
-      "We offer free shipping on all orders over £50. Standard delivery takes 3-5 working days.";
   }
+  
 
   initializeSections() {
     document.querySelectorAll(".section-header").forEach((header) => {
