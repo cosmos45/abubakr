@@ -1,0 +1,561 @@
+:root {
+    --top-bar-green: #69994e;
+    --header-green: #386741;
+    --white: #ffffff;
+}
+
+
+
+
+@keyframes slideUp {
+    0%, 45% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    50%, 95% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+/* Top Bar */
+.top-bar {
+    background-color: var(--top-bar-green);
+    height: 45px;
+    display: flex;
+    align-items: center;
+}
+
+.top-bar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.left-links a {
+    color: var(--white);
+    text-decoration: none;
+    margin-right: 20px;
+    font-family: "Avenir Light", Avenir, sans-serif;
+    font-size: 14px;
+}
+
+.center-text {
+    color: var(--white);
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+    height: 1.2em;
+    width: 300px;
+    margin: 0 auto;
+}
+
+.phone-number-top-bar{
+    font-family: 'Avenir Next', sans-serif;
+    position: relative;
+
+    color: var(--white);
+    text-decoration: none;
+    display: block;
+    margin: 0 auto;
+}
+
+.center-text span {
+    display: block;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    animation: slideUp 6s ease-in-out infinite;
+    opacity: 0;
+    transform: translateY(100%);
+}
+
+.center-text span:nth-child(1) {
+    animation-delay: -3s;
+}
+
+.center-text span:nth-child(2) {
+    animation-delay: 0s;
+}
+
+
+.details-link {
+    color: var(--white);
+    text-decoration: underline;
+}
+
+/* Main Header */
+.main-header {
+    background-color: var(--header-green);
+    height: 100px;
+    display: flex;
+    align-items: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    gap: 40px;
+}
+
+.logo img {
+    width: 100px;
+    height: auto;
+}
+
+.search-container {
+    flex: 1;
+    max-width: 740px;
+    position: relative;
+}
+
+.search-container input {
+    width: 100%;
+    height: 40px;
+    padding: 0 50px 0 15px;
+    border: none;
+    font-family: "Avenir Light", Avenir, sans-serif;
+    font-size: 16px;
+    border-radius: 2px;
+}
+
+.search-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 40px;
+    background: var(--top-bar-green);
+    border: none;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-icons {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.header-icons a {
+    color: var(--white);
+    font-size: 20px;
+    position: relative;
+}
+
+.cart-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--white);
+    color: var(--header-green);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+.header-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+}
+
+.header-hidden {
+    transform: translateY(-100%);
+}
+
+/* Search styles */
+.search-wrapper {
+    display: flex;
+    width: 100%;
+    position: relative;
+}
+
+.category-select {
+    position: relative;
+    border-right: 1px solid #ddd;
+}
+
+.category-select select {
+    height: 40px;
+    padding: 0 30px 0 15px;
+    border: none;
+    background: white;
+    font-family: "Avenir Light", Avenir, sans-serif;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    border-radius: 2px 0 0 2px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.category-select::after {
+    content: '\f107';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 0 0 4px 4px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: none;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.search-suggestions.active {
+    display: block;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.suggestion-item:hover {
+    background: #f5f5f5;
+}
+
+.suggestion-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.suggestion-item .product-info {
+    flex: 1;
+}
+
+.suggestion-item .product-name {
+    font-family: "Avenir Light", Avenir, sans-serif;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.suggestion-item .product-description {
+    font-family: "Avenir Light", Avenir, sans-serif;
+    font-size: 12px;
+    color: #666;
+}
+
+
+
+/* Navigation */
+.main-nav {
+    height: 50px;
+    background: var(--white);
+}
+
+.nav-menu {
+    height: 60px;
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 50px;
+    gap: 85px;
+    padding-left: 300px;
+}
+
+.nav-menu a {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    color: #333;
+    text-decoration: none;
+    font-family: "Avenir Light", Avenir, sans-serif;
+    font-size: 17px;
+    font-weight: 300;
+    padding: 0;
+}
+
+
+/* Base category styles */
+.category-item {
+    position: relative;
+    z-index: 1000;
+}
+
+
+.category-item:hover {
+    z-index: 1002;
+}
+
+.nav-menu .category-item {
+    position: relative;
+}
+
+.category-item:hover .category-dropdown {
+    display: block;
+}
+
+.category-dropdown a {
+    padding: 10px 15px;
+    display: block;
+    border-bottom: 1px solid #eee;
+}
+
+
+/* Subdropdown link styles */
+.category-subdropdown a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #eee;
+}
+
+/* Link styles */
+.category-dropdown a,
+.category-subdropdown a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #eee;
+}
+
+.category-dropdown a:hover {
+    background: #f5f5f5;
+}
+
+
+/* First level dropdown */
+.category-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-width: 200px;
+    z-index: 1001;
+}
+
+/* Show dropdowns on hover */
+.category-item:hover > .category-dropdown {
+    display: block;
+}
+
+
+/* Dropdown item styles */
+.category-dropdown-item {
+    position: relative;
+    width: 100%;
+    background: white;
+}
+
+/* Second level dropdown */
+.category-subdropdown {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background: white;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    min-width: 200px;
+    z-index: 1002;
+}
+
+/* Link styles */
+.category-dropdown-item > a {
+    display: block;
+    padding: 10px 15px;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+}
+
+/* Arrow for items with children */
+.category-dropdown-item:has(.category-subdropdown) > a::after {
+    content: '›';
+    position: absolute;
+    right: 10px;
+}
+
+
+/* Hover effects */
+.category-dropdown-item:hover > a {
+    background: #f5f5f5;
+}
+
+/* Arrow indicator for items with children */
+.category-dropdown-item > a::after {
+    content: '›';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+
+/* Show subdropdown on hover */
+.category-dropdown-item:hover > .category-subdropdown {
+    display: block;
+}
+
+
+
+
+/* Hover effects */
+.category-dropdown a:hover,
+.category-subdropdown a:hover {
+    background: #f5f5f5;
+}
+
+/* Mobile Menu Toggle Button */
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+    position: relative;
+    z-index: 1001;
+    padding-top: 40px;
+}
+
+@media (max-width: 991px) {
+    .top-bar {
+        display: none;  /* This will hide the top bar only on mobile */
+    }
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .header-content {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 15px;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .logo img {
+        width: 70px;
+        padding-top: 40px;
+
+    }
+
+    .search-container {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin-top: 10px;
+    }
+
+    .nav-menu {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 80%;
+        height: 100vh;
+        background: var(--white);
+        flex-direction: column;
+        padding: 60px 0 0;
+        gap: 0;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .nav-menu.active {
+        left: 0;
+        display: flex;
+    }
+
+    .nav-menu li {
+        width: 100%;
+    }
+
+    .nav-menu a {
+        padding: 15px 25px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+        width: 100%;
+        justify-content: center;
+        font-size: 18px;
+    }
+
+    .menu-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+
+    .menu-overlay.active {
+        display: block;
+    }
+}
+
+/* Add to your header.css */
+.mobile-profile {
+    display: none;
+}
+
+@media (max-width: 991px) {
+    .mobile-profile {
+        display: block;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .mobile-profile a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 25px;
+    }
+
+    .mobile-profile .profile-pic {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+    }
+
+    .mobile-profile span {
+        font-size: 16px;
+        color: #333;
+    }
+}

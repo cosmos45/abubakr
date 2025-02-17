@@ -1,0 +1,79 @@
+.support-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.support-title {
+    font-family: 'Avenir Next', sans-serif;
+    font-size: 48px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 48px;
+}
+
+.support-info {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.support-info h2 {
+    font-family: 'Avenir Next', sans-serif;
+    font-size: 36px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 24px;
+}
+
+.support-info p {
+    font-family: 'Avenir Next', sans-serif;
+    font-size: 20px;
+    color: #666;
+    margin-bottom: 16px;
+}
+
+.support-contact {
+    margin-top: 32px;
+}
+
+.phone-number {
+    font-family: 'Avenir Next', sans-serif;
+    font-size: 32px;
+    font-weight: 500;
+    color: #28a745;
+    text-decoration: none;
+    display: block;
+    margin-top: 16px;
+}
+
+.phone-number:hover {
+    color: #218838;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .support-title {
+        font-size: 32px;
+        margin-bottom: 32px;
+    }
+
+    .support-info {
+        padding: 24px;
+    }
+
+    .support-info h2 {
+        font-size: 28px;
+        margin-bottom: 16px;
+    }
+
+    .support-info p {
+        font-size: 16px;
+    }
+
+    .phone-number {
+        font-size: 24px;
+    }
+}

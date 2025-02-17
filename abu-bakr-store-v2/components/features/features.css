@@ -1,0 +1,86 @@
+/* components/features/features.css */
+.features-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 70px 40px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    padding: 0 40px;
+}
+
+.icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.icon-wrapper i {
+    font-size: 32px;
+    color: #6B8E4E;
+}
+
+.feature-text h3 {
+    font-family: 'Avenir Next', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.feature-text p {
+    font-family: 'Avenir Next', sans-serif;
+    font-size: 16px;
+    margin: 0;
+    color: #666;
+}
+
+.feature-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 50px;
+    width: 1px;
+    background-color: #e0e0e0;
+}
+
+@media screen and (max-width: 768px) {
+    .features-container {
+        flex-wrap: wrap;
+        gap: 30px;
+    }
+    
+    .feature-item {
+        width: calc(50% - 40px);
+        justify-content: flex-start;
+        padding: 20px;
+    }
+    
+    .icon-wrapper {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .icon-wrapper i {
+        font-size: 28px;
+    }
+    
+    .feature-text h3 {
+        font-size: 18px;
+    }
+    
+    .feature-text p {
+        font-size: 15px;
+    }
+}

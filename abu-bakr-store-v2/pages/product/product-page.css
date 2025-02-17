@@ -1,0 +1,203 @@
+/* Breadcrumb */
+.breadcrumb {
+    margin: 1rem 0;
+    font-size: 14px;
+    font-family: 'Avenir Next', sans-serif;
+}
+
+.breadcrumb a {
+    color: #666;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: #28a745;
+}
+
+/* Product Layout */
+.product-image {
+    border: 1px solid #eee;
+    padding: 2rem;
+    border-radius: 8px;
+    background: white;
+}
+
+.product-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.product-description {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+    margin-top: 2rem;
+}
+
+/* Product Details */
+.product-details {
+    padding-left: 2rem;
+}
+
+#product-title {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-family: 'Avenir Next', sans-serif;
+}
+
+.sku {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 1rem;
+}
+
+.price-info {
+    margin-bottom: 2rem;
+}
+
+.current-price {
+    font-size: 24px;
+    font-weight: 500;
+    color: #333;
+}
+
+.old-price {
+    color: #999;
+    text-decoration: line-through;
+    margin-right: 1rem;
+    font-size: 18px;
+}
+
+/* Quantity Controls */
+.quantity-section {
+    margin: 2rem 0;
+}
+
+.quantity-section label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-family: 'Avenir Next', sans-serif;
+}
+
+.quantity-control {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    height: 40px;
+}
+
+.quantity-control button {
+    width: 40px;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.quantity-control input {
+    width: 60px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    font-size: 14px;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.add-to-cart-btn {
+    flex: 1;
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 4px;
+    font-family: 'Avenir Next', sans-serif;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.add-to-cart-btn:hover {
+    background: #218838;
+}
+
+.wishlist-btn {
+    width: 48px;
+    background: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.wishlist-btn:hover {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+/* Product Sections */
+.product-sections {
+    border-top: 1px solid #eee;
+    margin-top: 2rem;
+}
+
+.section-item {
+    border-bottom: 1px solid #eee;
+}
+
+.section-header {
+    padding: 1.5rem 0;
+    cursor: pointer;
+}
+
+.section-header h2 {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Avenir Next', sans-serif;
+}
+
+.toggle-icon {
+    color: #666;
+    font-size: 20px;
+}
+
+.section-content {
+    display: none;
+    padding: 0 0 1.5rem;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+}
+
+.section-header.active + .section-content {
+    display: block;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .product-details {
+        padding-left: 0;
+        margin-top: 2rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .wishlist-btn {
+        width: 100%;
+        height: 48px;
+    }
+}

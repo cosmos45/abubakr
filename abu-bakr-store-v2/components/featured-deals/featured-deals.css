@@ -1,0 +1,163 @@
+.featured-deals {
+  padding: 2rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.deals-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+  padding: 0 1rem;
+}
+
+.deal-card {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 450px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.juice-deal {
+  background: linear-gradient(
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.1)
+    ),
+    url("/abu-bakr-store-v2/assets/images/featured-deals/featured-deal1.webp");
+  background-size: cover;
+  background-position: center;
+  background-color: antiquewhite;
+}
+
+.cleaning-deal {
+  background: linear-gradient(
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.1)
+    ),
+    url("/abu-bakr-store-v2/assets/images/featured-deals/featured-deal2.webp");
+  background-size: cover;
+  background-position: center;
+  background-color: burlywood;
+}
+
+.deal-content {
+  padding: 3rem;
+  color: #000;
+}
+
+.juice-deal .tag {
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #000;
+}
+
+.juice-deal h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.juice-deal h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin: 0.5rem 0 1rem;
+}
+
+.juice-deal p {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  max-width: 400px;
+}
+
+.limited-supply {
+  position: absolute;
+  top: 2rem;
+  right: 2rem;
+  background: var(--top-bar-green);
+  color: white;
+  padding: 1rem;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+
+.cleaning-deal h3 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.cleaning-deal .discount {
+  margin: 1.5rem 0;
+}
+
+.cleaning-deal .number {
+  font-size: 5rem;
+  font-weight: 700;
+}
+
+.cleaning-deal .percent {
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.cleaning-deal .off {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.cleaning-deal h2 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 1rem 0 2rem;
+}
+
+.shop-now {
+  background: var(--top-bar-green);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.shop-now:hover {
+  background: #658c53;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .deals-container {
+    grid-template-columns: 1fr;
+  }
+
+  .deal-card {
+    min-height: 400px;
+  }
+
+  .juice-deal h1 {
+    font-size: 2.8rem;
+  }
+
+  .cleaning-deal .number {
+    font-size: 4rem;
+  }
+}

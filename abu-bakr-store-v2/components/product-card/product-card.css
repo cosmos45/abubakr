@@ -1,0 +1,109 @@
+/* components/product-card/product-card.css */
+.product-card {
+    background: white;
+    border: 0.5px solid #000;
+    padding: 1.2rem;
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    height: 420px;
+}
+
+.product-link {
+    cursor: pointer;
+    text-decoration: none;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-image {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.8rem;
+}
+
+.product-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.product-name {
+    font-family: Avenir, sans-serif;
+    font-size: 0.9rem;
+    color: #000;
+    margin: 0;
+    line-height: 1.4;
+    height: 2.8em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-decoration: none;
+}
+
+.price-container {
+    margin-top: auto;
+}
+
+.price {
+    color: var(--top-bar-green);
+    font-size: 1rem;
+    font-weight: 500;
+    font-family: Avenir, sans-serif;
+}
+
+.quantity-control {
+    display: flex;
+    border: 0.5px solid #000;
+    height: 35px;
+    margin: 0.5rem 0;
+}
+
+.qty-btn {
+    width: 35px;
+    height: 35px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-btn:hover {
+    background: #f5f5f5;
+}
+
+.quantity-control input {
+    width: 100%;
+    text-align: center;
+    border: none;
+    border-left: 0.5px solid #000;
+    border-right: 0.5px solid #000;
+    font-size: 0.9rem;
+    font-family: Avenir, sans-serif;
+}
+
+.add-to-cart-btn {
+    background: var(--top-bar-green);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 0.7rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: Avenir, sans-serif;
+    margin-top: auto;
+}
+
+.add-to-cart-btn:hover {
+    background: #658c53;
+}

@@ -1,0 +1,141 @@
+/* components/fresh-finds/fresh-finds.css */
+.fresh-finds-section {
+  padding: 4rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-family: Avenir, sans-serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 3rem;
+  padding-left: 1rem;
+}
+
+.slider-container {
+  position: relative;
+  padding: 0 60px;
+  margin: 0 1rem;
+  overflow: hidden;
+  width: calc(280px * 4 + 72px);
+  margin: 0 auto;
+}
+
+.products-slider {
+  display: flex;
+  gap: 24px;
+  transition: transform 0.3s ease;
+}
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: white;
+  border: 1px solid #000;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prev-btn {
+  left: 10px;
+}
+
+.next-btn {
+  right: 10px;
+}
+
+.center-button {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.continue-shopping {
+  display: inline-block;
+  padding: 0.8rem 2rem;
+  border: 1px solid var(--top-bar-green);
+  border-radius: 30px;
+  text-decoration: none;
+  color: var(--top-bar-green);
+  font-family: Avenir, sans-serif;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.continue-shopping:hover {
+  background: var(--top-bar-green);
+  color: white;
+}
+
+/* Product Card Overrides */
+.fresh-finds-section .product-card {
+  position: relative;
+}
+
+.fresh-finds-section .tag {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: var(--top-bar-green);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: Avenir, sans-serif;
+}
+
+.fresh-finds-section .old-price {
+  text-decoration: line-through;
+  color: #999;
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 1024px) {
+  .slider-container {
+    width: 100%;
+    padding: 0 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .slider-container {
+    padding: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .products-slider {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .nav-btn {
+    display: none;
+  }
+
+  /* Mobile scrollbar styling */
+  .slider-container::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .slider-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .slider-container::-webkit-scrollbar-thumb {
+    background: var(--top-bar-green);
+    border-radius: 4px;
+  }
+}

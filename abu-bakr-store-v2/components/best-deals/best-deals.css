@@ -1,0 +1,156 @@
+/* components/best-deals/best-deals.css */
+.best-deals-section {
+    padding: 40px 0;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.section-title {
+    font-size: 32px;
+    font-weight: 1;
+    margin-bottom: 30px;
+    padding-left: 20px;
+}
+
+.products-slider-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 60px;
+    width: calc(235px * 5 + 80px); /* Width for exactly 5 cards + gaps */
+    margin: 0 auto;
+    overflow: hidden;
+}
+.products-slider {
+    display: flex;
+    gap: 20px;
+    transition: transform 0.3s ease-in-out;
+}
+.slider-nav {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.prev-btn {
+    left: 10px;
+}
+
+.next-btn {
+    right: 10px;
+}
+
+
+.product-card {
+    flex: 0 0 200px; /* Reduced card width */
+    min-width: 220px;
+    max-width: 220px;
+}
+
+.view-all-container {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.view-all-btn {
+    display: inline-block;
+    padding: 12px 30px;
+    border: 1px solid #6B8E4E;
+    color: #6B8E4E;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.view-all-btn:hover {
+    background: #6B8E4E;
+    color: white;
+}
+
+/* components/best-deals/best-deals.css */
+@media screen and (max-width: 768px) {
+    .best-deals-section {
+        padding: 20px 10px;
+    }
+
+    .section-title {
+        font-size: 24px;
+        padding-left: 10px;
+    }
+
+    .products-slider-container {
+        width: 100%;
+        padding: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .products-slider {
+        gap: 10px;
+        padding: 10px;
+        flex-wrap: nowrap;
+    }
+
+    .product-card {
+        flex: 0 0 160px;
+        min-width: 160px;
+        padding: 10px;
+    }
+
+    .product-image {
+        height: 120px;
+        padding: 10px;
+    }
+
+    .product-name {
+        font-size: 14px;
+        line-height: 1.2;
+    }
+
+    .price-container {
+        flex-direction: row;
+        gap: 5px;
+    }
+
+    .old-price {
+        font-size: 12px;
+    }
+
+    .price {
+        font-size: 14px;
+    }
+
+    .quantity-control {
+        height: 32px;
+    }
+
+    .qty-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    .quantity-control input {
+        font-size: 14px;
+    }
+
+    .add-to-cart-btn {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .slider-nav {
+        display: none;
+    }
+}
+
