@@ -1,4 +1,7 @@
 // scripts/modules/cart.js
+
+import axiosServices from '../../scripts/services/axiosService.js';
+
 export class Cart {
   constructor() {
     if (Cart.instance) {
@@ -33,6 +36,82 @@ export class Cart {
     this.updateCartCount();
     this.updateSubtotal();
   }
+
+  async addToBasket(stockId, quantity) {
+    try {
+      const formData = new FormData();
+      formData.append('stock', stockId);
+      formData.append('quantity', quantity);
+  
+      const response = await axiosServices.post('/commerce/basket/add?type=stock', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+  
+      if (response.status) {
+        this.showToast('Product added to basket successfully!');
+        await this.refreshBasket();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error adding to basket:', error);
+      this.showToast('Failed to add product to basket', 'error');
+      return false;
+    }
+  }
+  
+
+  async refreshBasket() {
+    try {
+      const response = await axiosServices.get('/commerce/basket');
+      if (response.status) {
+        const basketData = response.data.data.basket;
+        this.items = new Map(basketData.items.map(item => [
+          item.stock_id,
+          {
+            id: item.stock_id,
+            basket_item_id: item.basket_item__id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            totalPrice: item.total,
+            tax_amount: item.tax_amount || 0,
+            total_discount: item.total_discount || 0
+          }
+        ]));
+        this.renderSavedItems();
+        this.updateCartCount();
+        this.updateSubtotal();
+      }
+    } catch (error) {
+      console.error('Error refreshing basket:', error);
+    }
+  }
+  
+
+
+showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <div class="toast-content">
+      <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+      <span>${message}</span>
+    </div>
+  `;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => {
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }, 100);
+}
+
 
   createCartStructure() {
     // Create cart overlay
@@ -92,9 +171,23 @@ export class Cart {
       } else if (target.classList.contains("minus")) {
         this.updateQuantity(productId, -1);
       } else if (target.classList.contains("remove-item")) {
-        this.removeItem(productId);
+        this.removeBasketItem(productId);
       }
     });
+
+
+  document.querySelectorAll('.remove-item').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      const basketItemId = e.target.dataset.basketItemId;
+      if (basketItemId) {
+        const success = await this.removeBasketItem(basketItemId);
+        if (success) {
+          await this.refreshBasket();
+        }
+      }
+    });
+  });
+    
   }
 
   showCart() {
@@ -180,41 +273,31 @@ export class Cart {
   addItemUI(product) {
     const cartItems = document.querySelector(".cart-items");
     if (!cartItems) return;
-
+  
     const itemHTML = `
-            <div class="cart-item" data-id="${product.id}">
-                <div class="cart-item-image">
-                    <img src="${product.imageUrl}" alt="${product.name}">
-                </div>
-                <div class="cart-item-details">
-                    <h3>${product.name}</h3>
-                    <div class="price-info">
-                        ${
-                          product.oldPrice
-                            ? `<span class="old-price">£${product.oldPrice.toFixed(
-                                2
-                              )}</span>`
-                            : ""
-                        }
-                        <span class="price">£${product.price.toFixed(2)}</span>
-                    </div>
-                    <div class="quantity-control">
-                        <button class="qty-btn minus">−</button>
-                        <input type="number" value="${
-                          product.quantity
-                        }" min="1" max="99" readonly>
-                        <button class="qty-btn plus">+</button>
-                    </div>
-                </div>
-                <div class="item-total">£${(
-                  product.price * product.quantity
-                ).toFixed(2)}</div>
-                <button class="remove-item">×</button>
-            </div>`;
-
+      <div class="cart-item" data-stock-id="${product.id}" data-basket-item-id="${product.basket_item__id}">
+        <div class="cart-item-image">
+          <img src="${product.imageUrl || '/assets/img/default-product.jpg'}" alt="${product.name}">
+        </div>
+        <div class="cart-item-details">
+          <h3>${product.name}</h3>
+          <div class="price-info">
+            <span class="price">£${product.price.toFixed(2)}</span>
+            ${product.total_discount > 0 ? `<span class="discount">-£${product.total_discount}</span>` : ''}
+          </div>
+          <div class="quantity-control">
+            <button class="qty-btn minus">−</button>
+            <input type="number" value="${product.quantity}" min="1" max="99" readonly>
+            <button class="qty-btn plus">+</button>
+          </div>
+        </div>
+        <div class="item-total">£${product.totalPrice.toFixed(2)}</div>
+        <button class="remove-item" data-basket-item-id="${product.basket_item_id}">×</button>
+      </div>`;
+  
     cartItems.insertAdjacentHTML("beforeend", itemHTML);
   }
-
+  
   updateItemUI(item) {
     const itemElement = document.querySelector(
       `.cart-item[data-id="${item.id}"]`
@@ -242,23 +325,41 @@ export class Cart {
       this.updateItemUI(item);
     }
   }
-
-  removeItem(productId) {
-    const itemElement = document.querySelector(
-      `.cart-item[data-id="${productId}"]`
-    );
-    if (!itemElement) return;
-
-    itemElement.remove();
-    this.items.delete(productId);
-    this.updateCartCount();
-    this.updateSubtotal();
-    this.saveCartToStorage();
-
-    if (this.items.size === 0) {
-      this.hideCart();
+  async removeBasketItem(basketItemId) {
+    try {
+      const response = await axiosServices.delete(`/commerce/basket/item/${basketItemId}`);
+      
+      if (response.status) {
+        // Remove item from UI
+        const itemElement = document.querySelector(`.cart-item[data-basket-item-id="${basketItemId}"]`);
+        if (itemElement) {
+          itemElement.remove();
+        }
+        
+        // Refresh basket data
+        await this.refreshBasket();
+        
+        // Show success message
+        this.showToast('Item removed from basket');
+        
+        // Hide cart if empty
+        if (this.items.size === 0) {
+          this.hideCart();
+        }
+        
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Error removing basket item:', error);
+      this.showToast('Failed to remove item', 'error');
+      return false;
     }
   }
+  
+  
+
+
 
   updateCartCount() {
     const countElements = document.querySelectorAll(".cart-count");
@@ -412,7 +513,7 @@ export class Cart {
       });
 
       removeBtn?.addEventListener("click", () => {
-        this.removeItem(productId);
+        this.removeBasketItem(productId);
         this.renderCartPage();
       });
     });

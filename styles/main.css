@@ -22,7 +22,50 @@ main {
     margin: 0 auto;
     padding: 0 40px;
 }
-
+/* Add to your main CSS file */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(120%);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+  }
+  
+  .toast.show {
+    transform: translateX(0);
+  }
+  
+  .toast.success {
+    border-left: 4px solid var(--top-bar-green);
+  }
+  
+  .toast.error {
+    border-left: 4px solid #dc3545;
+  }
+  
+  .toast-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .toast i {
+    font-size: 1.2rem;
+  }
+  
+  .toast.success i {
+    color: var(--top-bar-green);
+  }
+  
+  .toast.error i {
+    color: #dc3545;
+  }
+  
 /* Mobile Menu */
 @media (max-width: 991px) {
     .mobile-menu-toggle {

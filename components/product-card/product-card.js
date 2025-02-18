@@ -1,4 +1,8 @@
 // components/product-card/product-card.js
+
+import { Cart } from "../../scripts/modules/cart.js";  // Add this import at the top
+
+
 export class ProductCard {
   constructor(productData) {
     this.product = productData;
@@ -18,15 +22,16 @@ export class ProductCard {
     }
   }
 
+
   async render() {
     const template = await ProductCard.loadTemplate();
-
-    // Replace all template variables
+    
     let renderedTemplate = template
       .replace(/\${name}/g, this.product.name)
-      .replace(/\${id}/g, this.product.id) // Changed from ${productId} to ${id}
+      .replace(/\${id}/g, this.product.id)
+      .replace(/\${stock_id}/g, this.product.stock_id)
       .replace(/\${imageUrl}/g, this.product.imageUrl);
-
+  
     // Handle price display
     const oldPriceHtml = this.product.oldPrice
       ? `<span class="old-price">£${this.product.oldPrice.toFixed(2)}</span>`
@@ -50,52 +55,53 @@ export class ProductCard {
     }
     input.value = value;
   }
-
-  static async handleAddToCart(productId, quantity) {
+  static async handleAddToCart(stockId, quantity) {
     try {
-      const response = await fetch("/api/cart/add", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          product_id: productId,
-          quantity: parseInt(quantity),
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to add to cart");
-      return true;
+      if (!stockId) {
+        throw new Error('Stock ID is required');
+      }
+      
+      const cart = new Cart();
+      await cart.init();
+      return await cart.addToBasket(stockId, quantity || 1);
     } catch (error) {
-      console.error("Error adding to cart:", error);
+      console.error('Error handling add to cart:', error);
       return false;
     }
   }
+  
+
+  
+
 
   static initializeCardListeners(cardElement) {
     const minusBtn = cardElement.querySelector(".minus");
     const plusBtn = cardElement.querySelector(".plus");
-    const input = cardElement.querySelector("input");
+    const quantityInput = cardElement.querySelector("input"); // Fixed variable name
     const addToCartBtn = cardElement.querySelector(".add-to-cart-btn");
-    const productId = cardElement.dataset.productId;
+    const stockId = cardElement.dataset.stockId;
 
     minusBtn?.addEventListener("click", () => {
       const currentValue = parseInt(quantityInput.value);
       if (currentValue > 1) quantityInput.value = currentValue - 1;
     });
+
     plusBtn?.addEventListener("click", () => {
       const currentValue = parseInt(quantityInput.value);
       if (currentValue < 99) quantityInput.value = currentValue + 1;
     });
 
-
     addToCartBtn?.addEventListener("click", async () => {
-      const success = await this.handleAddToCart(productId, input.value);
-      addToCartBtn.textContent = success ? "Added!" : "Error";
-      if (success) {
-        // Redirect to product page
-        window.location.href = `/pages/product/product-page.html?id=${productId}`;
-      }
+      const quantity = parseInt(quantityInput.value);
+      
+      addToCartBtn.disabled = true;
+      addToCartBtn.textContent = "Adding...";
+      
+      const success = await ProductCard.handleAddToCart(stockId, quantity);
+      
+      addToCartBtn.disabled = false;
+      addToCartBtn.textContent = success ? "Added!" : "Add to Cart";
+      
       setTimeout(() => {
         addToCartBtn.textContent = "Add to Cart";
       }, 2000);
