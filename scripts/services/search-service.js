@@ -12,13 +12,14 @@ export class SearchService {
         try {
             // Initialize categories first
             this.categories = await categoryData.fetchCategories();
-            // Initialize products (assuming you have a method to fetch products)
-            this.products = [...ProductService.products];
+            // Initialize products by waiting for them to load
+            const products = await ProductService.getDealsProducts();
+            this.products = products || [];
         } catch (error) {
             console.error('Error initializing SearchService:', error);
+            this.products = [];
         }
     }
-
     async getAllCategories() {
         if (!this.categories.length) {
             this.categories = await categoryData.fetchCategories();

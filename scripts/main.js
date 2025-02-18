@@ -4,7 +4,7 @@ import { initCarousel } from "../components/carousel/carousel.js";
 import { ProductCard } from "../components/product-card/product-card.js";
 import { Cart } from "./modules/cart.js";
 import { ProductService } from "./services/product-service.js";
-import { initPopularCategories } from "../components/popular-categories/popular-categories.js";
+import { renderPopularCategories } from '../components/popular-categories/popular-categories.js';
 import { initStartCartSlider } from "../components/start-cart/start-cart.js";
 import { initMostPopularSlider } from "../components/most-popular/most-popular.js";
 import { CategoryManager } from "./modules/category-manager.js";
@@ -20,7 +20,10 @@ let cart; // Global cart instance
 // Main initialization
 async function initializeApp() {
   try {
+    await ProductService.getDealsProducts();
+
     // Initialize cart first
+    
     cart = new Cart();
     const cartInitialized = await cart.init();
 
@@ -74,10 +77,11 @@ async function initializeApp() {
     initializeMobileMenu();
     initCarousel();
     await initializeBestDeals();
+    await renderPopularCategories();
+
     await initializeStartCart();
     await initializeFreshFinds();
     initializeCartIcon();
-    initPopularCategories();
     initializeQuantityControls();
     initializeAddToCart();
     new HeaderSearch();
@@ -262,32 +266,36 @@ function initializeCartIcon() {
 
 // Initialize the application when DOM is ready
 document.addEventListener("DOMContentLoaded", initializeApp);
-
 async function initializeStartCart() {
   const slider = document.getElementById("start-cart-products");
   if (!slider) return;
 
   try {
     slider.innerHTML = "";
-    const startProducts = ProductService.products.slice(0, 5);
+    // Wait for products to be loaded
+    const products = await ProductService.getDealsProducts();
+    if (!products?.length) {
+      console.warn('No products available for start cart');
+      return;
+    }
 
+    const startProducts = products.slice(0, 5);
     for (const product of startProducts) {
       const productCard = new ProductCard(product);
       const cardHtml = await productCard.render();
-
-      const processedHtml = cardHtml
-        .replace(/\${name}/g, product.name)
-        .replace(/\${price}/g, product.price.toFixed(2))
-        .replace(/\${id}/g, product.id)
-        .replace(/\${imageUrl}/g, product.imageUrl);
-
-      slider.insertAdjacentHTML("beforeend", processedHtml);
+      slider.insertAdjacentHTML("beforeend", cardHtml);
     }
 
     initStartCartSlider();
   } catch (error) {
     console.error("Error initializing start cart:", error);
   }
+}
+// Load popular categories
+const popularCategoriesContainer = document.getElementById('popular-categories');
+if (popularCategoriesContainer) {
+    popularCategoriesContainer.innerHTML = await fetch('/components/popular-categories/popular-categories.html')
+        .then(response => response.text());
 }
 
 async function initializeFreshFinds() {
@@ -296,19 +304,17 @@ async function initializeFreshFinds() {
 
   try {
     slider.innerHTML = "";
+    // Wait for products to be loaded
+    const products = await ProductService.getDealsProducts();
+    if (!products?.length) {
+      console.warn('No products available for fresh finds');
+      return;
+    }
 
-    // Use products from the service
-    for (const product of ProductService.products) {
+    for (const product of products) {
       const productCard = new ProductCard(product);
       const cardHtml = await productCard.render();
-
-      const processedHtml = cardHtml
-        .replace(/\${name}/g, product.name)
-        .replace(/\${price}/g, product.price.toFixed(2))
-        .replace(/\${id}/g, product.id)
-        .replace(/\${imageUrl}/g, product.imageUrl);
-
-      slider.insertAdjacentHTML("beforeend", processedHtml);
+      slider.insertAdjacentHTML("beforeend", cardHtml);
     }
 
     initializeFreshFindsSlider();
@@ -316,6 +322,8 @@ async function initializeFreshFinds() {
     console.error("Error initializing fresh finds:", error);
   }
 }
+
+
 
 function initializeFreshFindsSlider() {
   const slider = document.querySelector("#fresh-finds-slider");

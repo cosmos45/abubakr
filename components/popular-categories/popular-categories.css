@@ -32,6 +32,7 @@
     height: 500px;
     transition: transform 0.3s ease;
     background: white;
+    overflow: hidden;
 }
 
 .circle-background {
@@ -44,19 +45,37 @@
     opacity: 0;
     transform: translateY(50px);
     transition: all 0.6s ease;
+    top: 50%;
+    left: 50%;
+    margin-top: -100px; /* Half of height */
+    margin-left: -100px; /* Half of width */
 }
 
 .category-card img {
-    width: 160px;
-    height: 160px;
+    width: 220px;
+    height: 220px;
     object-fit: contain;
-    position: relative;
+    position: absolute;
     z-index: 2;
-    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.category-card:hover .circle-background {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.category-card:hover img {
+    transform: translate(-50%, -50%) scale(1.1);
 }
 
 .category-card h3 {
-    margin-top: 20rem;
+    position: absolute;
+    bottom: 3rem;
+    width: 100%;
     font-family: Avenir, sans-serif;
     font-size: 1.2rem;
     color: #333;
