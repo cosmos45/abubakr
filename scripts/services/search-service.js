@@ -20,6 +20,8 @@ export class SearchService {
             this.products = [];
         }
     }
+
+
     async getAllCategories() {
         if (!this.categories.length) {
             this.categories = await categoryData.fetchCategories();
@@ -46,21 +48,53 @@ export class SearchService {
         return flattenCategories(this.categories);
     }
 
-    search(query, categoryId = 'all') {
-        if (!query) return [];
-        
-        query = query.toLowerCase();
-        let filteredProducts = this.products;
+    async search(query, categoryId = 'all') {
+    if (!query || query.length < 3) return [];
+    
+    query = query.toLowerCase();
+    let filteredProducts = [...this.products];
 
-        if (categoryId !== 'all') {
-            filteredProducts = filteredProducts.filter(product => {
-                return product.category_uid === categoryId;
-            });
-        }
-
-        return filteredProducts.filter(product => 
-            product.name.toLowerCase().includes(query) ||
-            (product.description && product.description.toLowerCase().includes(query))
-        ).slice(0, 5);
+    // Filter by category if specified
+    if (categoryId !== 'all') {
+      filteredProducts = filteredProducts.filter(product => {
+        return this.isProductInCategory(product, categoryId);
+      });
     }
+
+    // Search by name and description
+    return filteredProducts
+      .filter(product => 
+        product.name.toLowerCase().includes(query) ||
+        (product.description && product.description.toLowerCase().includes(query))
+      )
+      .slice(0, 5);
+  }
+
+  isProductInCategory(product, categoryId) {
+    // Check if product belongs to category or its subcategories
+    const category = this.findCategory(this.categories, categoryId);
+    if (!category) return false;
+
+    return this.isProductInCategoryTree(product, category);
+  }
+
+  isProductInCategoryTree(product, category) {
+    if (product.category_uid === category.uid) return true;
+    if (!category.child) return false;
+    
+    return category.child.some(child => 
+      this.isProductInCategoryTree(product, child)
+    );
+  }
+
+  findCategory(categories, categoryId) {
+    for (const category of categories) {
+      if (category.uid === categoryId) return category;
+      if (category.child) {
+        const found = this.findCategory(category.child, categoryId);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
 }

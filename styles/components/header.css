@@ -4,8 +4,29 @@
     --white: #ffffff;
 }
 
+.search-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 12px;
+}
 
 
+
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--top-bar-green);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
 
 @keyframes slideUp {
     0%, 45% {
@@ -127,18 +148,16 @@
 }
 
 .search-btn {
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 40px;
+    width: 50px;
+    height: 40px;
     background: var(--top-bar-green);
     border: none;
-    color: var(--white);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-}
+    cursor: pointer;
+  }
 
 .header-icons {
     display: flex;
@@ -184,26 +203,53 @@
     display: flex;
     width: 100%;
     position: relative;
+    border: 1px solid #ddd;
+    overflow: hidden;
 }
+  .search-wrapper input {
+    flex: 1;
+    height: 40px;
+    padding: 0 15px;
+    border: none;
+    font-family: "Avenir Light", Avenir, sans-serif;
+    font-size: 14px;
+    outline: none;
+  }
 
-.category-select {
+  .category-select {
     position: relative;
-    border-right: 1px solid #ddd;
-}
+    background: white;
+    display: flex;
+    align-items: center;
+    padding-right: 15px;
+  }
 
-.category-select select {
+
+  .category-select select {
     height: 40px;
     padding: 0 30px 0 15px;
     border: none;
-    background: white;
+    background: transparent;
     font-family: "Avenir Light", Avenir, sans-serif;
     font-size: 14px;
     color: #333;
     cursor: pointer;
-    border-radius: 2px 0 0 2px;
     appearance: none;
     -webkit-appearance: none;
-}
+    outline: none;
+  }
+
+
+
+  .category-select i {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 12px;
+    pointer-events: none;
+  }
 
 .category-select::after {
     content: '\f107';
@@ -216,19 +262,21 @@
     pointer-events: none;
 }
 
+
 .search-suggestions {
     position: absolute;
     top: 100%;
     left: 0;
-    right: 0;
+    width: calc(100% - 50px); /* Subtract search button width */
     background: white;
+    border: 1px solid #ddd;
+    border-top: none;
     border-radius: 0 0 4px 4px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 1000;
+    z-index: 1050;
     display: none;
-    max-height: 400px;
-    overflow-y: auto;
 }
+
 
 .search-suggestions.active {
     display: block;
@@ -237,31 +285,128 @@
 .suggestion-item {
     display: flex;
     align-items: center;
-    padding: 10px 15px;
+    padding: 12px;
     border-bottom: 1px solid #eee;
     cursor: pointer;
+    transition: background-color 0.2s;
+    background: white;
 }
 
 .suggestion-item:hover {
     background: #f5f5f5;
 }
+/* 
+.product-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 4px;
+    overflow: hidden;
+    flex-shrink: 0;
+} */
 
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
 .suggestion-item img {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
     margin-right: 15px;
 }
 
 .suggestion-item .product-info {
     flex: 1;
+    padding-left: 10%;
 }
+.product-info {
+    flex: 1;
+    min-width: 0;
+}
+
+
+.product-price {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--top-bar-green);
+}
+
+
+.old-price {
+    font-size: 14px;
+    color: #999;
+    text-decoration: line-through;
+}
+
+
+
+
+.quick-add {
+    background: var(--top-bar-green);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.quick-add:hover {
+    transform: scale(1.1);
+}
+
+.no-results {
+    text-align: center;
+    padding: 32px 16px;
+    color: #666;
+}
+
+
+
+.no-results i {
+    font-size: 32px;
+    margin-bottom: 12px;
+    color: #999;
+}
+
+.no-results p {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 0 0 8px;
+}
+
+.no-results span {
+    font-size: 14px;
+    color: #999;
+}
+  .no-results,
+  .search-error {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+  }  
 
 .suggestion-item .product-name {
     font-family: "Avenir Light", Avenir, sans-serif;
     font-size: 14px;
-    color: #333;
-    margin-bottom: 4px;
+    font-weight: 500;
+    color: #2c3e50;
+    margin: 0 0 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.product-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .suggestion-item .product-description {
@@ -272,11 +417,13 @@
 
 
 
-/* Navigation */
+/* Ensure main nav stays behind suggestions */
 .main-nav {
     height: 50px;
-    background: var(--white);
+    position: relative;
+    z-index: 1000;
 }
+
 
 .nav-menu {
     height: 60px;
@@ -479,7 +626,9 @@
     .search-container {
         grid-column: 1 / -1;
         grid-row: 2;
-        margin-top: 10px;
+        margin: 10px;
+        max-width: 100%;
+        width: calc(100% - 20px);
     }
 
     .nav-menu {
@@ -557,5 +706,51 @@
     .mobile-profile span {
         font-size: 16px;
         color: #333;
+    }
+}
+
+@media (max-width: 991px) {
+    .search-wrapper {
+        margin: 0;
+        width: 100%;
+    }
+    .category-select {
+        display: flex;
+        align-items: center;
+        background: white;
+    }
+
+    .search-suggestions {
+        width: calc(100% - 50px);
+        left: 0;
+        margin: 0;
+    }
+    .search-wrapper input,
+    .category-select select {
+        height: 40px;
+    }
+
+    .search-btn {
+        height: 40px;
+    }
+    
+    .category-select select {
+      font-size: 13px;
+      padding: 0 25px 0 10px;
+    }
+
+
+  }
+  
+
+  @media (max-width: 576px) {
+    .search-container {
+        margin: 5px;
+        width: calc(100% - 10px);
+    }
+
+    .category-select select {
+        max-width: 120px;
+        font-size: 12px;
     }
 }

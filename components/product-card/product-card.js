@@ -55,6 +55,8 @@ export class ProductCard {
     }
     input.value = value;
   }
+
+  
   static async handleAddToCart(stockId, quantity) {
     try {
       if (!stockId) {
@@ -71,40 +73,36 @@ export class ProductCard {
   }
   
 
-  
-
-
   static initializeCardListeners(cardElement) {
-    const minusBtn = cardElement.querySelector(".minus");
-    const plusBtn = cardElement.querySelector(".plus");
-    const quantityInput = cardElement.querySelector("input"); // Fixed variable name
+   
+    const quantityInput = cardElement.querySelector("input");
     const addToCartBtn = cardElement.querySelector(".add-to-cart-btn");
     const stockId = cardElement.dataset.stockId;
 
-    minusBtn?.addEventListener("click", () => {
-      const currentValue = parseInt(quantityInput.value);
-      if (currentValue > 1) quantityInput.value = currentValue - 1;
+    
+    // Prevent form submission on input
+    quantityInput?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+        }
     });
 
-    plusBtn?.addEventListener("click", () => {
-      const currentValue = parseInt(quantityInput.value);
-      if (currentValue < 99) quantityInput.value = currentValue + 1;
+    addToCartBtn?.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        const quantity = parseInt(quantityInput.value);
+        
+        addToCartBtn.disabled = true;
+        addToCartBtn.textContent = "Adding...";
+        
+        const success = await ProductCard.handleAddToCart(stockId, quantity);
+        
+        addToCartBtn.disabled = false;
+        addToCartBtn.textContent = success ? "Added!" : "Add to Cart";
+        
+        setTimeout(() => {
+            addToCartBtn.textContent = "Add to Cart";
+        }, 2000);
     });
+}
 
-    addToCartBtn?.addEventListener("click", async () => {
-      const quantity = parseInt(quantityInput.value);
-      
-      addToCartBtn.disabled = true;
-      addToCartBtn.textContent = "Adding...";
-      
-      const success = await ProductCard.handleAddToCart(stockId, quantity);
-      
-      addToCartBtn.disabled = false;
-      addToCartBtn.textContent = success ? "Added!" : "Add to Cart";
-      
-      setTimeout(() => {
-        addToCartBtn.textContent = "Add to Cart";
-      }, 2000);
-    });
-  }
 }

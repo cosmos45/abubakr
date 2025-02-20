@@ -118,47 +118,59 @@ function initializeMobileMenu() {
   });
 }
 
-// components/best-deals/best-deals.js
 export async function initializeBestDeals() {
-    const slider = document.getElementById('deals-slider');
-    if (!slider) {
-        console.error('Deals slider element not found');
-        return;
-    }
+  const slider = document.getElementById('deals-slider');
+  if (!slider) {
+      console.warn('Deals slider not found');
+      return;
+  }
 
-    try {
-        slider.innerHTML = '<div class="loading">Loading deals...</div>';
-        
-        const dealsProducts = await ProductService.getDealsProducts();
-        console.log('API Response Products:', dealsProducts);
-        
-        if (!dealsProducts?.length) {
-            console.warn('No deals products returned');
-            slider.innerHTML = '<div class="no-deals">No deals available at the moment</div>';
-            return;
-        }
+  try {
+      slider.innerHTML = '<div class="loading">Loading deals...</div>';
+      
+      const dealsProducts = await ProductService.getDealsProducts();
+      
+      if (!dealsProducts?.length) {
+          slider.innerHTML = '<div class="no-deals">No deals available</div>';
+          return;
+      }
 
-        slider.innerHTML = '';
-        
-        for (const product of dealsProducts) {
-            console.log('Processing product:', product);
-            const productCard = new ProductCard(product);
-            const cardHtml = await productCard.render();
-            slider.insertAdjacentHTML('beforeend', cardHtml);
-        }
-        
-        // Initialize controls after content is loaded
-        const cards = slider.querySelectorAll('.product-card');
-        console.log(`Rendered ${cards.length} product cards`);
-        
-        initializeSliderControls();
-        cards.forEach(card => ProductCard.initializeCardListeners(card));
-        
-    } catch (error) {
-        console.error('Error initializing best deals:', error);
-        slider.innerHTML = '<div class="error">Failed to load deals</div>';
-    }
+      slider.innerHTML = '';
+      
+      // Batch render products for better performance
+      const fragment = document.createDocumentFragment();
+      
+      for (const product of dealsProducts) {
+          const productCard = new ProductCard({
+              id: product.id,
+              name: product.name,
+              price: product.price,
+              stock_id: product.id,
+              imageUrl: product.imageUrl,
+              oldPrice: product.oldPrice,
+              size: product.size
+          });
+          
+          const cardHtml = await productCard.render();
+          const tempContainer = document.createElement('div');
+          tempContainer.innerHTML = cardHtml;
+          const cardElement = tempContainer.firstElementChild;
+          
+          // Initialize listeners before adding to DOM
+          ProductCard.initializeCardListeners(cardElement);
+          fragment.appendChild(cardElement);
+      }
+      
+      slider.appendChild(fragment);
+      initializeSliderControls();
+      
+  } catch (error) {
+      console.error('Error initializing best deals:', error);
+      slider.innerHTML = '<div class="error">Failed to load deals</div>';
+  }
 }
+
+
 
 function initializeSliderControls() {
     const prevBtn = document.querySelector(".prev-btn");
@@ -266,6 +278,8 @@ function initializeCartIcon() {
 
 // Initialize the application when DOM is ready
 document.addEventListener("DOMContentLoaded", initializeApp);
+
+
 async function initializeStartCart() {
   const slider = document.getElementById("start-cart-products");
   if (!slider) return;

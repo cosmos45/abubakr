@@ -146,7 +146,6 @@ class ProductPage {
       });
     });
   }
-
   initializeEventListeners() {
     const quantityInput = document.querySelector(".quantity-control input");
     const minusBtn = document.querySelector(".quantity-control .minus");
@@ -154,33 +153,48 @@ class ProductPage {
     const addToCartBtn = document.querySelector(".add-to-cart-btn");
 
     minusBtn?.addEventListener("click", () => {
-      const currentValue = parseInt(quantityInput.value);
-      if (currentValue > 1) quantityInput.value = currentValue - 1;
+        const currentValue = parseInt(quantityInput.value);
+        if (currentValue > 1) quantityInput.value = currentValue - 1;
     });
 
     plusBtn?.addEventListener("click", () => {
-      const currentValue = parseInt(quantityInput.value);
-      if (currentValue < 99) quantityInput.value = currentValue + 1;
+        const currentValue = parseInt(quantityInput.value);
+        if (currentValue < 99) quantityInput.value = currentValue + 1;
     });
 
-    addToCartBtn?.addEventListener("click", () => {
-      const product = productData.getProductById(this.productId);
-      if (product) {
-        this.cart.addItem({
-          ...product,
-          quantity: parseInt(quantityInput.value),
-        });
-        addToCartBtn.textContent = "Added!";
-        setTimeout(() => {
-          addToCartBtn.textContent = "Add to Cart";
-        }, 2000);
-        // Show cart after adding item
-        this.cart.toggleCart(true);
-      }
+    addToCartBtn?.addEventListener("click", async () => {
+        const quantity = parseInt(quantityInput.value);
+        
+        // Disable button and show loading state
+        addToCartBtn.disabled = true;
+        addToCartBtn.textContent = "Adding...";
+        
+        try {
+            // Add to cart using the Cart class method
+            const success = await this.cart.addToBasket(this.productId, quantity);
+            
+            // Update button text based on result
+            addToCartBtn.textContent = success ? "Added!" : "Add to Cart";
+            
+            // If successful, show the cart
+            if (success) {
+                this.showCartSidebar();
+            }
+        } catch (error) {
+            console.error("Error adding to cart:", error);
+            addToCartBtn.textContent = "Error";
+        } finally {
+            // Re-enable button
+            addToCartBtn.disabled = false;
+            
+            // Reset button text after delay
+            setTimeout(() => {
+                addToCartBtn.textContent = "Add to Cart";
+            }, 2000);
+        }
     });
-  }
 }
-
+}
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   const productPage = new ProductPage();

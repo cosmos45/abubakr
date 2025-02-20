@@ -36,26 +36,24 @@
 
         <div class="search-container">
           <div class="search-wrapper">
-            <div class="category-select">
-              <select id="category-select">
-                <option value="all">All categories</option>
-                <!-- Categories will be dynamically added -->
-              </select>
-            </div>
             <input
               type="text"
               id="search-input"
               placeholder="Search a product e.g. milk"
             />
+            <div class="category-select">
+              <select id="category-select">
+                <option value="all">All categories</option>
+              </select>
+              <i class="fas fa-chevron-down"></i>
+            </div>
             <button type="submit" class="search-btn">
               <i class="fas fa-search"></i>
             </button>
           </div>
-          <div class="search-suggestions" id="search-suggestions">
-            <!-- Search suggestions will appear here -->
-          </div>
+          <div class="search-suggestions" id="search-suggestions"></div>
         </div>
-
+        
         <div class="header-icons">
           <a href="#" class="icon-link"
             ><i class="fas fa-map-marker-alt"></i
