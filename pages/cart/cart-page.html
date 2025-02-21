@@ -14,6 +14,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/styles/main.css" />
     <link rel="stylesheet" href="/styles/components/header.css" />
@@ -42,18 +43,22 @@
                 <span>Subtotal</span>
                 <span id="subtotal-amount">£0.00</span>
               </div>
-              <a href="#" class="estimate-link">Estimate Delivery</a>
+              <div id="shipping-rates-container">
+                <!-- Shipping rates will be rendered here -->
+              </div>
               <hr />
               <div class="d-flex justify-content-between mb-3">
                 <span>Total</span>
                 <span id="total-amount">£0.00</span>
               </div>
             </div>
-            <button class="checkout-btn">Checkout</button>
+            <a href="../checkout/checkout-page.html">            <button  class="checkout-btn" disabled>Checkout</button>
+            </a>
             <div class="secure-checkout">
               <i class="fas fa-lock"></i> Secure Checkout
             </div>
           </div>
+          
         </div>
       </div>
     </main>

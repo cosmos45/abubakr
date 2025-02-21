@@ -1,4 +1,28 @@
+/* Shipping Rates */
+.shipping-rates {
+    padding: 15px 0;
+  }
+  
+  .shipping-rates .form-check {
+    margin-bottom: 10px;
+  }
+  
+  .checkout-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .form-check-input:checked {
+    background-color: #28a745;
+    border-color: #28a745;
+  }
+  
+
 /* Cart Layout */
+
+
+
+
 .cart-title {
     font-family: 'Avenir Next', sans-serif;
     font-size: 24px;
