@@ -1,10 +1,11 @@
 // scripts/components/header-search.js
 import { SearchService } from "../services/search-service.js";
-
+import { Cart } from "../modules/cart.js";
 
 export class HeaderSearch {
   constructor() {
     this.searchService = new SearchService();
+    this.cart = new Cart();
     this.init();
   }
 
@@ -17,6 +18,7 @@ export class HeaderSearch {
     if (!this.searchInput || !this.categorySelect) return;
 
     await this.populateCategories();
+    await this.cart.init();
     this.setupEventListeners();
   }
 
@@ -143,12 +145,20 @@ export class HeaderSearch {
     }
 
     this.suggestionsContainer.innerHTML = results.map(product => `
-      <div class="suggestion-item" data-product-id="${product.id}">
+      <div class="suggestion-item" data-product-id="${product.id}" data-stock-id="${product.stockId || product.id}">
         <img src="${product.imageUrl}" alt="${product.name}" 
              onerror="this.src='/assets/images/default-product.png'">
         <div class="product-info">
           <div class="product-name">${product.name}</div>
           <div class="product-price">£${product.price.toFixed(2)}</div>
+          <div class="product-actions">
+            <div class="quantity-control">
+              <button class="qty-btn minus" data-action="decrease">−</button>
+              <input type="number" class="quantity-input" value="1" min="1" max="99" readonly>
+              <button class="qty-btn plus" data-action="increase">+</button>
+            </div>
+            <button class="add-to-cart-btn" data-stock-id="${product.stockId || product.id}">Add to Cart</button>
+          </div>
         </div>
       </div>
     `).join('');
@@ -169,12 +179,86 @@ export class HeaderSearch {
   }
 
   attachSuggestionListeners() {
+    // Product click listener (navigate to product page)
     this.suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
-      item.addEventListener('click', () => {
-        const productId = item.dataset.productId;
-        window.location.href = `/pages/product/product-page.html?id=${productId}`;
+      const productInfo = item.querySelector('.product-info');
+      if (productInfo) {
+        productInfo.addEventListener('click', (e) => {
+          // Only navigate if not clicking on quantity controls or add to cart button
+          if (!e.target.closest('.product-actions')) {
+            const productId = item.dataset.productId;
+            window.location.href = `/pages/product/product-page.html?id=${productId}`;
+          }
+        });
+      }
+      
+      // Product image click listener
+      const productImage = item.querySelector('img');
+      if (productImage) {
+        productImage.addEventListener('click', () => {
+          const productId = item.dataset.productId;
+          window.location.href = `/pages/product/product-page.html?id=${productId}`;
+        });
+      }
+    });
+
+    // Quantity control listeners
+    this.suggestionsContainer.querySelectorAll('.qty-btn').forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const item = button.closest('.suggestion-item');
+        const input = item.querySelector('.quantity-input');
+        let value = parseInt(input.value);
+        
+        if (button.dataset.action === 'increase') {
+          if (value < 99) {
+            input.value = value + 1;
+          }
+        } else {
+          if (value > 1) {
+            input.value = value - 1;
+          }
+        }
+      });
+    });
+
+    // Add to cart button listeners
+    this.suggestionsContainer.querySelectorAll('.add-to-cart-btn').forEach(button => {
+      button.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const item = button.closest('.suggestion-item');
+        const stockId = button.dataset.stockId;
+        const quantity = parseInt(item.querySelector('.quantity-input').value);
+        
+        // Show loading state
+        const originalText = button.textContent;
+        button.textContent = 'Adding...';
+        button.disabled = true;
+        
+        try {
+          const success = await this.cart.addToBasket(stockId, quantity);
+          if (success) {
+            button.textContent = 'Added!';
+            setTimeout(() => {
+              button.textContent = originalText;
+              button.disabled = false;
+            }, 1500);
+          } else {
+            button.textContent = 'Failed';
+            setTimeout(() => {
+              button.textContent = originalText;
+              button.disabled = false;
+            }, 1500);
+          }
+        } catch (error) {
+          console.error('Error adding to cart:', error);
+          button.textContent = 'Failed';
+          setTimeout(() => {
+            button.textContent = originalText;
+            button.disabled = false;
+          }, 1500);
+        }
       });
     });
   }
 }
-

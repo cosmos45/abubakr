@@ -491,6 +491,8 @@ showToast(message, type = 'success') {
       return false;
     }
   }
+
+  
   async removeBasketItem(basketItemId) {
     try {
       const response = await axiosServices.delete(`/commerce/basket/${basketItemId}`);

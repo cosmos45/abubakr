@@ -11,10 +11,6 @@ import { CategoryManager } from "./modules/category-manager.js";
 import { SearchService } from "./services/search-service.js";
 import { HeaderSearch } from "./modules/header-search.js";
 
-
-// components/best-deals/best-deals.js
-
-
 let cart; // Global cart instance
 
 // Main initialization
