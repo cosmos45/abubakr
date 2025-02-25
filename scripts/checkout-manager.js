@@ -57,32 +57,32 @@ export class CheckoutManager {
     async updateFullBasket() {
         console.log("CheckoutManager: Updating full basket details");
         try {
-          const formData = {
-            customer_name: document.getElementById("name").value,
-            customer_email: document.getElementById("email").value,
-            customer_phone: document.getElementById("phone").value,
-            address: {
-              address_line_1: document.getElementById("address1").value,
-              address_line_2: document.getElementById("address2").value || "",
-              city: document.getElementById("city").value,
-              state: document.getElementById("county").value,
-              postcode: document.getElementById("postcode").value,
-              country: document.getElementById("country").value,
+            const formData = {
+                customer_name: document.getElementById("name").value,
+                customer_email: document.getElementById("email").value,
+                customer_phone: document.getElementById("phone").value,
+                address: {
+                    address_line_1: document.getElementById("address1").value,
+                    address_line_2: document.getElementById("address2").value || "",
+                    city: document.getElementById("city").value,
+                    state: document.getElementById("county").value,
+                    postcode: document.getElementById("postcode").value,
+                    country: document.getElementById("country").value,
+                }
+            };
+      
+            const response = await axiosServices.post("/commerce/basket/update", formData);
+            
+            if (!response.status) {
+                throw new Error(response.data.message || "Failed to update basket");
             }
-          };
       
-          const response = await axiosServices.post("/commerce/basket/update", formData);
-          
-          if (!response.status) {
-            throw new Error(response.data.message);
-          }
-      
-          return response.status;
+            return response.status;
         } catch (error) {
-          console.error("CheckoutManager: Full basket update failed:", error);
-          return false;
+            console.error("CheckoutManager: Full basket update failed:", error);
+            return false;
         }
-      }
+    }
       
       setupCustomerDetailsListeners() {
         console.log("CheckoutManager: Setting up customer details listeners");
@@ -162,44 +162,69 @@ export class CheckoutManager {
 
     
 
-    async initializeStripe() {
-        try {
-            const response = await axiosServices.get("/commerce/checkout");
-            const data = response.data;
-    
-            if (!data?.client_secret || !data?.stripe_publishable_key) {
-                throw new Error("Missing Stripe configuration data");
-            }
-    
-            this.clientSecret = data.client_secret;
-    
-            this.stripe = Stripe(data.stripe_publishable_key);
-            this.elements = this.stripe.elements();
-    
-            const style = {
-                base: {
-                    fontSize: '16px',
-                    color: '#32325d',
-                    '::placeholder': {
-                        color: '#aab7c4'
-                    }
-                }
-            };
-    
-            this.cardElement = this.elements.create("card", { style });
-            const mountPoint = document.getElementById("card-element");
-    
-            if (!mountPoint) {
-                throw new Error("Card element mount point not found");
-            }
-    
-            this.cardElement.mount("#card-element");
-            console.log("CheckoutManager: Stripe initialized successfully");
-    
-        } catch (error) {
-            console.error("CheckoutManager: Stripe initialization failed:", error);
+async initializeStripe() {
+    try {
+        // First validate if basket is valid
+        const isValidBasket = await this.validateBasket();
+        if (!isValidBasket) {
+            return;
         }
+
+        const response = await axiosServices.get("/commerce/checkout");
+        const data = response.data;
+
+        if (!data?.client_secret || !data?.stripe_publishable_key) {
+            throw new Error("Missing Stripe configuration data");
+        }
+
+        this.clientSecret = data.client_secret;
+
+        // Initialize Stripe with the account ID if available
+        const stripeOptions = data.stripe_account_id ? 
+            { stripeAccount: data.stripe_account_id } : {};
+        
+        this.stripe = Stripe(data.stripe_publishable_key, stripeOptions);
+        this.elements = this.stripe.elements();
+
+        const style = {
+            base: {
+                fontSize: '16px',
+                color: '#32325d',
+                fontFamily: '"Roboto", sans-serif',
+                fontSmoothing: 'antialiased',
+                '::placeholder': {
+                    color: '#aab7c4'
+                }
+            },
+            invalid: {
+                color: '#e74c3c',
+                iconColor: '#e74c3c'
+            }
+        };
+
+        // Unmount existing card element if it exists
+        if (this.cardElement) {
+            this.cardElement.unmount();
+        }
+
+        this.cardElement = this.elements.create("card", { style });
+        const mountPoint = document.getElementById("card-element");
+
+        if (!mountPoint) {
+            throw new Error("Card element mount point not found");
+        }
+
+        this.cardElement.mount("#card-element");
+        this.setupCardValidation();
+        
+        console.log("CheckoutManager: Stripe initialized successfully");
+
+    } catch (error) {
+        console.error("CheckoutManager: Stripe initialization failed:", error);
+        this.showError("Failed to initialize payment system. Please try again later.");
     }
+}
+
     
    
 
@@ -244,13 +269,28 @@ export class CheckoutManager {
             
             console.log("CheckoutManager: Place order button clicked");
     
+            // Check if terms and conditions are accepted
+            if (!document.getElementById("privacy").checked) {
+                alert("Please accept the terms and conditions");
+                return;
+            }
+    
             if (!this.validateFullForm()) return;
     
-            submitButton.disabled = true; // Disable button to prevent multiple submissions
+            // Disable button to prevent multiple submissions
+            submitButton.disabled = true;
     
-            await this.processOrder(submitButton);
+            try {
+                await this.processOrder();
+            } catch (error) {
+                console.error("CheckoutManager: Order processing failed:", error);
+            } finally {
+                // Re-enable button if there was an error
+                submitButton.disabled = false;
+            }
         });
     }
+    
     
 
     
@@ -281,21 +321,24 @@ validateFullForm() {
     return isValid;
 }
 
-async processOrder(submitButton) {
+async processOrder() {
     try {
         if (!this.validateFullForm()) {
             return false;
         }
 
-        // Disable submit button to prevent multiple submissions
-        submitButton.disabled = true;
-
-        // Ensure card element is mounted
-        if (!this.cardElement) {
-            throw new Error("Card element not initialized or unmounted");
+        // Update full basket first
+        const basketUpdated = await this.updateFullBasket();
+        if (!basketUpdated) {
+            throw new Error("Failed to update basket with full details");
         }
 
-        // Create payment method
+        // Ensure card element is mounted and valid
+        if (!this.cardElement) {
+            throw new Error("Card element not initialized");
+        }
+
+        // Create payment method first
         const { paymentMethod, error: paymentMethodError } = await this.stripe.createPaymentMethod({
             type: "card",
             card: this.cardElement,
@@ -306,7 +349,7 @@ async processOrder(submitButton) {
             throw paymentMethodError;
         }
 
-        // Confirm payment using client secret
+        // Then confirm payment using client secret
         const { error } = await this.stripe.confirmCardPayment(this.clientSecret, {
             payment_method: paymentMethod.id
         });
@@ -322,13 +365,17 @@ async processOrder(submitButton) {
         console.error("CheckoutManager: Payment failed:", error);
         
         // Show user-friendly error message
-        document.getElementById("card-errors").textContent =
-            error.message || "An error occurred during payment";
-    } finally {
-        // Re-enable submit button
-        submitButton.disabled = false;
+        const errorElement = document.getElementById("card-errors");
+        if (errorElement) {
+            errorElement.textContent = error.message || "An error occurred during payment";
+            errorElement.classList.remove("d-none");
+        }
+        
+        throw error;
     }
 }
+
+
 
 
 
@@ -363,6 +410,7 @@ getBillingDetails() {
         }
     };
 }
+
 
 
 showToast(message, type) {

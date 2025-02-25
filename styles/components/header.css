@@ -4,6 +4,18 @@
     --white: #ffffff;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 .search-loading {
     display: flex;
     align-items: center;
@@ -309,6 +321,8 @@
     height: 100%;
     object-fit: contain;
 }
+
+
 .suggestion-item img {
     width: 60px;
     height: 60px;
