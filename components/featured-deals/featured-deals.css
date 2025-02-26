@@ -125,7 +125,7 @@
 }
 
 .shop-now {
-  background: var(--top-bar-green);
+  background: var(--header-green);
   color: white;
   border: none;
   padding: 1rem 2.5rem;
@@ -139,7 +139,7 @@
 }
 
 .shop-now:hover {
-  background: #658c53;
+  background: var(--header-green);
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }

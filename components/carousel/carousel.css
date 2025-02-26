@@ -1,22 +1,22 @@
 /* components/carousel/carousel.css */
 .hero-carousel {
     width: 100%;
-    height: 600px;
-    background-color: #E0F7F7;
+    height: 600px; /* Reduced height to remove gaps */
+    background-color: transparent;
     position: relative;
     overflow: hidden;
-    margin-top: 35px; /* Adjust to remove gap */
+    margin-top: 0; /* Removed top gap */
 }
 
 .carousel-content {
     width: 100%;
-    max-width: 1920px; /* Add max-width for larger screens */
+    max-width: 1920px;
     height: 100%;
     margin: 0 auto;
     display: flex;
     align-items: center;
     padding-left: 10%;
-    background: url('../../assets/images/baby-products.png') right center no-repeat;
+    background: url('../../assets/images/promo-banner/Carousel1.jpg') right center no-repeat;
     background-size: contain;
     position: relative;
 }
@@ -24,6 +24,8 @@
 .carousel-text {
     max-width: 600px;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
 }
 
 .carousel-text h2 {
@@ -49,22 +51,29 @@
     line-height: 1.3;
 }
 
-.shop-now {
-    background-color: #6B8E4E;
+.shop-now-carousel {
+    background-color: var(--header-green);
     color: white;
-    padding: 15px 40px;
+    padding: 8px 25px;
     border: none;
     border-radius: 30px;
     font-size: 18px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     text-transform: uppercase;
+    margin-top: 325px;
+    align-self: flex-start; /* Aligned to the left for desktop */
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 150px;
 }
 
-.shop-now:hover {
+.shop-now-carousel:hover {
     background-color: #ffffff;
-    color:#6B8E4E;
-    border: 1px solid #6B8E4E
+    color: var(--header-green);
+    border: 1px solid #6B8E4E;
 }
 
 /* Remove container padding for full-width carousel */
@@ -72,22 +81,63 @@ main.container {
     padding: 0;
     max-width: 100%;
 }
-
 @media screen and (max-width: 768px) {
+    .hero-carousel {
+        height: 400px; /* Increased height to accommodate button position */
+        margin-top: 0;
+    }
+    
     .carousel-content {
-        padding-left: 5%;
-        background-position: 200% center;
+        padding: 0;
+        background-position: center top;
+        background-size: 100%;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 0;
     }
     
-    .carousel-text h1 {
-        font-size: 36px;
+    .carousel-text {
+        width: 100%;
+        max-width: 100%;
+        align-items: center;
+        text-align: center;
+        padding: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 0;
+        overflow: hidden;
     }
     
-    .carousel-text h2 {
-        font-size: 20px;
+    .shop-now-carousel {
+        margin-top: 0;
+        position: absolute;
+        bottom: 40px; /* Moved button lower */
+        left: 50%;
+        transform: translateX(-50%);
+        height: 40px;
+        min-width: 180px;
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .hero-carousel {
+        height: 350px; /* Adjusted height for smaller screens */
     }
     
-    .carousel-text h3 {
-        font-size: 26px;
+    .shop-now-carousel {
+        bottom: 40px; /* Moved button lower */
+        height: 38px;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .hero-carousel {
+        height: 300px;
+    }
+    
+    .shop-now-carousel {
+        bottom: 40px; /* Moved button lower */
     }
 }
