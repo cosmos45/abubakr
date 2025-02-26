@@ -8,6 +8,7 @@ import { CategoryManager } from "../../scripts/modules/category-manager.js";
 import { HeaderSearch } from "../../scripts/modules/header-search.js";
 import axiosService from '../../scripts/services/axiosService.js';
 import { FilterService } from '../../scripts/services/filter-service.js';
+import Loader from '../../components/loader/loader.js';
 
 class CategoryPage {
   constructor() {
@@ -25,6 +26,8 @@ class CategoryPage {
     this.pagination = null;
     this.filterData = null;
     this.activeFilters = new Map();
+    this.loader = new Loader(); 
+
   }
 
   
@@ -32,10 +35,12 @@ class CategoryPage {
   async init() {
     try {
       console.debug('Initializing category page for category:', this.categoryId);
+      
+      // Initialize loader
+      this.loader.show("Loading category products...");
+      
       this.cart = new Cart();
-      await this.cart.init(); // Make sure Cart class has an init method
-      // Show loading state
-      this.showLoading();
+      await this.cart.init();
       
       // Initialize cart and category manager
       await Promise.all([this.cart.init(), this.categoryManager.init()]);
@@ -54,6 +59,7 @@ class CategoryPage {
       if (!this.category) {
         console.error("Category not found:", this.categoryId);
         this.showError("Category not found");
+        this.loader.hide(); // Hide loader on error
         return;
       }
 
@@ -68,14 +74,15 @@ class CategoryPage {
       
       this.initializeCartIcon();
       
-      // Hide loading state
-      this.hideLoading();
+      // Hide loader when everything is done
+      this.loader.hide();
 
       this.initializeAddToCart();
 
     } catch (error) {
       console.error("Error initializing category page:", error);
       this.showError("Failed to load category");
+      this.loader.hide(); // Hide loader on error
     }
   }
 
@@ -195,47 +202,41 @@ initializePaginationControls() {
   
 async fetchCategoryStock() {
   try {
-      console.debug('Fetching stock data for category:', this.categoryId);
-      const response = await ProductServiceCategory.getStockByCategory(this.categoryId, this.currentPage);
-      
-      // Log pagination data to verify it's coming through
-      console.debug('Pagination data:', response.pagination);
-      
-      this.products = response.products;
-      this.originalProducts = [...this.products];
-      this.pagination = response.pagination;
-      
-      // Render both products and pagination
-      await this.renderProducts(this.products);
-      this.renderPagination();
-      
+    this.loader.show("Fetching products...");
+    console.debug('Fetching stock data for category:', this.categoryId);
+    const response = await ProductServiceCategory.getStockByCategory(this.categoryId, this.currentPage);
+    
+    // Log pagination data to verify it's coming through
+    console.debug('Pagination data:', response.pagination);
+    
+    this.products = response.products;
+    this.originalProducts = [...this.products];
+    this.pagination = response.pagination;
+    
+    // Render both products and pagination
+    await this.renderProducts(this.products);
+    this.renderPagination();
+    
   } catch (error) {
-      console.error('Error fetching category stock:', error);
-      throw error;
+    console.error('Error fetching category stock:', error);
+    throw error;
+  } finally {
+    this.loader.hide();
   }
 }
 
 
 
-  showLoading() {
-    const container = document.querySelector('.category-page');
-    if (!container) return;
-    
-    this.isLoading = true;
-    container.innerHTML = `
-      <div class="loading-spinner">
-        <div class="spinner-border text-primary" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    `;
-  }
+showLoading() {
+  this.isLoading = true;
+  this.loader.show("Loading products...");
+}
 
-  hideLoading() {
-    this.isLoading = false;
-    const spinner = document.querySelector('.loading-spinner');
-    if (spinner) spinner.remove();
-  }
+hideLoading() {
+  this.isLoading = false;
+  this.loader.hide();
+}
+
 
 
   showError(message) {
@@ -484,6 +485,8 @@ async fetchCategoryStock() {
 
 
   async applyFilters() {
+    this.loader.show("Filtering products...");
+    
     let filteredProducts = [...this.originalProducts];
 
     this.activeFilters.forEach((values, filterType) => {
@@ -503,7 +506,9 @@ async fetchCategoryStock() {
     });
 
     await this.renderProducts(filteredProducts);
+    this.loader.hide();
   }
+
 
   async renderFilteredProducts(products) {
     const productsGrid = document.querySelector(".products-grid");
@@ -710,10 +715,20 @@ initializeQuantityControls() {
     });
   }
 }
-document.addEventListener("DOMContentLoaded", async () => {
-  const categoryPage = new CategoryPage();
-  await categoryPage.init();
 
-  // Initialize header search
-  new HeaderSearch();
+document.addEventListener("DOMContentLoaded", async () => {
+  const loader = new Loader();
+  loader.show("Initializing Abu Bakr Store...");
+  
+  try {
+    const categoryPage = new CategoryPage();
+    await categoryPage.init();
+
+    // Initialize header search
+    new HeaderSearch();
+  } catch (error) {
+    console.error("Error initializing page:", error);
+  } finally {
+    loader.hide();
+  }
 });

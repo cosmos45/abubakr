@@ -1,0 +1,103 @@
+.order-confirmation-wrapper {
+    min-height: 60vh;
+    background-color: #f8f9fa;
+  }
+  
+  .confirmation-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    padding: 40px;
+    margin-bottom: 30px;
+  }
+  
+  .confirmation-icon {
+    font-size: 70px;
+    color: #28a745;
+  }
+  
+  .confirmation-header h2 {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+  }
+  
+  .confirmation-message {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 25px;
+  }
+  
+  .confirmation-contact {
+    background-color: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    margin: 20px 0;
+  }
+  
+  .confirmation-contact h4 {
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  
+  .confirmation-contact strong {
+    color: #007bff;
+    font-size: 20px;
+  }
+  
+  .thank-you-message {
+    font-style: italic;
+    margin-top: 15px;
+    color: #6c757d;
+  }
+  
+  .action-buttons .btn {
+    padding: 10px 25px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Mobile Responsive Styles */
+  @media (max-width: 768px) {
+    .confirmation-card {
+      padding: 25px 15px;
+    }
+    
+    .confirmation-icon {
+      font-size: 50px;
+    }
+    
+    .confirmation-header h2 {
+      font-size: 24px;
+    }
+    
+    .confirmation-message {
+      font-size: 16px;
+    }
+    
+    .confirmation-contact {
+      padding: 15px;
+    }
+    
+    .confirmation-contact strong {
+      font-size: 18px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .confirmation-header h2 {
+      font-size: 22px;
+    }
+    
+    .confirmation-message {
+      font-size: 14px;
+    }
+    
+    .action-buttons .btn {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+  

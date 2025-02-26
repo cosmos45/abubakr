@@ -18,8 +18,8 @@ export class HeaderSearch {
     if (!this.searchInput || !this.categorySelect) return;
 
     await this.populateCategories();
-    this.setupEventListeners();
     await this.cart.init();
+    this.setupEventListeners();
   }
 
   async populateCategories() {
@@ -133,7 +133,7 @@ export class HeaderSearch {
 
   renderSuggestions(results) {
     if (!this.suggestionsContainer) return;
-
+  
     if (results.length === 0) {
       this.suggestionsContainer.innerHTML = `
         <div class="no-results">
@@ -143,29 +143,28 @@ export class HeaderSearch {
       this.showSuggestions();
       return;
     }
-
+  
     this.suggestionsContainer.innerHTML = results.map(product => `
-      <div class="suggestion-item" data-product-id="${product.id}">
+      <div class="suggestion-item" data-product-id="${product.id}" data-stock-id="${product.stockId || product.id}">
         <img src="${product.imageUrl}" alt="${product.name}" 
              onerror="this.src='/assets/images/default-product.png'">
         <div class="product-info">
           <div class="product-name">${product.name}</div>
           <div class="product-price">£${product.price.toFixed(2)}</div>
-          <div class="cart-controls">
-            <div class="quantity-control">
-              <button class="qty-btn minus" data-stock-id="${product.id}">−</button>
-              <input type="number" value="1" min="1" max="99" readonly data-stock-id="${product.id}">
-              <button class="qty-btn plus" data-stock-id="${product.id}">+</button>
-            </div>
-            <button class="add-to-cart-btn" data-stock-id="${product.id}">Add to Cart</button>
+          <div class="product-actions">
+            <button class="add-to-cart-btn" data-stock-id="${product.stockId || product.id}">Add to Cart</button>
           </div>
         </div>
       </div>
     `).join('');
-
+    
     this.attachSuggestionListeners();
     this.showSuggestions();
   }
+  
+  
+  
+  
 
   renderError() {
     if (!this.suggestionsContainer) return;
@@ -178,53 +177,72 @@ export class HeaderSearch {
     this.showSuggestions();
   }
 
+  // Modify the attachSuggestionListeners function in header-search.js
   attachSuggestionListeners() {
-    // Product click navigation
+    // Product click listener (navigate to product page)
     this.suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
-      const productId = item.dataset.productId;
+      const productInfo = item.querySelector('.product-info');
+      if (productInfo) {
+        productInfo.addEventListener('click', (e) => {
+          // Only navigate if not clicking on add to cart button
+          if (!e.target.closest('.product-actions')) {
+            const productId = item.dataset.productId;
+            window.location.href = `/pages/product/product-page.html?id=${productId}`;
+          }
+        });
+      }
       
-      // Make only the image and product name clickable for navigation
+      // Product image click listener
       const productImage = item.querySelector('img');
-      const productName = item.querySelector('.product-name');
-      
-      [productImage, productName].forEach(element => {
-        element.addEventListener('click', (e) => {
-          e.stopPropagation();
+      if (productImage) {
+        productImage.addEventListener('click', () => {
+          const productId = item.dataset.productId;
           window.location.href = `/pages/product/product-page.html?id=${productId}`;
         });
-      });
+      }
     });
-    
-    // Add to cart button
+  
+    // Add to cart button listeners
     this.suggestionsContainer.querySelectorAll('.add-to-cart-btn').forEach(button => {
       button.addEventListener('click', async (e) => {
         e.stopPropagation();
+        const item = button.closest('.suggestion-item');
         const stockId = button.dataset.stockId;
-        const quantityInput = this.suggestionsContainer.querySelector(`input[data-stock-id="${stockId}"]`);
-        const quantity = parseInt(quantityInput.value);
+        const quantity = 1; // Default quantity is 1
         
-        if (quantity >= 1 && quantity <= 99) {
-          await this.cart.addToBasket(stockId, quantity);
-          // Reset quantity to 1 after adding to cart
-          quantityInput.value = "1";
-        }
-      });
-    });
-    
-    // Quantity buttons
-    this.suggestionsContainer.querySelectorAll('.qty-btn').forEach(button => {
-      button.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const stockId = button.dataset.stockId;
-        const input = this.suggestionsContainer.querySelector(`input[data-stock-id="${stockId}"]`);
-        const currentQty = parseInt(input.value);
+        // Show loading state
+        const originalText = button.textContent;
+        button.textContent = 'Adding...';
+        button.disabled = true;
         
-        if (button.classList.contains('plus') && currentQty < 99) {
-          input.value = currentQty + 1;
-        } else if (button.classList.contains('minus') && currentQty > 1) {
-          input.value = currentQty - 1;
+        try {
+          const success = await this.cart.addToBasket(stockId, quantity);
+          if (success) {
+            button.textContent = 'Added!';
+            setTimeout(() => {
+              button.textContent = originalText;
+              button.disabled = false;
+            }, 1500);
+          } else {
+            button.textContent = 'Failed';
+            setTimeout(() => {
+              button.textContent = originalText;
+              button.disabled = false;
+            }, 1500);
+          }
+        } catch (error) {
+          console.error('Error adding to cart:', error);
+          button.textContent = 'Failed';
+          setTimeout(() => {
+            button.textContent = originalText;
+            button.disabled = false;
+          }, 1500);
         }
       });
     });
   }
+  
+  
+  
+
 }

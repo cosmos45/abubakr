@@ -25,6 +25,9 @@
     <!-- Add this in the head section -->
     <link rel="stylesheet" href="components/cart/cart.css" />
     <link rel="stylesheet" href="pages/cart/cart-page.css" />
+    <link rel="stylesheet" href="components/loader/loader.css" />
+
+
 
     <link
       rel="stylesheet"
@@ -47,6 +50,31 @@
   </head>
 
   <body>
+
+<!-- loader.html -->
+<div class="global-loader" id="globalLoader">
+  <div class="loader-container">
+    <div class="loader-brand">
+      <div class="loader-icon">
+        <div class="cart-body">
+          <div class="cart-handle"></div>
+        </div>
+        <div class="cart-wheel1"></div>
+        <div class="cart-wheel2"></div>
+        <div class="product-item"></div>
+        <div class="product-item"></div>
+        <div class="product-item"></div>
+      </div>
+      <div class="loader-text">Abu Bakr Store</div>
+    </div>
+    <div class="loader-message">Preparing your shopping experience...</div>
+    <div class="loader-progress">
+      <div class="progress-bar"></div>
+    </div>
+  </div>
+</div>
+
+
     <!-- Header Component -->
     <div id="header"></div>
 
@@ -85,5 +113,6 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- API and Services -->
     <script type="module" src="/scripts/services/axiosService.js"></script>
+    <script type="module" src="/components//loader/loader.js"></script>
   </body>
 </html>

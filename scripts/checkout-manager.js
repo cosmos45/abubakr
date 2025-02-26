@@ -3,28 +3,60 @@ import axiosServices from '../scripts/services/axiosService.js';
 
 
 export class CheckoutManager {
-    constructor() {
+    constructor(loader = null) {
         this.cart = new Cart();
         this.stripe = null;
         this.elements = null;
         this.cardElement = null;
         this.checkoutData = null;
         this.customerDetailsUpdated = false;
-        this.init();
+        
+        // Initialize loader if not provided
+        if (!loader) {
+            try {
+                const Loader = require('../components/loader/loader.js').default;
+                this.loader = new Loader();
+            } catch (e) {
+                console.warn("Loader module not available:", e);
+                this.loader = {
+                    show: () => {},
+                    hide: () => {},
+                    showFor: (ms) => new Promise(resolve => setTimeout(resolve, ms))
+                };
+            }
+        } else {
+            this.loader = loader;
+        }
+        
+        // Checkout-specific loading messages
+        this.loader.customMessages = [
+            "Securing your payment details...",
+            "Preparing your order summary...",
+            "Checking shipping options...",
+            "Verifying your cart items...",
+            "Setting up a secure checkout...",
+            "Almost ready for your order...",
+            "Calculating final totals..."
+        ];
     }
     
     async init() {
         try {
             console.log("CheckoutManager: Initializing...");
+            this.loader.show("Initializing checkout...");
+            
             await this.cart.init();
             await this.initializeStripe();
             this.setupCardValidation();
             this.bindEvents();
             this.setupCustomerDetailsListeners();
             await this.updateOrderSummary();
+            
+            this.loader.hide();
         } catch (error) {
             console.error("CheckoutManager: Initialization failed:", error);
             this.showError("Failed to initialize checkout. Please try again.");
+            this.loader.hide();
         }
     }
     
@@ -150,7 +182,7 @@ export class CheckoutManager {
         const response = await axiosServices.get("/commerce/basket");
         
         if (!response.data?.basket?.items?.length) {
-            window.location.href = "/cart.html";
+            window.location.href = "/index.html";
             return false;
         }
 
@@ -164,6 +196,8 @@ export class CheckoutManager {
 
 async initializeStripe() {
     try {
+        this.loader.show("Setting up secure payment...");
+        
         // First validate if basket is valid
         const isValidBasket = await this.validateBasket();
         if (!isValidBasket) {
@@ -320,12 +354,23 @@ validateFullForm() {
 
     return isValid;
 }
+async handleOrderSuccess() {
+    try {
+        // Redirect to order confirmation page
+        window.location.href = "/pages/order-confirmation/order-confirmation.html";
+    } catch (error) {
+        console.error("Error handling order success:", error);
+        throw error;
+    }
+}
 
 async processOrder() {
     try {
         if (!this.validateFullForm()) {
             return false;
         }
+
+        this.loader.show("Processing your payment...");
 
         // Update full basket first
         const basketUpdated = await this.updateFullBasket();
@@ -350,6 +395,7 @@ async processOrder() {
         }
 
         // Then confirm payment using client secret
+        this.loader.show("Confirming your payment...");
         const { error } = await this.stripe.confirmCardPayment(this.clientSecret, {
             payment_method: paymentMethod.id
         });
@@ -359,7 +405,8 @@ async processOrder() {
         }
 
         console.log("CheckoutManager: Payment successful");
-        window.location.href = "/order-confirmation";
+        this.loader.show("Payment successful! Redirecting...");
+        await this.handleOrderSuccess();
 
     } catch (error) {
         console.error("CheckoutManager: Payment failed:", error);
@@ -371,6 +418,7 @@ async processOrder() {
             errorElement.classList.remove("d-none");
         }
         
+        this.loader.hide();
         throw error;
     }
 }

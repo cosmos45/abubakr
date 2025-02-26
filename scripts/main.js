@@ -10,25 +10,35 @@ import { initMostPopularSlider } from "../components/most-popular/most-popular.j
 import { CategoryManager } from "./modules/category-manager.js";
 import { SearchService } from "./services/search-service.js";
 import { HeaderSearch } from "./modules/header-search.js";
+import Loader from '../components/loader/loader.js';
+
+window.globalLoader = new Loader();
 
 let cart; // Global cart instance
 
 // Main initialization
 async function initializeApp() {
   try {
+    window.globalLoader.show("Loading Abu Bakr Store...");
+
     await ProductService.getDealsProducts();
 
     // Initialize cart first
     
-    cart = new Cart();
-    const cartInitialized = await cart.init();
+   // Initialize cart first
+   cart = new Cart();
+   const cartInitialized = await cart.init();
 
-    if (!cartInitialized) {
-      console.error("Cart failed to initialize");
-      return;
-    }
-    const categoryManager = new CategoryManager();
-    await categoryManager.init();
+
+   if (!cartInitialized) {
+    console.error("Cart failed to initialize");
+    window.globalLoader.hide();
+    return;
+  }
+  const categoryManager = new CategoryManager();
+  await categoryManager.init();
+  await categoryManager.initializeNavigation();
+  
 
     // Load all components
     await Promise.all([
@@ -67,6 +77,8 @@ async function initializeApp() {
         "/components/best-deals/best-deals.html"
     )
     ]);
+
+
     categoryManager.initializeNavigation();
 
     // Initialize all components in sequence
@@ -81,8 +93,11 @@ async function initializeApp() {
     initializeQuantityControls();
     initializeAddToCart();
     new HeaderSearch();
+    window.globalLoader.hide();
+
   } catch (error) {
     console.error("Error initializing application:", error);
+    window.globalLoader.hide();
     const mainContainer = document.querySelector("main.container");
     if (mainContainer) {
       mainContainer.innerHTML =
@@ -93,26 +108,65 @@ async function initializeApp() {
 
 function initializeMobileMenu() {
   const menuToggle = document.querySelector(".mobile-menu-toggle");
-  const navMenu = document.querySelector(".nav-menu");
+  const menuClose = document.querySelector("#mobile-menu-close");
+  const menuOverlay = document.querySelector("#menu-overlay");
+  const mobileMenuContainer = document.querySelector("#mobile-menu-container");
   const body = document.body;
 
-  const overlay = document.createElement("div");
-  overlay.className = "menu-overlay";
-  body.appendChild(overlay);
+  if (menuToggle) {
+    menuToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menuOverlay.classList.add("active");
+      mobileMenuContainer.classList.add("active");
+      body.style.overflow = "hidden";
+    });
+  }
 
-  menuToggle?.addEventListener("click", function (e) {
-    e.stopPropagation();
-    navMenu.classList.toggle("active");
-    overlay.classList.toggle("active");
-    body.style.overflow = navMenu.classList.contains("active") ? "hidden" : "";
-  });
+  if (menuClose) {
+    menuClose.addEventListener("click", () => {
+      menuOverlay.classList.remove("active");
+      mobileMenuContainer.classList.remove("active");
+      body.style.overflow = "";
+      
+      // Reset all submenus
+      const activeSubmenus = document.querySelectorAll(".mobile-submenu.active");
+      activeSubmenus.forEach(submenu => {
+        submenu.classList.remove("active");
+      });
+      
+      // Reset parent categories visibility
+      const parentItems = document.querySelectorAll('.mobile-menu-item.parent-active, .mobile-menu-item.current-parent');
+      parentItems.forEach(item => {
+        item.classList.remove('parent-active');
+        item.classList.remove('current-parent');
+      });
+    });
+  }
 
-  overlay.addEventListener("click", function () {
-    navMenu.classList.remove("active");
-    overlay.classList.remove("active");
-    body.style.overflow = "";
-  });
+  if (menuOverlay) {
+    menuOverlay.addEventListener("click", () => {
+      menuOverlay.classList.remove("active");
+      mobileMenuContainer.classList.remove("active");
+      body.style.overflow = "";
+      
+      // Reset all submenus
+      const activeSubmenus = document.querySelectorAll(".mobile-submenu.active");
+      activeSubmenus.forEach(submenu => {
+        submenu.classList.remove("active");
+      });
+      
+      // Reset parent categories visibility
+      const parentItems = document.querySelectorAll('.mobile-menu-item.parent-active, .mobile-menu-item.current-parent');
+      parentItems.forEach(item => {
+        item.classList.remove('parent-active');
+        item.classList.remove('current-parent');
+      });
+    });
+  }
 }
+
+
+
 
 export async function initializeBestDeals() {
   const slider = document.getElementById('deals-slider');
@@ -301,12 +355,7 @@ async function initializeStartCart() {
     console.error("Error initializing start cart:", error);
   }
 }
-// Load popular categories
-const popularCategoriesContainer = document.getElementById('popular-categories');
-if (popularCategoriesContainer) {
-    popularCategoriesContainer.innerHTML = await fetch('/components/popular-categories/popular-categories.html')
-        .then(response => response.text());
-}
+
 
 async function initializeFreshFinds() {
   const slider = document.getElementById("fresh-finds-slider");
