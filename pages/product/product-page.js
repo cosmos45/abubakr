@@ -1,15 +1,14 @@
 import { loadComponent } from "../../scripts/utils/components.js";
 import { Cart } from "../../scripts/modules/cart.js";
 import { ProductService } from "../../scripts/services/product-service.js";
-import Loader from '../../components/loader/loader.js';
-
+import Loader from "../../components/loader/loader.js";
 
 class ProductPage {
   constructor() {
     this.productId = new URLSearchParams(window.location.search).get("id");
     this.cart = new Cart();
     this.loader = new Loader();
-    
+
     // Product-specific creative loading messages
     this.loader.customMessages = [
       "Finding your perfect product...",
@@ -26,14 +25,14 @@ class ProductPage {
       "Preparing a detailed product view...",
       "Looking up product specifications...",
       "Finding related products you might like...",
-      "Checking stock levels for this item..."
+      "Checking stock levels for this item...",
     ];
   }
   async init() {
     try {
       // Show loader immediately
       this.loader.show("Loading product details...");
-      
+
       // Load header and footer first
       await Promise.all([
         loadComponent("header", "/components/header/header.html"),
@@ -48,47 +47,46 @@ class ProductPage {
       this.initializeEventListeners();
       this.initializeSections();
       this.initializeCartIcon();
-      
+
       // Hide loader when everything is loaded
       this.loader.hide();
     } catch (error) {
       console.error("Error initializing product page:", error);
       this.loader.hide();
-      
+
       // Show error message
       document.querySelector(".container").innerHTML =
         "<div class='alert alert-danger'>Failed to load product details. Please try again later.</div>";
     }
   }
   // Add this method to your ProductPage class
-setupImageLoader() {
-  const productImage = document.getElementById("product-image");
-  const imageContainer = document.querySelector(".product-image");
-  
-  // Add a loading indicator to the image container
-  const imageLoader = document.createElement("div");
-  imageLoader.className = "image-loader";
-  imageLoader.innerHTML = '<div class="spinner"></div>';
-  imageContainer.appendChild(imageLoader);
-  
-  // Hide loader when image is loaded
-  productImage.addEventListener("load", () => {
-    imageLoader.style.display = "none";
-    productImage.style.opacity = "1";
-  });
-  
-  // Show error if image fails to load
-  productImage.addEventListener("error", () => {
-    imageLoader.style.display = "none";
-    productImage.src = "/assets/images/placeholder.jpg";
-    productImage.style.opacity = "1";
-  });
-  
-  // Initially hide the image until it's loaded
-  productImage.style.opacity = "0";
-  productImage.style.transition = "opacity 0.3s ease";
-}
+  setupImageLoader() {
+    const productImage = document.getElementById("product-image");
+    const imageContainer = document.querySelector(".product-image");
 
+    // Add a loading indicator to the image container
+    const imageLoader = document.createElement("div");
+    imageLoader.className = "image-loader";
+    imageLoader.innerHTML = '<div class="spinner"></div>';
+    imageContainer.appendChild(imageLoader);
+
+    // Hide loader when image is loaded
+    productImage.addEventListener("load", () => {
+      imageLoader.style.display = "none";
+      productImage.style.opacity = "1";
+    });
+
+    // Show error if image fails to load
+    productImage.addEventListener("error", () => {
+      imageLoader.style.display = "none";
+      productImage.src = "/assets/images/placeholder.jpg";
+      productImage.style.opacity = "1";
+    });
+
+    // Initially hide the image until it's loaded
+    productImage.style.opacity = "0";
+    productImage.style.transition = "opacity 0.3s ease";
+  }
 
   hideCartSidebar() {
     const cartSidebar = document.querySelector(".cart-sidebar");
@@ -117,7 +115,6 @@ setupImageLoader() {
       document.body.style.overflow = "hidden";
     }
   }
-
 
   moveCartToBody() {
     const mainCartElements = document.querySelectorAll(
@@ -161,61 +158,69 @@ setupImageLoader() {
   async loadProductData() {
     try {
       this.loader.show("Loading product details...");
-          // Setup image loader before loading the actual product
-    this.setupImageLoader();
-      const products = await ProductService.getDealsProducts(); // Fetch all products
-      const product = products.find(p => p.id === this.productId);
-  
+      // Setup image loader before loading the actual product
+      this.setupImageLoader();
+      const products = await ProductService.getSpecialOffersProducts(); // Fetch all products
+      const product = products.find((p) => p.id === this.productId);
+
       if (!product) throw new Error("Product not found");
-  
+
       // Populate page elements with product data
       document.title = `${product.name} - Abu Bakr Store`;
       document.getElementById("product-title").textContent = product.name;
-      document.getElementById("product-name-breadcrumb").textContent = product.name;
+      document.getElementById("product-name-breadcrumb").textContent =
+        product.name;
       document.getElementById("product-image").src = product.imageUrl;
       document.getElementById("product-image").alt = product.name;
-      document.getElementById("product-price").textContent = `£${product.price}`;
+      document.getElementById(
+        "product-price"
+      ).textContent = `£${product.price}`;
       document.getElementById("product-description").textContent =
         product.description || "No description available.";
-        
+
       // Populate product info section
       const infoContent = document.getElementById("product-info-content");
       infoContent.innerHTML = `
         <p>${product.description || "No description available."}</p>
         <ul class="product-features">
-          ${product.features ? product.features.map(feature => `<li>${feature}</li>`).join('') : ''}
+          ${
+            product.features
+              ? product.features
+                  .map((feature) => `<li>${feature}</li>`)
+                  .join("")
+              : ""
+          }
         </ul>
       `;
-      
+
       // Populate return policy section
       document.getElementById("return-policy-content").innerHTML = `
         <p>We offer a 30-day return policy for all products. Items must be returned in their original condition with all packaging intact.</p>
         <p>For more information, please contact our customer service team.</p>
       `;
-      
+
       // Populate shipping info section
       document.getElementById("shipping-info-content").innerHTML = `
         <p>Standard delivery: 3-5 business days</p>
         <p>Express delivery: 1-2 business days (additional charges apply)</p>
         <p>Free shipping on orders over £50</p>
       `;
-      
+
       if (product.sku) {
         document.getElementById("product-sku").textContent = product.sku;
       }
-      
+
       if (product.oldPrice) {
-        document.getElementById("product-old-price").textContent = `£${product.oldPrice}`;
+        document.getElementById(
+          "product-old-price"
+        ).textContent = `£${product.oldPrice}`;
       }
-      
     } catch (error) {
       console.error("Error loading product data:", error);
       document.querySelector(".container").innerHTML =
         "<div class='alert alert-danger'>Failed to load product details. Please try again later.</div>";
     }
   }
-
-  
 
   initializeSections() {
     document.querySelectorAll(".section-header").forEach((header) => {
@@ -252,52 +257,52 @@ setupImageLoader() {
     const addToCartBtn = document.querySelector(".add-to-cart-btn");
 
     minusBtn?.addEventListener("click", () => {
-        const currentValue = parseInt(quantityInput.value);
-        if (currentValue > 1) quantityInput.value = currentValue - 1;
+      const currentValue = parseInt(quantityInput.value);
+      if (currentValue > 1) quantityInput.value = currentValue - 1;
     });
 
     plusBtn?.addEventListener("click", () => {
-        const currentValue = parseInt(quantityInput.value);
-        if (currentValue < 99) quantityInput.value = currentValue + 1;
+      const currentValue = parseInt(quantityInput.value);
+      if (currentValue < 99) quantityInput.value = currentValue + 1;
     });
 
     addToCartBtn?.addEventListener("click", async () => {
-        const quantity = parseInt(quantityInput.value);
-        
-        // Show loader with a specific message
-        this.loader.show("Adding to your cart...");
-        
-        // Disable button and show loading state
-        addToCartBtn.disabled = true;
-        addToCartBtn.textContent = "Adding...";
-        
-        try {
-            // Add to cart using the Cart class method
-            const success = await this.cart.addToBasket(this.productId, quantity);
-            
-            // Update button text based on result
-            addToCartBtn.textContent = success ? "Added!" : "Add to Cart";
-            
-            // If successful, show the cart
-            if (success) {
-                this.loader.hide();
-                this.showCartSidebar();
-            } else {
-                this.loader.hide();
-            }
-        } catch (error) {
-            console.error("Error adding to cart:", error);
-            addToCartBtn.textContent = "Error";
-            this.loader.hide();
-        } finally {
-            // Re-enable button
-            addToCartBtn.disabled = false;
-            
-            // Reset button text after delay
-            setTimeout(() => {
-                addToCartBtn.textContent = "Add to Cart";
-            }, 2000);
+      const quantity = parseInt(quantityInput.value);
+
+      // Show loader with a specific message
+      this.loader.show("Adding to your cart...");
+
+      // Disable button and show loading state
+      addToCartBtn.disabled = true;
+      addToCartBtn.textContent = "Adding...";
+
+      try {
+        // Add to cart using the Cart class method
+        const success = await this.cart.addToBasket(this.productId, quantity);
+
+        // Update button text based on result
+        addToCartBtn.textContent = success ? "Added!" : "Add to Cart";
+
+        // If successful, show the cart
+        if (success) {
+          this.loader.hide();
+          this.showCartSidebar();
+        } else {
+          this.loader.hide();
         }
+      } catch (error) {
+        console.error("Error adding to cart:", error);
+        addToCartBtn.textContent = "Error";
+        this.loader.hide();
+      } finally {
+        // Re-enable button
+        addToCartBtn.disabled = false;
+
+        // Reset button text after delay
+        setTimeout(() => {
+          addToCartBtn.textContent = "Add to Cart";
+        }, 2000);
+      }
     });
   }
 }
@@ -306,9 +311,9 @@ setupImageLoader() {
 document.addEventListener("DOMContentLoaded", () => {
   const loader = new Loader();
   loader.show("Initializing product page...");
-  
+
   const productPage = new ProductPage();
-  productPage.init().catch(error => {
+  productPage.init().catch((error) => {
     console.error("Failed to initialize product page:", error);
     loader.hide();
   });

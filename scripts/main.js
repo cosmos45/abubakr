@@ -4,13 +4,13 @@ import { initCarousel } from "../components/carousel/carousel.js";
 import { ProductCard } from "../components/product-card/product-card.js";
 import { Cart } from "./modules/cart.js";
 import { ProductService } from "./services/product-service.js";
-import { renderPopularCategories } from '../components/popular-categories/popular-categories.js';
+import { renderPopularCategories } from "../components/popular-categories/popular-categories.js";
 import { initStartCartSlider } from "../components/start-cart/start-cart.js";
-import { initMostPopularSlider } from "../components/most-popular/most-popular.js";
+import { initializeMostPopular } from "../components/most-popular/most-popular.js";
 import { CategoryManager } from "./modules/category-manager.js";
 import { SearchService } from "./services/search-service.js";
 import { HeaderSearch } from "./modules/header-search.js";
-import Loader from '../components/loader/loader.js';
+import Loader from "../components/loader/loader.js";
 
 window.globalLoader = new Loader();
 
@@ -21,24 +21,20 @@ async function initializeApp() {
   try {
     window.globalLoader.show("Loading Abu Bakr Store...");
 
-    await ProductService.getDealsProducts();
+    await ProductService.getSpecialOffersProducts();
 
     // Initialize cart first
-    
-   // Initialize cart first
-   cart = new Cart();
-   const cartInitialized = await cart.init();
+    cart = new Cart();
+    const cartInitialized = await cart.init();
 
-
-   if (!cartInitialized) {
-    console.error("Cart failed to initialize");
-    window.globalLoader.hide();
-    return;
-  }
-  const categoryManager = new CategoryManager();
-  await categoryManager.init();
-  await categoryManager.initializeNavigation();
-  
+    if (!cartInitialized) {
+      console.error("Cart failed to initialize");
+      window.globalLoader.hide();
+      return;
+    }
+    const categoryManager = new CategoryManager();
+    await categoryManager.init();
+    await categoryManager.initializeNavigation();
 
     // Load all components
     await Promise.all([
@@ -49,7 +45,6 @@ async function initializeApp() {
         "featured-deals-container",
         "/components/featured-deals/featured-deals.html"
       ),
-    
       loadComponent(
         "popular-categories",
         "/components/popular-categories/popular-categories.html"
@@ -75,9 +70,12 @@ async function initializeApp() {
       await loadComponent(
         "best-deals-container",
         "/components/best-deals/best-deals.html"
-    )
+      ),
+      await loadComponent(
+        "start-cart-container",
+        "/components/start-cart/start-cart.html"
+      ),
     ]);
-
 
     categoryManager.initializeNavigation();
 
@@ -87,14 +85,16 @@ async function initializeApp() {
     await initializeBestDeals();
     await renderPopularCategories();
 
-    await initializeStartCart();
+    await initializeMeatInStartCart(); // Modified function name but keeping the same component
+    await initializeMostPopular();
+
     await initializeFreshFinds();
     initializeCartIcon();
     initializeQuantityControls();
     initializeAddToCart();
     new HeaderSearch();
     window.globalLoader.hide();
-
+    
   } catch (error) {
     console.error("Error initializing application:", error);
     window.globalLoader.hide();
@@ -105,7 +105,6 @@ async function initializeApp() {
     }
   }
 }
-
 function initializeMobileMenu() {
   const menuToggle = document.querySelector(".mobile-menu-toggle");
   const menuClose = document.querySelector("#mobile-menu-close");
@@ -127,18 +126,22 @@ function initializeMobileMenu() {
       menuOverlay.classList.remove("active");
       mobileMenuContainer.classList.remove("active");
       body.style.overflow = "";
-      
+
       // Reset all submenus
-      const activeSubmenus = document.querySelectorAll(".mobile-submenu.active");
-      activeSubmenus.forEach(submenu => {
+      const activeSubmenus = document.querySelectorAll(
+        ".mobile-submenu.active"
+      );
+      activeSubmenus.forEach((submenu) => {
         submenu.classList.remove("active");
       });
-      
+
       // Reset parent categories visibility
-      const parentItems = document.querySelectorAll('.mobile-menu-item.parent-active, .mobile-menu-item.current-parent');
-      parentItems.forEach(item => {
-        item.classList.remove('parent-active');
-        item.classList.remove('current-parent');
+      const parentItems = document.querySelectorAll(
+        ".mobile-menu-item.parent-active, .mobile-menu-item.current-parent"
+      );
+      parentItems.forEach((item) => {
+        item.classList.remove("parent-active");
+        item.classList.remove("current-parent");
       });
     });
   }
@@ -148,96 +151,161 @@ function initializeMobileMenu() {
       menuOverlay.classList.remove("active");
       mobileMenuContainer.classList.remove("active");
       body.style.overflow = "";
-      
+
       // Reset all submenus
-      const activeSubmenus = document.querySelectorAll(".mobile-submenu.active");
-      activeSubmenus.forEach(submenu => {
+      const activeSubmenus = document.querySelectorAll(
+        ".mobile-submenu.active"
+      );
+      activeSubmenus.forEach((submenu) => {
         submenu.classList.remove("active");
       });
-      
+
       // Reset parent categories visibility
-      const parentItems = document.querySelectorAll('.mobile-menu-item.parent-active, .mobile-menu-item.current-parent');
-      parentItems.forEach(item => {
-        item.classList.remove('parent-active');
-        item.classList.remove('current-parent');
+      const parentItems = document.querySelectorAll(
+        ".mobile-menu-item.parent-active, .mobile-menu-item.current-parent"
+      );
+      parentItems.forEach((item) => {
+        item.classList.remove("parent-active");
+        item.classList.remove("current-parent");
       });
     });
   }
 }
-
-
-
-
-export async function initializeBestDeals() {
-  const slider = document.getElementById('deals-slider');
+async function initializeMeatInStartCart() {
+  const slider = document.getElementById("start-cart-products");
   if (!slider) {
-      console.warn('Deals slider not found');
-      return;
+    console.warn("Start cart slider not found");
+    return;
   }
 
   try {
-      slider.innerHTML = '<div class="loading">Loading deals...</div>';
-      
-      const dealsProducts = await ProductService.getDealsProducts();
-      
-      if (!dealsProducts?.length) {
-          slider.innerHTML = '<div class="no-deals">No deals available</div>';
-          return;
-      }
+    slider.innerHTML = '<div class="loading">Loading meat products...</div>';
+    
+    // Use getMeatProducts instead of getSpecialOffersProducts
+    const meatProducts = await ProductService.getMeatProducts();
+    
+    if (!meatProducts?.length) {
+      slider.innerHTML = '<div class="no-products">No meat products available</div>';
+      return;
+    }
 
-      slider.innerHTML = '';
+    slider.innerHTML = "";
+    
+    // Batch render products for better performance
+    const fragment = document.createDocumentFragment();
+    
+    for (const product of meatProducts) {
+      const productCard = new ProductCard({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        stock_id: product.id,
+        imageUrl: product.imageUrl,
+        oldPrice: product.oldPrice,
+        size: product.size
+      });
       
-      // Batch render products for better performance
-      const fragment = document.createDocumentFragment();
+      const cardHtml = await productCard.render();
+      const tempContainer = document.createElement("div");
+      tempContainer.innerHTML = cardHtml;
+      const cardElement = tempContainer.firstElementChild;
       
-      for (const product of dealsProducts) {
-          const productCard = new ProductCard({
-              id: product.id,
-              name: product.name,
-              price: product.price,
-              stock_id: product.id,
-              imageUrl: product.imageUrl,
-              oldPrice: product.oldPrice,
-              size: product.size
-          });
-          
-          const cardHtml = await productCard.render();
-          const tempContainer = document.createElement('div');
-          tempContainer.innerHTML = cardHtml;
-          const cardElement = tempContainer.firstElementChild;
-          
-          // Initialize listeners before adding to DOM
-          ProductCard.initializeCardListeners(cardElement);
-          fragment.appendChild(cardElement);
-      }
-      
-      slider.appendChild(fragment);
-      initializeSliderControls();
-      
+      // Initialize listeners before adding to DOM
+      ProductCard.initializeCardListeners(cardElement);
+      fragment.appendChild(cardElement);
+    }
+    
+    slider.appendChild(fragment);
+    
+    // Update the section title to reflect Meat products
+    const sectionTitle = document.querySelector(".start-cart-section .section-title");
+    if (sectionTitle) {
+      sectionTitle.textContent = "Meat Products";
+    }
+    
+    // Update the "Shop More" button link
+    const shopMoreBtn = document.querySelector(".start-cart-section .shop-more-btn");
+    if (shopMoreBtn) {
+      shopMoreBtn.href = "/category/meat";
+      shopMoreBtn.textContent = "Shop More Meat Products";
+    }
+    
+    initStartCartSlider(); // Reuse the existing slider initialization
   } catch (error) {
-      console.error('Error initializing best deals:', error);
-      slider.innerHTML = '<div class="error">Failed to load deals</div>';
+    console.error("Error initializing meat products in start cart:", error);
+    const slider = document.getElementById("start-cart-products");
+    if (slider) {
+      slider.innerHTML = '<div class="error">Failed to load meat products</div>';
+    }
+  }
+}
+export async function initializeBestDeals() {
+  const slider = document.getElementById("deals-slider");
+  if (!slider) {
+    console.warn("Deals slider not found");
+    return;
+  }
+
+  try {
+    slider.innerHTML = '<div class="loading">Loading deals...</div>';
+
+    const dealsProducts = await ProductService.getSpecialOffersProducts();
+
+    if (!dealsProducts?.length) {
+      slider.innerHTML = '<div class="no-deals">No deals available</div>';
+      return;
+    }
+
+    slider.innerHTML = "";
+
+    // Batch render products for better performance
+    const fragment = document.createDocumentFragment();
+
+    for (const product of dealsProducts) {
+      const productCard = new ProductCard({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        stock_id: product.id,
+        imageUrl: product.imageUrl,
+        oldPrice: product.oldPrice,
+        size: product.size,
+      });
+
+      const cardHtml = await productCard.render();
+      const tempContainer = document.createElement("div");
+      tempContainer.innerHTML = cardHtml;
+      const cardElement = tempContainer.firstElementChild;
+
+      // Initialize listeners before adding to DOM
+      ProductCard.initializeCardListeners(cardElement);
+      fragment.appendChild(cardElement);
+    }
+
+    slider.appendChild(fragment);
+    initializeSliderControls();
+  } catch (error) {
+    console.error("Error initializing best deals:", error);
+    slider.innerHTML = '<div class="error">Failed to load deals</div>';
   }
 }
 
-
-
 function initializeSliderControls() {
-    const prevBtn = document.querySelector(".prev-btn");
-    const nextBtn = document.querySelector(".next-btn");
-    const slider = document.querySelector(".products-slider");
-    
-    if (!slider || !prevBtn || !nextBtn) {
-        console.error('Slider controls not found');
-        return;
-    }
+  const prevBtn = document.querySelector(".prev-btn");
+  const nextBtn = document.querySelector(".next-btn");
+  const slider = document.querySelector(".products-slider");
 
-    const cards = slider.querySelectorAll(".product-card");
-    if (!cards.length) {
-        prevBtn.style.display = 'none';
-        nextBtn.style.display = 'none';
-        return;
-    }
+  if (!slider || !prevBtn || !nextBtn) {
+    console.error("Slider controls not found");
+    return;
+  }
+
+  const cards = slider.querySelectorAll(".product-card");
+  if (!cards.length) {
+    prevBtn.style.display = "none";
+    nextBtn.style.display = "none";
+    return;
+  }
 
   let currentIndex = 0;
   const totalCards = cards.length;
@@ -292,29 +360,30 @@ function initializeQuantityControls() {
 }
 
 function initializeAddToCart() {
-    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const card = e.target.closest('.product-card');
-            const product = {
-                uid: card.dataset.productId,
-                name: card.querySelector('.product-name').textContent,
-                price: parseFloat(card.querySelector('.price').textContent.replace('£', '')),
-                quantity: parseInt(card.querySelector('.quantity-control input').value),
-                size: card.querySelector('.size')?.textContent || null,
-                imageUrl: card.querySelector('img').src
-            };
-            
-            if (cart) {
-                cart.addItem(product);
-                button.textContent = 'Added!';
-                setTimeout(() => {
-                    button.textContent = 'Add to Cart';
-                }, 2000);
-            }
-        });
-    });
-}
+  document.querySelectorAll(".add-to-cart-btn").forEach((button) => {
+    button.addEventListener("click", (e) => {
+      const card = e.target.closest(".product-card");
+      const product = {
+        uid: card.dataset.productId,
+        name: card.querySelector(".product-name").textContent,
+        price: parseFloat(
+          card.querySelector(".price").textContent.replace("£", "")
+        ),
+        quantity: parseInt(card.querySelector(".quantity-control input").value),
+        size: card.querySelector(".size")?.textContent || null,
+        imageUrl: card.querySelector("img").src,
+      };
 
+      if (cart) {
+        cart.addItem(product);
+        button.textContent = "Added!";
+        setTimeout(() => {
+          button.textContent = "Add to Cart";
+        }, 2000);
+      }
+    });
+  });
+}
 
 function initializeCartIcon() {
   const cartIcon = document.querySelector(".cart-icon");
@@ -330,33 +399,6 @@ function initializeCartIcon() {
 document.addEventListener("DOMContentLoaded", initializeApp);
 
 
-async function initializeStartCart() {
-  const slider = document.getElementById("start-cart-products");
-  if (!slider) return;
-
-  try {
-    slider.innerHTML = "";
-    // Wait for products to be loaded
-    const products = await ProductService.getDealsProducts();
-    if (!products?.length) {
-      console.warn('No products available for start cart');
-      return;
-    }
-
-    const startProducts = products.slice(0, 5);
-    for (const product of startProducts) {
-      const productCard = new ProductCard(product);
-      const cardHtml = await productCard.render();
-      slider.insertAdjacentHTML("beforeend", cardHtml);
-    }
-
-    initStartCartSlider();
-  } catch (error) {
-    console.error("Error initializing start cart:", error);
-  }
-}
-
-
 async function initializeFreshFinds() {
   const slider = document.getElementById("fresh-finds-slider");
   if (!slider) return;
@@ -364,9 +406,9 @@ async function initializeFreshFinds() {
   try {
     slider.innerHTML = "";
     // Wait for products to be loaded
-    const products = await ProductService.getDealsProducts();
+    const products = await ProductService.getSpecialOffersProducts();
     if (!products?.length) {
-      console.warn('No products available for fresh finds');
+      console.warn("No products available for fresh finds");
       return;
     }
 
@@ -381,8 +423,6 @@ async function initializeFreshFinds() {
     console.error("Error initializing fresh finds:", error);
   }
 }
-
-
 
 function initializeFreshFindsSlider() {
   const slider = document.querySelector("#fresh-finds-slider");
@@ -441,41 +481,9 @@ function initializeFreshFindsSlider() {
 }
 
 // Add to initializeApp function
-await loadComponent(
-  "start-cart-container",
-  "/components/start-cart/start-cart.html"
-);
-await initializeStartCart();
 
-async function initializeMostPopular() {
-  const slider = document.getElementById("most-popular-slider");
-  if (!slider) return;
 
-  try {
-    slider.innerHTML = "";
-    const popularProducts = ProductService.products.slice(0, 5);
 
-    for (const product of popularProducts) {
-      const productCard = new ProductCard(product);
-      const cardHtml = await productCard.render();
-
-      const processedHtml = cardHtml
-        .replace(/\${name}/g, product.name)
-        .replace(/\${price}/g, product.price.toFixed(2))
-        .replace(/\${id}/g, product.id)
-        .replace(/\${imageUrl}/g, product.imageUrl);
-
-      slider.insertAdjacentHTML("beforeend", processedHtml);
-    }
-
-    initMostPopularSlider();
-  } catch (error) {
-    console.error("Error initializing most popular:", error);
-  }
-}
-
-// Call initializeMostPopular after loading components
-await initializeMostPopular();
 
 async function initializeSearch() {
   try {

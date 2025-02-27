@@ -648,7 +648,7 @@
 
 
 .nav-menu {
-    height: 60px;
+    height: 40px;
     display: flex;
     list-style: none;
     margin: 0;
@@ -674,6 +674,7 @@
 .category-item {
     position: relative;
     z-index: 1000;
+    padding-bottom: 50px; /* Add padding to extend hover area */
 }
 
 
@@ -730,7 +731,7 @@
 .category-dropdown {
     display: none;
     position: absolute;
-    top: 100%;
+    top: calc(100% + 5px); /* Add 5px gap below navbar */
     left: 0;
     background: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);

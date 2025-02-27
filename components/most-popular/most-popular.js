@@ -1,4 +1,59 @@
 // components/most-popular/most-popular.js
+import { ProductCard } from '../product-card/product-card.js';
+import { ProductService } from '../../scripts/services/product-service.js';
+
+export async function initializeMostPopular() {
+    const slider = document.getElementById('most-popular-slider');
+    if (!slider) {
+        console.warn('Most popular slider not found');
+        return;
+    }
+
+    try {
+        slider.innerHTML = '<div class="loading">Loading organic foods...</div>';
+        
+        const organicProducts = await ProductService.getOrganicFoodsProducts();
+        
+        if (!organicProducts?.length) {
+            slider.innerHTML = '<div class="no-products">No organic foods available</div>';
+            return;
+        }
+
+        slider.innerHTML = '';
+        
+        // Batch render products for better performance
+        const fragment = document.createDocumentFragment();
+        
+        for (const product of organicProducts) {
+            const productCard = new ProductCard({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                stock_id: product.id,
+                imageUrl: product.imageUrl,
+                oldPrice: product.oldPrice,
+                size: product.size
+            });
+            
+            const cardHtml = await productCard.render();
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = cardHtml;
+            const cardElement = tempContainer.firstElementChild;
+            
+            // Initialize listeners before adding to DOM
+            ProductCard.initializeCardListeners(cardElement);
+            fragment.appendChild(cardElement);
+        }
+        
+        slider.appendChild(fragment);
+        initMostPopularSlider();
+        
+    } catch (error) {
+        console.error('Error initializing organic foods:', error);
+        slider.innerHTML = '<div class="error">Failed to load organic foods</div>';
+    }
+}
+
 export function initMostPopularSlider() {
     const slider = document.querySelector('#most-popular-slider');
     const prevBtn = document.querySelector('.most-popular-section .prev-btn');

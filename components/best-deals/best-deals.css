@@ -1,6 +1,5 @@
-/* components/best-deals/best-deals.css */
-/* components/best-deals/best-deals.css */
-.loading, .error, .no-deals {
+/* components/special-offers/special-offers.css */
+.loading, .error, .no-offers {
     width: 100%;
     text-align: center;
     padding: 2rem;
@@ -29,10 +28,7 @@
     }
 }
 
-
-
-
-.best-deals-section {
+.special-offers-section {
     padding: 40px 0;
     max-width: 1400px;
     margin: 0 auto;
@@ -83,7 +79,6 @@
     right: 10px;
 }
 
-
 .product-card {
     flex: 0 0 200px; /* Reduced card width */
     min-width: 220px;
@@ -110,9 +105,9 @@
     color: white;
 }
 
-/* components/best-deals/best-deals.css */
+/* components/special-offers/special-offers.css */
 @media screen and (max-width: 768px) {
-    .best-deals-section {
+    .special-offers-section {
         padding: 20px 10px;
     }
 
@@ -186,4 +181,3 @@
         display: none;
     }
 }
-
