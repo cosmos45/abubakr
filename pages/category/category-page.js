@@ -1,7 +1,7 @@
 //pages/category-page.js
 import { loadComponent } from "../../scripts/utils/components.js";
 import { categoryData } from "../../scripts/services/category-service.js";
-import { ProductServiceCategory } from "../../scripts/services/product-service.js";
+import { ProductService } from "../../scripts/services/product-service.js";
 import { ProductCard } from "../../components/product-card/product-card.js";
 import { Cart } from "../../scripts/modules/cart.js";
 import { CategoryManager } from "../../scripts/modules/category-manager.js";
@@ -9,9 +9,17 @@ import { HeaderSearch } from "../../scripts/modules/header-search.js";
 import axiosService from '../../scripts/services/axiosService.js';
 import { FilterService } from '../../scripts/services/filter-service.js';
 import Loader from '../../components/loader/loader.js';
+import { ProductServiceCategory } from "../../scripts/services/product-service.js";
 
 class CategoryPage {
+  
   constructor() {
+    this.categoryId = new URLSearchParams(window.location.search).get("id");
+    if (!this.categoryId) {
+      console.error("No category ID provided");
+      // Redirect to home or show error
+      window.location.href = "/";
+    }
     this.categoryId = new URLSearchParams(window.location.search).get("id");
     this.category = null;
     this.products = [];
@@ -239,16 +247,18 @@ hideLoading() {
 
 
 
-  showError(message) {
-    const container = document.querySelector('.category-page');
-    if (!container) return;
-    
-    container.innerHTML = `
-      <div class="alert alert-danger" role="alert">
-        ${message}
-      </div>
-    `;
-  }
+showError(message) {
+  const container = document.querySelector('.category-page');
+  if (!container) return;
+  
+  container.innerHTML = `
+    <div class="alert alert-danger" role="alert">
+      <i class="fas fa-exclamation-triangle"></i> ${message}
+      <p class="mt-2">Please try refreshing the page or contact support if the problem persists.</p>
+    </div>
+  `;
+}
+
 
   initializeHeaderComponents() {
     const menuToggle = document.querySelector(".mobile-menu-toggle");
