@@ -8,7 +8,7 @@ export class ProductService {
     try {
       const response = await axiosServices.get('/commerce/stock', {
         params: {
-          category_name: 'Special Offers' // Using name instead of UID
+          categories: 'Special Offers' // Using name instead of UID
         }
       });
       
@@ -34,7 +34,7 @@ export class ProductService {
     try {
       const response = await axiosServices.get('/commerce/stock', {
         params: {
-          category_name: 'Meat' // Using Meat category name
+          categories: 'Meat' // Using Meat category name
         }
       });
       
@@ -60,7 +60,7 @@ export class ProductService {
     try {
       const response = await axiosServices.get('/commerce/stock', {
         params: {
-          category_name: 'Organic Foods' // Using category name
+          categories: 'Organic Foods' // Using category name
         }
       });
       console.log('organic food', response)
@@ -89,7 +89,7 @@ export class ProductServiceCategory {
     try {
       const response = await axiosServices.get('/commerce/stock', {
         params: {
-          category_id: categoryId,
+          categories: categoryId,
           page: page
         }
       });
