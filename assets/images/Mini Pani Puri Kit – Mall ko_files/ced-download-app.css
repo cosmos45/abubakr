@@ -1,0 +1,44 @@
+/** Shopify CDN: Minification failed
+
+Line 44:1 Expected "}" to go with "{"
+
+**/
+ul {
+	list-style: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+}
+.ced-download-app-list {
+    display: flex;
+    align-items: center;
+    background: #513836;
+}
+.ced-download-app-item {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+}
+.ced-download-img-wrap {
+	width: 100%;
+	height: 100%;
+	background: #fff;
+	border-radius: 10px;
+	max-height: 30px;
+	max-width: 125px;
+}
+.ced-download-app-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+
+/* ---- Media Query ---- */
+
+@media(max-width: 749px) {
+.ced-download-app-list {
+	padding: 0 1rem !important;
+    gap: 10px;
+}

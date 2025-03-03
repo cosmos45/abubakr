@@ -23,11 +23,12 @@
 }
 
 .pasta-promo {
-  background-color: #fff8e7;
+  background-image: url("/assets/images/pasta.webp");
+  width: auto;
 }
 
 .cereal-promo {
-  background-color: #e5f9f6;
+  background-image: url("/assets/images/cereal.webp");
 }
 
 .promo-content {
