@@ -242,22 +242,31 @@ export class Cart {
           );
         }
   
-        this.items = new Map(basketData.items.map(item => {
-          const imageUrl = item.stock?.attachments?.[0]?.path || '/assets/images/default-product.png';
-          
-          const mappedItem = {
-            id: item.stock_id,
-            basket_item_id: item.basket_item__id,
-            name: item.name,
-            price: parseFloat(item.price),
-            quantity: item.quantity,
-            totalPrice: parseFloat(item.total),
-            imageUrl: imageUrl
-          };
-          
-          return [item.stock_id, mappedItem];
-        }));
+        // Clear existing items map before populating with new data
+        this.items = new Map();
         
+        // Populate items map with all basket items
+        if (basketData.items && Array.isArray(basketData.items)) {
+          basketData.items.forEach(item => {
+            const imageUrl = item.stock?.attachments?.[0]?.path || '/assets/images/default-product.png';
+            
+            const mappedItem = {
+              id: item.stock_id,
+              stock_id: item.stock_id,
+              basket_item_id: item.basket_item__id,
+              name: item.name,
+              price: parseFloat(item.price),
+              quantity: item.quantity,
+              totalPrice: parseFloat(item.total),
+              imageUrl: imageUrl,
+              size: item.stock?.size || null
+            };
+            
+            this.items.set(item.basket_item__id.toString(), mappedItem);
+          });
+        }
+        
+        // Render all items in the cart
         this.renderSavedItems();
         this.updateCartCount();
         this.updateSubtotal();
@@ -268,7 +277,6 @@ export class Cart {
       this.showToast('Failed to refresh basket', 'error');
     }
   }
-  
   
 
   
@@ -570,18 +578,64 @@ updateSubtotal() {
 }
 
 
-  renderSavedItems() {
-    const cartItems = document.querySelector(".cart-items");
-    if (!cartItems) return;
+renderSavedItems() {
+  const cartItems = document.querySelector(".cart-items");
+  if (!cartItems) return;
 
-    cartItems.innerHTML = "";
-    this.items.forEach((item) => {
-      this.addItemUI(item);
-    });
-
-    this.updateCartCount();
-    this.updateSubtotal();
+  // Clear the cart items container first
+  cartItems.innerHTML = "";
+  
+  // Check if we have items
+  if (this.items.size === 0) {
+    cartItems.innerHTML = '<div class="empty-cart-message">Your cart is empty</div>';
+    return;
   }
+  
+  // Create a document fragment for better performance
+  const fragment = document.createDocumentFragment();
+  
+  // Iterate through all items and add them to the cart
+  this.items.forEach((item) => {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'cart-item';
+    itemElement.dataset.basketItemId = item.basket_item_id;
+    
+    itemElement.innerHTML = `
+      <div class="cart-item-image">
+        <img 
+          src="${item.imageUrl}" 
+          alt="${item.name}"
+          onerror="this.onerror=null; this.src='/assets/images/default-product.png';"
+        >
+      </div>
+      <div class="cart-item-details">
+        <h3>${item.name}</h3>
+        <div class="price-info">
+          <span class="price">£${item.price.toFixed(2)}</span>
+          ${item.size ? `<span class="size">${item.size}</span>` : ''}
+        </div>
+        <div class="quantity-control">
+          <button class="qty-btn minus">−</button>
+          <input type="number" value="${item.quantity}" min="1" max="99" readonly>
+          <button class="qty-btn plus">+</button>
+        </div>
+      </div>
+      <div class="item-total">£${item.totalPrice.toFixed(2)}</div>
+      <button class="remove-item" data-basket-item-id="${item.basket_item_id}">×</button>
+    `;
+    
+    fragment.appendChild(itemElement);
+  });
+  
+  // Append all items at once for better performance
+  cartItems.appendChild(fragment);
+  
+  // Update cart count and totals
+  this.updateCartCount();
+  this.updateSubtotal();
+}
+
+  
   renderCartPage() {
     const cartItemsContainer = document.getElementById("cart-items-container");
     if (!cartItemsContainer) return;

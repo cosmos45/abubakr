@@ -72,100 +72,103 @@ export class CategoryManager {
     const mobileMenuList = document.querySelector("#mobile-menu-list");
     
     if (!navMenu && !mobileMenuList) return;
-
+  
     try {
       const allFeaturedCategories = await categoryData.getFeaturedCategories();
       const featuredCategories = allFeaturedCategories.slice(
         0,
         this.maxFeaturedCategories
       );
-
+  
       // Initialize desktop navigation
       if (navMenu) {
         // Clear existing menu items except mobile-profile
         const mobileProfile = navMenu.querySelector(".mobile-profile");
         navMenu.innerHTML = "";
         if (mobileProfile) navMenu.appendChild(mobileProfile);
-
+  
         featuredCategories.forEach((category) => {
           const li = document.createElement("li");
           li.className = "category-item";
-
+  
           const a = document.createElement("a");
-          a.href = `/pages/category/category-page.html?id=${category.uid}`;
+          a.href = `/pages/category/category-page.html?name=${encodeURIComponent(category.name)}`;
           a.textContent = category.name;
-
+  
           li.appendChild(a);
-
+  
           // First level dropdown
           if (category.child?.length > 0) {
             const dropdown = document.createElement("div");
             dropdown.className = "category-dropdown";
-
+  
             category.child.forEach((childCategory) => {
               if (childCategory.is_active === 1) {
                 const childItem = document.createElement("div");
                 childItem.className = "category-dropdown-item";
-
+  
                 const childLink = document.createElement("a");
-                childLink.href = `/pages/category/category-page.html?id=${childCategory.uid}`;
+                childLink.href = `/pages/category/category-page.html?name=${encodeURIComponent(childCategory.name)}`;
                 childLink.textContent = childCategory.name;
                 childItem.appendChild(childLink);
-
+  
                 // Second level dropdown
                 if (childCategory.child?.length > 0) {
                   const subDropdown = document.createElement("div");
                   subDropdown.className = "category-subdropdown";
-
+  
                   childCategory.child.forEach((grandChild) => {
                     if (grandChild.is_active === 1) {
                       const grandChildLink = document.createElement("a");
-                      grandChildLink.href = `/pages/category/category-page.html?id=${grandChild.uid}`;
+                      grandChildLink.href = `/pages/category/category-page.html?name=${encodeURIComponent(grandChild.name)}`;
                       grandChildLink.textContent = grandChild.name;
                       subDropdown.appendChild(grandChildLink);
                     }
                   });
-
+  
                   if (subDropdown.children.length > 0) {
                     childItem.appendChild(subDropdown);
                   }
                 }
-
+  
                 dropdown.appendChild(childItem);
               }
             });
-
+  
             if (dropdown.children.length > 0) {
               li.appendChild(dropdown);
             }
           }
-
+  
           navMenu.appendChild(li);
         });
       }
-
+  
       // Initialize mobile navigation
       if (mobileMenuList) {
         mobileMenuList.innerHTML = "";
-
+  
         featuredCategories.forEach((category) => {
           const li = document.createElement("li");
           li.className = "mobile-menu-item";
           li.dataset.categoryId = category.uid;
-
+  
           const a = document.createElement("a");
-          a.href = category.child?.length > 0 ? "javascript:void(0)" : `/pages/category/category-page.html?id=${category.uid}`;
+          // Changed from id to name parameter to match desktop behavior
+          a.href = category.child?.length > 0 
+            ? "javascript:void(0)" 
+            : `/pages/category/category-page.html?name=${encodeURIComponent(category.name)}`;
           a.innerHTML = `${category.name} ${category.child?.length > 0 ? '<i class="fas fa-chevron-right"></i>' : ''}`;
           a.style.fontWeight = "700";
-
+  
           li.appendChild(a);
-
+  
           // First level submenu
           if (category.child?.length > 0) {
             const submenu = document.createElement("div");
             submenu.className = "mobile-submenu";
             submenu.id = `submenu-${category.uid}`;
-
+  
             const submenuHeader = document.createElement("div");
             submenuHeader.className = "mobile-submenu-header";
             
@@ -190,29 +193,32 @@ export class CategoryManager {
             submenuHeader.appendChild(backBtn);
             submenuHeader.appendChild(title);
             submenu.appendChild(submenuHeader);
-
+  
             const submenuList = document.createElement("ul");
             submenuList.className = "mobile-menu-list";
-
+  
             category.child.forEach((childCategory) => {
               if (childCategory.is_active === 1) {
                 const childLi = document.createElement("li");
                 childLi.className = "mobile-menu-item";
                 childLi.dataset.categoryId = childCategory.uid;
-
+  
                 const childA = document.createElement("a");
-                childA.href = childCategory.child?.length > 0 ? "javascript:void(0)" : `/pages/category/category-page.html?id=${childCategory.uid}`;
+                // Changed from id to name parameter to match desktop behavior
+                childA.href = childCategory.child?.length > 0 
+                  ? "javascript:void(0)" 
+                  : `/pages/category/category-page.html?name=${encodeURIComponent(childCategory.name)}`;
                 childA.innerHTML = `${childCategory.name} ${childCategory.child?.length > 0 ? '<i class="fas fa-chevron-right"></i>' : ''}`;
                 childA.style.fontWeight = childCategory.child?.length > 0 ? "700" : "normal";
-
+  
                 childLi.appendChild(childA);
-
+  
                 // Second level submenu
                 if (childCategory.child?.length > 0) {
                   const childSubmenu = document.createElement("div");
                   childSubmenu.className = "mobile-submenu";
                   childSubmenu.id = `submenu-${childCategory.uid}`;
-
+  
                   const childSubmenuHeader = document.createElement("div");
                   childSubmenuHeader.className = "mobile-submenu-header";
                   
@@ -230,27 +236,28 @@ export class CategoryManager {
                   childSubmenuHeader.appendChild(childBackBtn);
                   childSubmenuHeader.appendChild(childTitle);
                   childSubmenu.appendChild(childSubmenuHeader);
-
+  
                   const childSubmenuList = document.createElement("ul");
                   childSubmenuList.className = "mobile-menu-list";
-
+  
                   childCategory.child.forEach((grandChild) => {
                     if (grandChild.is_active === 1) {
                       const grandChildLi = document.createElement("li");
                       grandChildLi.className = "mobile-menu-item";
-
+  
                       const grandChildA = document.createElement("a");
-                      grandChildA.href = `/pages/category/category-page.html?id=${grandChild.uid}`;
+                      // Changed from id to name parameter to match desktop behavior
+                      grandChildA.href = `/pages/category/category-page.html?name=${encodeURIComponent(grandChild.name)}`;
                       grandChildA.textContent = grandChild.name;
-
+  
                       grandChildLi.appendChild(grandChildA);
                       childSubmenuList.appendChild(grandChildLi);
                     }
                   });
-
+  
                   childSubmenu.appendChild(childSubmenuList);
                   childLi.appendChild(childSubmenu);
-
+  
                   // Add click event to open child submenu
                   childA.addEventListener('click', (e) => {
                     if (childCategory.child?.length > 0) {
@@ -259,14 +266,14 @@ export class CategoryManager {
                     }
                   });
                 }
-
+  
                 submenuList.appendChild(childLi);
               }
             });
-
+  
             submenu.appendChild(submenuList);
             li.appendChild(submenu);
-
+  
             // Add click event to open submenu
             a.addEventListener('click', (e) => {
               if (category.child?.length > 0) {
@@ -286,7 +293,7 @@ export class CategoryManager {
               }
             });
           }
-
+  
           mobileMenuList.appendChild(li);
         });
       }
@@ -294,6 +301,7 @@ export class CategoryManager {
       console.error("Error initializing navigation:", error);
     }
   }
+  
 
   
 

@@ -5,8 +5,16 @@ import Loader from "../../components/loader/loader.js";
 
 class ProductPage {
   constructor() {
-    this.productId = new URLSearchParams(window.location.search).get("id");
-    this.cart = new Cart();
+    const urlParams = new URLSearchParams(window.location.search);
+    this.productId = urlParams.get("id");
+    if (!this.productId) {
+      console.error("No product ID provided in URL");
+      // Redirect to home page or show an error message
+      window.location.href = "/";
+      return;
+    }
+
+      this.cart = new Cart();
     this.loader = new Loader();
 
     // Product-specific creative loading messages
@@ -155,41 +163,34 @@ class ProductPage {
     closeBtn?.addEventListener("click", () => this.cart.hideCart());
     overlay?.addEventListener("click", () => this.cart.hideCart());
   }
+
+
   async loadProductData() {
     try {
       this.loader.show("Loading product details...");
-      // Setup image loader before loading the actual product
       this.setupImageLoader();
-      const products = await ProductService.getSpecialOffersProducts(); // Fetch all products
-      const product = products.find((p) => p.id === this.productId);
 
-      if (!product) throw new Error("Product not found");
+      const product = await ProductService.getProductById(this.productId);
+
+      if (!product) {
+        throw new Error("Product not found");
+      }
 
       // Populate page elements with product data
       document.title = `${product.name} - Abu Bakr Store`;
       document.getElementById("product-title").textContent = product.name;
-      document.getElementById("product-name-breadcrumb").textContent =
-        product.name;
+      document.getElementById("product-name-breadcrumb").textContent = product.name;
       document.getElementById("product-image").src = product.imageUrl;
       document.getElementById("product-image").alt = product.name;
-      document.getElementById(
-        "product-price"
-      ).textContent = `£${product.price}`;
-      document.getElementById("product-description").textContent =
-        product.description || "No description available.";
+      document.getElementById("product-price").textContent = `£${product.price}`;
+      document.getElementById("product-description").textContent = product.description || "No description available.";
 
       // Populate product info section
       const infoContent = document.getElementById("product-info-content");
       infoContent.innerHTML = `
         <p>${product.description || "No description available."}</p>
         <ul class="product-features">
-          ${
-            product.features
-              ? product.features
-                  .map((feature) => `<li>${feature}</li>`)
-                  .join("")
-              : ""
-          }
+          ${Object.entries(product.attributes || {}).map(([key, value]) => `<li>${key}: ${value}</li>`).join("")}
         </ul>
       `;
 
@@ -211,14 +212,14 @@ class ProductPage {
       }
 
       if (product.oldPrice) {
-        document.getElementById(
-          "product-old-price"
-        ).textContent = `£${product.oldPrice}`;
+        document.getElementById("product-old-price").textContent = `£${product.oldPrice}`;
       }
+
+      this.loader.hide();
     } catch (error) {
       console.error("Error loading product data:", error);
-      document.querySelector(".container").innerHTML =
-        "<div class='alert alert-danger'>Failed to load product details. Please try again later.</div>";
+      this.loader.hide();
+      document.querySelector(".container").innerHTML = "<div class='alert alert-danger'>Failed to load product details. Please try again later.</div>";
     }
   }
 

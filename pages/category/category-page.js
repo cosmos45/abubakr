@@ -14,10 +14,9 @@ import { ProductServiceCategory } from "../../scripts/services/product-service.j
 class CategoryPage {
   
   constructor() {
-    this.categoryId = new URLSearchParams(window.location.search).get("id");
-    if (!this.categoryId) {
-      console.error("No category ID provided");
-      // Redirect to home or show error
+    this.categoryName = new URLSearchParams(window.location.search).get("name");
+    if (!this.categoryName) {
+      console.error("No category name provided");
       window.location.href = "/";
     }
     this.categoryId = new URLSearchParams(window.location.search).get("id");
@@ -42,13 +41,21 @@ class CategoryPage {
 
   async init() {
     try {
-      console.debug('Initializing category page for category:', this.categoryId);
-      
+      this.loader.show("Loading...");
+      console.debug(`Initializing category page for: ${this.categoryName}`);      
       // Initialize loader
       this.loader.show("Loading category products...");
       
       this.cart = new Cart();
       await this.cart.init();
+
+      const category = await categoryData.getCategoryByName(this.categoryName);
+      if (!category) {
+        console.error(`Category not found: ${this.categoryName}`);
+        this.showError("Category not found");
+        this.loader.hide();
+        return;
+      }
       
       // Initialize cart and category manager
       await Promise.all([this.cart.init(), this.categoryManager.init()]);
@@ -62,14 +69,14 @@ class CategoryPage {
       // Initialize navigation
       this.categoryManager.initializeNavigation();
 
-      // Get category details
-      this.category = await categoryData.getCategory(this.categoryId);
-      if (!this.category) {
-        console.error("Category not found:", this.categoryId);
-        this.showError("Category not found");
-        this.loader.hide(); // Hide loader on error
-        return;
-      }
+       // Get category details
+       this.category = await categoryData.getCategoryByName(this.categoryName);
+       if (!this.category) {
+         console.error("Category not found:", this.categoryName);
+         this.showError("Category not found");
+         this.loader.hide();
+         return;
+       }
 
       // Fetch real-time stock data
       await this.fetchCategoryStock();
@@ -129,12 +136,25 @@ async handlePaginationData(stockData) {
 
 // Add pagination rendering method
 renderPagination() {
-  if (!this.pagination) return;
-
   const paginationContainer = document.querySelector('.pagination-container');
-  if (!paginationContainer) return;
+  if (!paginationContainer) {
+    console.error("Pagination container not found");
+    return;
+  }
+  
+  if (!this.pagination) {
+    console.error("Pagination data is missing");
+    return;
+  }
 
   const { currentPage, lastPage } = this.pagination;
+  console.log("Rendering pagination:", { currentPage, lastPage });
+
+  if (lastPage <= 1) {
+    paginationContainer.innerHTML = ""; // Hide pagination if only one page
+    return;
+  }
+
   let paginationHTML = `
     <ul class="pagination">
       <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
@@ -160,26 +180,44 @@ renderPagination() {
   this.initializePaginationEvents();
 }
 
-initializePaginationEvents() {
-  const paginationContainer = document.querySelector('.pagination-container');
-  if (!paginationContainer) return;
 
-  paginationContainer.addEventListener('click', async (e) => {
+
+initializePaginationEvents() {
+  const paginationContainer = document.querySelector(".pagination-container");
+  
+  if (!paginationContainer) {
+    console.error("Pagination container not found when initializing events");
+    return;
+  }
+
+  paginationContainer.addEventListener("click", async (e) => {
     e.preventDefault();
-    const pageLink = e.target.closest('.page-link');
+    
+    const pageLink = e.target.closest(".page-link");
     if (!pageLink) return;
 
     const newPage = parseInt(pageLink.dataset.page);
-    if (newPage === this.currentPage || newPage < 1 || newPage > this.pagination.lastPage) return;
+    console.log("Pagination clicked, new page:", newPage);
+    
+    if (isNaN(newPage) || newPage === this.currentPage || newPage < 1 || 
+        (this.pagination && newPage > this.pagination.lastPage)) {
+      return;
+    }
 
     this.currentPage = newPage;
+    console.log("Setting current page to:", this.currentPage);
+
+    // Fetch products for the new page
     await this.fetchCategoryStock();
-    await this.renderProducts(this.products);
-    
+
     // Scroll to top of products
-    document.querySelector('.products-grid')?.scrollIntoView({ behavior: 'smooth' });
+    document.querySelector(".products-grid")?.scrollIntoView({ behavior: "smooth" });
   });
 }
+
+
+
+
 
 
 
@@ -207,31 +245,35 @@ initializePaginationControls() {
   });
 }
 
-  
+
 async fetchCategoryStock() {
   try {
     this.loader.show("Fetching products...");
-    console.debug('Fetching stock data for category:', this.categoryId);
-    const response = await ProductServiceCategory.getStockByCategory(this.categoryId, this.currentPage);
-    
-    // Log pagination data to verify it's coming through
-    console.debug('Pagination data:', response.pagination);
-    
-    this.products = response.products;
-    this.originalProducts = [...this.products];
-    this.pagination = response.pagination;
-    
-    // Render both products and pagination
-    await this.renderProducts(this.products);
-    this.renderPagination();
-    
+    console.debug('Fetching stock data for category:', this.categoryName);
+
+    const response = await ProductServiceCategory.getStockByCategory(this.categoryName, this.currentPage);
+    console.log("Stock response:", response);
+
+    if (response && response.products) {
+      this.products = response.products;
+      this.pagination = response.pagination;
+      console.log("Pagination data:", this.pagination);
+
+      // Render products and pagination
+      await this.renderProducts(this.products);
+      this.renderPagination();
+    } else {
+      console.error("No products found for the category.");
+    }
   } catch (error) {
     console.error('Error fetching category stock:', error);
-    throw error;
   } finally {
     this.loader.hide();
   }
 }
+
+
+
 
 
 
@@ -290,43 +332,34 @@ showError(message) {
   async renderCategoryContent() {
     const container = document.querySelector(".category-page");
     if (!container) return;
-
+  
     // Clear existing content
     container.innerHTML = "";
-
+  
     // Render category header
     const headerHtml = `
-            <div class="category-header">
-                <div class="breadcrumb">
-                    <a href="/">Home</a> /
-                    ${
-                      this.category.parentId
-                        ? `<a href="/pages/category/category-page.html?id=${
-                            this.category.parentId
-                          }">
-                            ${
-                              categoryData.getCategory(this.category.parentId)
-                                ?.name || ""
-                            }
-                        </a> /`
-                        : ""
-                    }
-                    <span>${this.category.name}</span>
-                </div>
-                <h1>${this.category.name}</h1>
-            </div>
-            <div class="category-content">
-                <aside class="filters-sidebar">
-                    <!-- Filters will be added here -->
-                </aside>
-                <div class="products-grid">
-                    <!-- Products will be added here -->
-                </div>
-                 <div class="pagination-container">
-          <!-- Pagination will be rendered here -->
+      <div class="category-header">
+        <div class="breadcrumb">
+          <a href="/">Home</a> /
+          ${this.category.parentId ? `<a href="/pages/category/category-page.html?id=${this.category.parentId}">
+            ${categoryData.getCategory(this.category.parentId)?.name || ""}
+          </a> /` : ""}
+          <span>${this.category.name}</span>
         </div>
-            </div>
-        `;
+        <h1>${this.category.name}</h1>
+      </div>
+      <div class="category-content">
+        <aside class="filters-sidebar">
+          <!-- Filters will be added here -->
+        </aside>
+        <div class="products-grid">
+          <!-- Products will be added here -->
+        </div>
+      </div>
+      <div class="pagination-container">
+        <!-- Pagination will be rendered here -->
+      </div>
+    `;
     container.insertAdjacentHTML("beforeend", headerHtml);
 
     // Render products
@@ -339,7 +372,7 @@ showError(message) {
           const productCard = new ProductCard({
             ...product,
             addToCart: (quantity) =>
-              this.cart.addItem({ ...product, quantity }),
+              this.cart.addItemUI({ ...product, quantity }),
           });
           const cardHtml = await productCard.render();
           productsGrid.insertAdjacentHTML("beforeend", cardHtml);
@@ -419,6 +452,7 @@ showError(message) {
       // filterResponse = {status, message, data}
       // We need to set this.filterData to filterResponse.data
       this.filterData = filterResponse.data;
+      
       await this.renderFilters();
     } catch (error) {
       console.error('Error initializing filters:', error);
@@ -428,38 +462,249 @@ showError(message) {
   async renderFilters() {
     const filterContainer = document.querySelector(".filters-sidebar");
     if (!filterContainer) return;
-  
+    
     filterContainer.innerHTML = '<h2>Filter Products</h2>';
-  
-    // Make sure we're accessing the correct properties
-    if (this.filterData && this.filterData.priceRange && this.filterData.priceRange.length > 0) {
-      const priceSection = this.createFilterSection('Price Range', this.filterData.priceRange);
-      filterContainer.appendChild(priceSection);
-    }
-  
+    
+    // Only display Categories filter
     if (this.filterData && this.filterData.categories && this.filterData.categories.length > 0) {
-      const categorySection = this.createFilterSection('Categories', this.filterData.categories);
+      const categoryNames = this.filterData.categories.map(category => category.name);
+      const categorySection = this.createFilterSection('Categories', categoryNames);
       filterContainer.appendChild(categorySection);
     }
-  
-    if (this.filterData && this.filterData.filters) {
-      Object.entries(this.filterData.filters).forEach(([filterName, values]) => {
-        const filterSection = this.createFilterSection(filterName, values);
-        filterContainer.appendChild(filterSection);
-      });
+    
+    // Only display Size filter
+    if (this.filterData && this.filterData.sFilters && this.filterData.sFilters.Size) {
+      const sizeSection = this.createFilterSection('Size', this.filterData.sFilters.Size);
+      filterContainer.appendChild(sizeSection);
     }
-  
+    
+    // Initialize mobile filters
+    this.initializeMobileFilters();
+    
     this.initializeFilterEvents();
   }
+
+  initializeFilterSections() {
+    // Add collapsible functionality to desktop filter sections
+    document.querySelectorAll('.filter-section').forEach(section => {
+      // Create header element for each section
+      const sectionTitle = section.querySelector('h3');
+      if (!sectionTitle) return;
+      
+      const header = document.createElement('div');
+      header.className = 'filter-section-header';
+      
+      // Move the title into the header
+      sectionTitle.parentNode.insertBefore(header, sectionTitle);
+      header.appendChild(sectionTitle);
+      
+      // Add toggle icon
+      const toggleIcon = document.createElement('span');
+      toggleIcon.className = 'filter-toggle-icon';
+      toggleIcon.innerHTML = '<i class="fas fa-chevron-down"></i>';
+      header.appendChild(toggleIcon);
+      
+      // Add click event
+      header.addEventListener('click', () => {
+        section.classList.toggle('collapsed');
+      });
+    });
+    
+    // Initialize mobile filter functionality
+    this.initializeMobileFilters();
+  }
+  initializeMobileFilters() {
+    // Create mobile filter button if it doesn't exist
+    if (!document.querySelector('.mobile-filter-button')) {
+      const categoryPage = document.querySelector('.category-page');
+      if (!categoryPage) return;
+      
+      const mobileFilterButton = document.createElement('button');
+      mobileFilterButton.className = 'mobile-filter-button';
+      mobileFilterButton.innerHTML = '<i class="fas fa-filter"></i> Filter Products';
+      
+      // Insert after category header if it exists, otherwise at the beginning
+      const categoryHeader = document.querySelector('.category-header');
+      if (categoryHeader) {
+        categoryHeader.after(mobileFilterButton);
+      } else {
+        categoryPage.prepend(mobileFilterButton);
+      }
+      
+      // Create mobile filter drawer
+      const mobileFilterDrawer = document.createElement('div');
+      mobileFilterDrawer.className = 'mobile-filter-drawer';
+      mobileFilterDrawer.innerHTML = `
+        <div class="mobile-filter-content">
+          <div class="mobile-filter-header">
+            <h2>Filter Products</h2>
+            <button class="mobile-filter-close">&times;</button>
+          </div>
+          <div class="mobile-filter-body">
+            <!-- Filter dropdowns will be added here -->
+          </div>
+          <div class="mobile-filter-actions">
+            <button class="mobile-filter-clear">Clear All</button>
+            <button class="mobile-filter-apply">Apply Filters</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(mobileFilterDrawer);
+      
+      // Create mobile filter dropdowns
+      this.createMobileFilterDropdowns();
+      
+      // Event listeners
+      mobileFilterButton.addEventListener('click', () => {
+        mobileFilterDrawer.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+      
+      const closeButton = mobileFilterDrawer.querySelector('.mobile-filter-close');
+      closeButton.addEventListener('click', () => {
+        mobileFilterDrawer.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+      
+      // Close when clicking outside the content
+      mobileFilterDrawer.addEventListener('click', (e) => {
+        if (e.target === mobileFilterDrawer) {
+          mobileFilterDrawer.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+      });
+      
+      // Clear all filters
+      const clearButton = mobileFilterDrawer.querySelector('.mobile-filter-clear');
+      clearButton.addEventListener('click', () => {
+        const checkboxes = mobileFilterDrawer.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = false;
+        });
+      });
+      
+      // Apply filters
+      const applyButton = mobileFilterDrawer.querySelector('.mobile-filter-apply');
+      applyButton.addEventListener('click', () => {
+        // Sync mobile filter selections to desktop filters
+        this.syncMobileFiltersToDesktop();
+        
+        // Trigger filter application
+        this.handleFilterChange();
+        
+        // Close drawer
+        mobileFilterDrawer.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    }
+  }
+  
+
+  createMobileFilterDropdowns() {
+    const mobileFilterBody = document.querySelector('.mobile-filter-body');
+    if (!mobileFilterBody || !this.filterData) return;
+    
+    mobileFilterBody.innerHTML = '';
+    
+    // Add Categories dropdown if available
+    if (this.filterData.categories && this.filterData.categories.length > 0) {
+      const categoryNames = this.filterData.categories.map(category => category.name);
+      const categoryDropdown = this.createMobileFilterDropdown('Categories', categoryNames);
+      mobileFilterBody.appendChild(categoryDropdown);
+    }
+    
+    // Add Size dropdown if available
+    if (this.filterData.sFilters && this.filterData.sFilters.Size) {
+      const sizeDropdown = this.createMobileFilterDropdown('Size', this.filterData.sFilters.Size);
+      mobileFilterBody.appendChild(sizeDropdown);
+    }
+    
+    // Add any other filter types you have
+  }
+  
+  // Create mobile filter dropdown
+  createMobileFilterDropdown(title, values) {
+    const dropdown = document.createElement('div');
+    dropdown.className = 'mobile-filter-dropdown';
+    
+    // Check if values is an array, if not, convert it to one
+    const valuesArray = Array.isArray(values) ? values : Object.values(values);
+    
+    dropdown.innerHTML = `
+      <div class="mobile-filter-dropdown-header">
+        <h3>${title}</h3>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="mobile-filter-dropdown-content">
+        ${valuesArray.map(value => `
+          <label class="filter-option">
+            <input type="checkbox" data-filter="${title}" value="${value}">
+            <span>${value}</span>
+          </label>
+        `).join('')}
+      </div>
+    `;
+    
+    // Add toggle functionality
+    const header = dropdown.querySelector('.mobile-filter-dropdown-header');
+    header.addEventListener('click', () => {
+      dropdown.classList.toggle('open');
+      const icon = header.querySelector('i');
+      if (dropdown.classList.contains('open')) {
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+      } else {
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+      }
+    });
+    
+    return dropdown;
+  }
+  
+  // Sync mobile filters to desktop
+  syncMobileFiltersToDesktop() {
+    const mobileCheckboxes = document.querySelectorAll('.mobile-filter-dropdown input[type="checkbox"]');
+    
+    mobileCheckboxes.forEach(mobileCheckbox => {
+      const filter = mobileCheckbox.dataset.filter;
+      const value = mobileCheckbox.value;
+      const desktopCheckbox = document.querySelector(`.filters-sidebar input[data-filter="${filter}"][value="${value}"]`);
+      
+      if (desktopCheckbox) {
+        desktopCheckbox.checked = mobileCheckbox.checked;
+      }
+    });
+  }
+  
+  // Sync desktop filters to mobile
+  syncDesktopFiltersToMobile() {
+    const desktopCheckboxes = document.querySelectorAll('.filters-sidebar input[type="checkbox"]');
+    
+    desktopCheckboxes.forEach(desktopCheckbox => {
+      const filter = desktopCheckbox.dataset.filter;
+      const value = desktopCheckbox.value;
+      const mobileCheckbox = document.querySelector(`.mobile-filter-dropdown input[data-filter="${filter}"][value="${value}"]`);
+      
+      if (mobileCheckbox) {
+        mobileCheckbox.checked = desktopCheckbox.checked;
+      }
+    });
+  }
+  
 
 
   createFilterSection(title, values) {
     const section = document.createElement('div');
     section.className = 'filter-section';
+    
+    // Check if values is an array, if not, convert it to one
+    const valuesArray = Array.isArray(values) ? values : Object.values(values);
+    
     section.innerHTML = `
       <h3>${title}</h3>
       <div class="filter-options">
-        ${values.map(value => `
+        ${valuesArray.map(value => `
           <label class="filter-option">
             <input type="checkbox" data-filter="${title}" value="${value}">
             <span>${value}</span>
@@ -471,53 +716,143 @@ showError(message) {
   }
 
   initializeFilterEvents() {
-    document.querySelectorAll('.filter-option input').forEach(checkbox => {
-      checkbox.addEventListener('change', () => this.handleFilterChange());
+    document.querySelectorAll(".filter-option input").forEach((checkbox) => {
+      checkbox.addEventListener("change", () => this.handleFilterChange());
     });
   }
+  
 
   async handleFilterChange() {
     this.activeFilters.clear();
-    
-    document.querySelectorAll('.filter-option input:checked').forEach(checkbox => {
+  
+    document.querySelectorAll(".filter-option input:checked").forEach((checkbox) => {
       const filterType = checkbox.dataset.filter;
       const value = checkbox.value;
-      
+  
       if (!this.activeFilters.has(filterType)) {
         this.activeFilters.set(filterType, new Set());
       }
       this.activeFilters.get(filterType).add(value);
     });
-
+  
     await this.applyFilters();
   }
+  
+  
+  
 
-
-
-  async applyFilters() {
-    this.loader.show("Filtering products...");
+  async getFilteredStockByCategory(page = 1, filters = {}) {
+    try {
+      // Construct the params object for the API request
+      const params = {
+        page: page,
+        ...filters // This will include categories and choices parameters
+      };
+      
+      console.log("API request params:", params);
+      
+      const response = await axiosService.get(`/commerce/stock`, { params });
+      
+      if (response.status && response.data.stock) {
+        const pagination = {
+          currentPage: response.data.stock.current_page,
+          lastPage: response.data.stock.last_page,
+          total: response.data.stock.total,
+          perPage: response.data.stock.per_page,
+        };
     
-    let filteredProducts = [...this.originalProducts];
-
+        const products = response.data.stock.data.map((stock) => ({
+          id: stock.uid,
+          name: stock.name,
+          price: stock.price,
+          stock_id: stock.uid,
+          imageUrl: stock.attachments?.[0]?.path || "",
+          oldPrice: stock.retail_price !== stock.price ? stock.retail_price : null,
+          size: stock.size,
+          attributes: stock.attributes || {},
+        }));
+    
+        return { products, pagination };
+      }
+      
+      return { products: [], pagination: null };
+    } catch (error) {
+      console.error("Error fetching filtered stock:", error);
+      throw error;
+    }
+  }
+  
+async applyFilters() {
+  try {
+    this.loader.show("Applying filters...");
+    
+    // Create separate parameters for different filter types
+    const filterParams = {};
+    
+    // Track selected categories separately
+    const selectedCategories = [];
+    // Always include the current category unless another is selected
+    selectedCategories.push(this.categoryName);
+    
+    // Process all active filters by type
     this.activeFilters.forEach((values, filterType) => {
-      filteredProducts = filteredProducts.filter(product => {
-        if (filterType === 'Price Range') {
-          // Implement price range filtering logic
-          return true; // Placeholder
+      if (filterType === 'Size' || filterType === 'Colour') {
+        // Size and Colour go into choices parameter
+        if (!filterParams.choices) {
+          filterParams.choices = [];
         }
-        
-        if (filterType === 'Categories') {
-          return values.has(product.category);
+        filterParams.choices.push(...Array.from(values));
+      } else if (filterType === 'Categories') {
+        // Handle category selection - replace the current category
+        if (values.size > 0) {
+          // Clear the default category and use selected ones
+          selectedCategories.length = 0;
+          selectedCategories.push(...Array.from(values));
         }
-        
-        // Handle dynamic filters
-        return product.attributes?.[filterType]?.some(attr => values.has(attr));
-      });
+      } else {
+        // For other filter types, add as separate parameters
+        filterParams[filterType] = Array.from(values).join(',');
+      }
     });
-
-    await this.renderProducts(filteredProducts);
+    
+    // Convert choices array to comma-separated string
+    if (filterParams.choices && filterParams.choices.length > 0) {
+      filterParams.choices = filterParams.choices.join(',');
+    }
+    
+    // Set the categories parameter
+    if (selectedCategories.length > 0) {
+      filterParams.categories = selectedCategories.join(',');
+    }
+    
+    console.debug("Filter parameters:", filterParams);
+    
+    // Fetch filtered products from API
+    const response = await this.getFilteredStockByCategory(
+      this.currentPage,
+      filterParams
+    );
+    
+    if (response && response.products) {
+      this.products = response.products;
+      this.pagination = response.pagination;
+      
+      // Render filtered products and pagination
+      await this.renderProducts(this.products);
+      this.renderPagination();
+    } else {
+      console.error("Invalid response for filtered products");
+    }
+  } catch (error) {
+    console.error("Error applying filters:", error);
+  } finally {
     this.loader.hide();
   }
+}
+
+  
+  
+
 
 
   async renderFilteredProducts(products) {

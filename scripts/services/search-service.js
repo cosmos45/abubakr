@@ -13,8 +13,8 @@ export class SearchService {
       // Initialize categories first
       this.categories = await categoryData.fetchCategories();
       // Initialize products by waiting for them to load
-      const products = await ProductService.getSpecialOffersProducts();
-      this.products = products || [];
+      const allProducts = await ProductService.getAllProducts(); // Fetch all products instead of just special offers
+      this.products = allProducts || [];
     } catch (error) {
       console.error("Error initializing SearchService:", error);
       this.products = [];
@@ -68,11 +68,10 @@ export class SearchService {
           (product.description &&
             product.description.toLowerCase().includes(query))
       )
-      .slice(0, 5);
+      .slice(0, 5); // Limit results to the top 5 matches
   }
 
   isProductInCategory(product, categoryId) {
-    // Check if product belongs to category or its subcategories
     const category = this.findCategory(this.categories, categoryId);
     if (!category) return false;
 

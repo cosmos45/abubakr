@@ -11,6 +11,22 @@ export const categoryData = {
         }
     },
 
+    async getCategoryByName(name) {
+        try {
+          const response = await axiosServices.get('/commerce/categories', {
+            params: { name: name }
+          });
+          if (response.status && response.data.categories) {
+            return response.data.categories.find(cat => cat.name === name);
+          }
+          return null;
+        } catch (error) {
+          console.error('Error fetching category by name:', error);
+          return null;
+        }
+      }
+,      
+
     async getActiveCategories() {
         const categories = await this.fetchCategories();
         return categories.filter(cat => cat.is_active === 1);

@@ -29,12 +29,92 @@ export class ProductService {
       return [];
     }
   }
-  
+
+
+  static async getAllProducts() {
+    try {
+      const response = await axiosServices.get('/commerce/stock'); // Adjust endpoint as necessary
+      
+      if (response.status && response.data.stock.data) {
+        return response.data.stock.data.map(stock => ({
+          id: stock.uid,
+          name: stock.name,
+          price: stock.price,
+          stock_id: stock.uid,
+          imageUrl: stock.attachments?.[0]?.path || '',
+          oldPrice: stock.retail_price !== stock.price ? stock.retail_price : null,
+          size: stock.size,
+          description: stock.description,
+          sku: stock.sku,
+          attributes: stock.attributes || {}
+        }));
+      }
+      
+      return [];
+      
+    } catch (error) {
+      console.error('Error fetching all products:', error);
+      return [];
+    }}
+
+  static async getProductById(productId) {
+    try {
+      const response = await axiosServices.get(`/commerce/stock/${productId}`);
+      
+      if (response.status && response.data.stock) {
+        const stock = response.data.stock;
+        return {
+          id: stock.uid,
+          name: stock.name,
+          price: stock.price,
+          stock_id: stock.uid,
+          imageUrl: stock.attachments?.[0]?.path || '',
+          oldPrice: stock.retail_price !== stock.price ? stock.retail_price : null,
+          size: stock.size,
+          description: stock.description,
+          sku: stock.sku,
+          attributes: stock.attributes || {}
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error fetching product by ID:', error);
+      return null;
+    }
+  }
+  // Add this to your services/product-service.js file
+static async getChineseProducts() {
+  try {
+    const response = await axiosServices.get('/commerce/stock', {
+      params: {
+        categories: 'Chinese' // Using Chinese category name
+      }
+    });
+    
+    
+    if (response.status && response.data.stock.data) {
+      return response.data.stock.data.map(stock => ({
+        id: stock.uid,
+        name: stock.name,
+        price: stock.price,
+        stock_id: stock.uid,
+        imageUrl: stock.attachments?.[0]?.path || '',
+        oldPrice: stock.retail_price !== stock.price ? stock.retail_price : null,
+        size: stock.size
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching Chinese products:', error);
+    return [];
+  }
+}
+
   static async getMeatProducts() {
     try {
       const response = await axiosServices.get('/commerce/stock', {
         params: {
-          categories: 'Meat' // Using Meat category name
+          categories: 'Halal Meat' // Using Meat category name
         }
       });
       
@@ -56,46 +136,50 @@ export class ProductService {
     }
   }
 
-  static async getOrganicFoodsProducts() {
-    try {
-      const response = await axiosServices.get('/commerce/stock', {
-        params: {
-          categories: 'Organic Foods' // Using category name
-        }
-      });
-      console.log('organic food', response)
-      if (response.status && response.data.stock.data) {
-        return response.data.stock.data.map(stock => ({
-          id: stock.uid,
-          name: stock.name,
-          price: stock.price,
-          stock_id: stock.uid,
-          imageUrl: stock.attachments?.[0]?.path || '',
-          oldPrice: stock.retail_price !== stock.price ? stock.retail_price : null,
-          size: stock.size
-        }));
+  // services/product-service.js
+static async getDairyProducts() {
+  try {
+    const response = await axiosServices.get('/commerce/stock', {
+      params: {
+        categories: 'Milk & Dairy' // Using category name
       }
-      return [];
-    } catch (error) {
-      console.error('Error fetching organic foods products:', error);
-      return [];
+    });
+    console.log(response)
+    
+    if (response.status && response.data.stock.data) {
+      return response.data.stock.data.map(stock => ({
+        id: stock.uid,
+        name: stock.name,
+        price: stock.price,
+        stock_id: stock.uid,
+        imageUrl: stock.attachments?.[0]?.path || '',
+        oldPrice: stock.retail_price !== stock.price ? stock.retail_price : null,
+        size: stock.size
+      }));
     }
+    return [];
+  } catch (error) {
+    console.error('Error fetching dairy products:', error);
+    return [];
   }
+}
+
 }
 
 // Add the missing ProductServiceCategory class
 export class ProductServiceCategory {
-  static async getStockByCategory(categoryId, page = 1) {
+
+  static async getStockByCategory(categoryName, page = 1) {
     try {
       const response = await axiosServices.get('/commerce/stock', {
+
         params: {
-          categories: categoryId,
+          categories: categoryName,
           page: page
         }
       });
       
       if (response.status && response.data.stock) {
-        // Extract pagination data
         const pagination = {
           currentPage: response.data.stock.current_page,
           lastPage: response.data.stock.last_page,
@@ -103,7 +187,6 @@ export class ProductServiceCategory {
           perPage: response.data.stock.per_page
         };
         
-        // Map products data
         const products = response.data.stock.data.map(stock => ({
           id: stock.uid,
           name: stock.name,
@@ -130,4 +213,5 @@ export class ProductServiceCategory {
       throw error;
     }
   }
+
 }

@@ -10,12 +10,13 @@ export async function initializeMostPopular() {
     }
 
     try {
-        slider.innerHTML = '<div class="loading">Loading organic foods...</div>';
+        slider.innerHTML = '<div class="loading">Loading dairy products...</div>';
         
-        const organicProducts = await ProductService.getOrganicFoodsProducts();
+        const dairyProducts = await ProductService.getDairyProducts();
+        console.log('dairyProducts', dairyProducts)
         
-        if (!organicProducts?.length) {
-            slider.innerHTML = '<div class="no-products">No organic foods available</div>';
+        if (!dairyProducts?.length) {
+            slider.innerHTML = '<div class="no-products">No dairy products available</div>';
             return;
         }
 
@@ -24,7 +25,7 @@ export async function initializeMostPopular() {
         // Batch render products for better performance
         const fragment = document.createDocumentFragment();
         
-        for (const product of organicProducts) {
+        for (const product of dairyProducts) {
             const productCard = new ProductCard({
                 id: product.id,
                 name: product.name,
@@ -49,10 +50,11 @@ export async function initializeMostPopular() {
         initMostPopularSlider();
         
     } catch (error) {
-        console.error('Error initializing organic foods:', error);
-        slider.innerHTML = '<div class="error">Failed to load organic foods</div>';
+        console.error('Error initializing dairy products:', error);
+        slider.innerHTML = '<div class="error">Failed to load dairy products</div>';
     }
 }
+
 
 export function initMostPopularSlider() {
     const slider = document.querySelector('#most-popular-slider');

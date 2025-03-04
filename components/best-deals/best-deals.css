@@ -16,45 +16,41 @@
     margin: 0.3rem 0;
 }
 
-/* Mobile responsiveness improvements */
-@media screen and (max-width: 768px) {
-    .products-slider {
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    .product-card {
-        scroll-snap-align: start;
-    }
-}
-
 .special-offers-section {
     padding: 40px 0;
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
+
 .section-title {
     font-size: 32px;
-    font-weight: 1;
+    font-weight: 400;
     margin-bottom: 30px;
-    padding-left: 100px;
+    padding-left: 20px; /* Aligned with the slider start */
+    text-align: left;
 }
 
 .products-slider-container {
     position: relative;
     display: flex;
     align-items: center;
-    padding: 0 60px;
-    width: calc(235px * 5 + 80px); /* Width for exactly 5 cards + gaps */
+    max-width: 1200px;
     margin: 0 auto;
     overflow: hidden;
 }
+
+
+
 .products-slider {
     display: flex;
     gap: 20px;
     transition: transform 0.3s ease-in-out;
+    padding: 0 40px;
+    width: 100%;
 }
+
+
 .slider-nav {
     position: absolute;
     width: 40px;
@@ -66,7 +62,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 2;
+    z-index: 10;
     top: 50%;
     transform: translateY(-50%);
 }
@@ -77,12 +73,6 @@
 
 .next-btn {
     right: 10px;
-}
-
-.product-card {
-    flex: 0 0 200px; /* Reduced card width */
-    min-width: 220px;
-    max-width: 220px;
 }
 
 .view-all-container {
@@ -105,7 +95,7 @@
     color: white;
 }
 
-/* components/special-offers/special-offers.css */
+/* Mobile responsiveness improvements */
 @media screen and (max-width: 768px) {
     .special-offers-section {
         padding: 20px 10px;
@@ -127,12 +117,14 @@
         gap: 10px;
         padding: 10px;
         flex-wrap: nowrap;
+        scroll-snap-type: x mandatory;
     }
-
+    
     .product-card {
         flex: 0 0 160px;
         min-width: 160px;
         padding: 10px;
+        scroll-snap-align: start;
     }
 
     .product-image {
