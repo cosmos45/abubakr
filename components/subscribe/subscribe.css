@@ -1,146 +1,51 @@
-.subscribe-section {
-  background-image: url("/assets/images/vegetables-bg.jpg");
-  background-size: cover;
-  background-position: center;
+.organic-parallax-banner {
   position: relative;
+  height: 80vh;
+  min-height: 600px;
+  width: 100%;
+  overflow: hidden;
+  margin: 0;
+  perspective: 1px;
 }
 
-.subscribe-overlay {
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6));
+.parallax-background {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 3rem 1rem;
+  background-image: url("/assets/images/organic/ORGANIC\ FOOD.jpg");
+  background-size: cover;
+  background-position: center;
+  transform: translateZ(-1px) scale(2);
+  transform-origin: center;
+  z-index: 1;
 }
 
-.subscribe-content {
-  text-align: left;
-  color: white;
-  max-width: 800px;
+.parallax-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.subscribe-content h2 {
-  font-family: Avenir, sans-serif;
-  font-size: 2.2rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.discount {
-  margin: 0.5rem 0;
-}
-
-.discount .number {
-  font-size: 4.5rem;
-  font-weight: bold;
-}
-
-.discount .percent {
-  font-size: 3rem;
-  font-weight: bold;
-}
-
-.discount .off {
-  font-size: 2.5rem;
-  margin-left: 0.5rem;
-}
-
-.subscribe-content h3 {
-  font-family: Avenir, sans-serif;
-  font-size: 2rem;
-  font-weight: 500;
-  margin-bottom: 2rem;
-}
-
-.subscribe-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-}
-
-.form-group {
-  position: relative;
-  width: 100%;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  border: 0.5px solid rgba(255, 255, 255, 0.5);
-  border-radius: 30px;
-  font-family: Avenir, sans-serif;
-  font-size: 0.9rem;
-  color: white;
-  height: 45px;
-}
-
-.form-group input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.checkbox-group label {
-  font-family: Avenir, sans-serif;
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.subscribe-btn {
-  background: var(--top-bar-green);
-  color: white;
-  border: 1px solid var(--top-bar-green);
-  padding: 0.6rem 1.5rem;
-  border-radius: 30px;
-  font-family: Avenir, sans-serif;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 0.5rem;
-  align-self: flex-end;
-  width: 30%;
-}
-
-.subscribe-btn:hover {
-  background: white;
-  color: var(--top-bar-green);
-  border-color: var(--top-bar-green);
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  z-index: 2;
+  transform: translateZ(0);
 }
 
 @media (max-width: 768px) {
-  .subscribe-content {
-    padding: 0 1rem;
+  .organic-parallax-banner {
+    height: 70vh;
+    min-height: 500px;
+    perspective: none;
   }
-
-  .subscribe-content h2 {
-    font-size: 1.8rem;
-  }
-
-  .discount .number {
-    font-size: 3.5rem;
-  }
-
-  .discount .percent {
-    font-size: 2.5rem;
-  }
-
-  .discount .off {
-    font-size: 2rem;
-  }
-
-  .subscribe-content h3 {
-    font-size: 1.6rem;
+  
+  .parallax-background {
+    transform: none;
   }
 }

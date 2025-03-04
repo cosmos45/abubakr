@@ -5,7 +5,7 @@
     background-color: transparent;
     position: relative;
     overflow: hidden;
-    margin-top: 50px;
+    margin-top: 70px;
 }
 .carousel-item img {
   object-fit: contain;

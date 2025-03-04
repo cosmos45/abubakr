@@ -641,20 +641,20 @@
 
 /* Ensure main nav stays behind suggestions */
 .main-nav {
-    height: 50px;
+    height: 15px;
     position: relative;
     z-index: 1000;
 }
 
 
 .nav-menu {
-    height: 40px;
+    height: 50px;
     display: flex;
     list-style: none;
     margin: 0;
     padding: 50px;
     gap: 85px;
-    padding-left: 300px;
+    padding-left: 250px;
 }
 
 .nav-menu a {
@@ -731,7 +731,7 @@
 .category-dropdown {
     display: none;
     position: absolute;
-    top: calc(100% + 5px); /* Add 5px gap below navbar */
+    top: calc(30% + 5px); /* Add 5px gap below navbar */
     left: 0;
     background: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);

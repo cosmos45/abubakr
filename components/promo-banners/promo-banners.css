@@ -22,15 +22,38 @@
   min-height: 500px; /* Increased height */
 }
 
-.pasta-promo {
-  background-image: url("/assets/images/pasta.webp");
-  width: auto;
+.promo-card.cereal-promo {
+  background-image: url('/assets/images/cereal.webp');
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  color: white;
 }
 
-.cereal-promo {
-  background-image: url("/assets/images/cereal.webp");
+.promo-card.cereal-promo .promo-content {
+  position: relative;
+  z-index: 2;
 }
 
+.promo-card.cereal-promo .promo-image {
+  display: none;
+}
+.promo-card.pasta-promo {
+  background-image: url('/assets/images/pasta.webp');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: relative;
+}
+
+.promo-card.pasta-promo .promo-content {
+  position: relative;
+  z-index: 2;
+}
+
+.promo-card.pasta-promo .promo-image {
+  display: none;
+}
 .promo-content {
   flex: 1;
   z-index: 2;

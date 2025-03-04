@@ -8,8 +8,8 @@ async function renderPopularCategories() {
         
         // Sort categories to match the desired order
         const categoryOrder = [
-            'Vegetables', 'Bakery', 'Juice', 'Dairy & Eggs',
-            'Meat & Poultry', 'Soft Drinks', 'Cleaning Supplies', 'Cereals & Snacks'
+            'Fruit & Vegetables', 'Bakery Items', 'Juice & Drinks', 'Milk & Dairy',
+            'Halal Meat', 'Cans (Drinks)', 'Household Items', 'Biscuits & Cereals'
         ];
         
         const sortedCategories = categoryOrder
@@ -31,7 +31,7 @@ async function renderPopularCategories() {
 function createCategoryCard(category) {
     const card = document.createElement('a');
     card.className = 'category-card';
-    card.href = `/category/${category.uid}`;
+    card.href = `/pages/category/category-page.html?name=${encodeURIComponent(category.name)}`;
     
     card.innerHTML = `
         <div class="circle-background"></div>
