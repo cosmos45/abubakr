@@ -1,0 +1,196 @@
+/* Abu Bakr Parallax Banner */
+.abu-bakr-parallax {
+    background-image: url('/assets/images/brand-banner/brand-banner.jpeg');
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 500px;
+    position: relative;
+    margin: 60px 0;
+    background-color: #000000;
+  }
+  
+  .abu-bakr-parallax::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1;
+  }
+  
+  .parallax-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(circle, rgba(173, 216, 46, 0.1) 1px, transparent 1px),
+      radial-gradient(circle, rgba(173, 216, 46, 0.05) 2px, transparent 2px);
+    background-size: 20px 20px, 30px 30px;
+    animation: particleMove 20s linear infinite;
+    z-index: 2;
+  }
+  
+  @keyframes particleMove {
+    0% {
+      background-position: 0 0, 0 0;
+    }
+    100% {
+      background-position: 100px 100px, 50px 50px;
+    }
+  }
+  
+  .parallax-content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+  }
+  
+  .parallax-text {
+    color: #ffffff;
+    padding: 30px;
+    animation: fadeIn 1.5s ease-out;
+  }
+  
+  .parallax-text h2 {
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #add82e;
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+  }
+  
+  .parallax-text p {
+    font-size: 20px;
+    margin-bottom: 25px;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+  }
+  
+  .feature-icons {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 30px;
+  }
+  
+  .feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    transition: transform 0.3s ease;
+  }
+  
+  .feature:hover {
+    transform: translateY(-5px);
+  }
+  
+  .feature i {
+    font-size: 2rem;
+    color: #add82e;
+    filter: drop-shadow(0 0 5px rgba(173, 216, 46, 0.5));
+  }
+  
+  .feature span {
+    font-size: 1rem;
+    color: #ffffff;
+  }
+  
+  .btn-brand {
+    background-color: transparent;
+    border: 2px solid #add82e;
+    color: #add82e;
+    padding: 10px 25px;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+  
+  .btn-brand::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background-color: #add82e;
+    transition: all 0.4s ease;
+    z-index: -1;
+  }
+  
+  .btn-brand:hover {
+    color: #000000;
+  }
+  
+  .btn-brand:hover::before {
+    left: 0;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Media Queries for Responsive Design */
+  @media (max-width: 768px) {
+    .abu-bakr-parallax {
+      height: 450px;
+      background-attachment: scroll;
+    }
+    
+    .parallax-text h2 {
+      font-size: 32px;
+    }
+    
+    .parallax-text p {
+      font-size: 18px;
+    }
+    
+    .feature-icons {
+      gap: 20px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .abu-bakr-parallax {
+      height: 400px;
+    }
+    
+    .parallax-text h2 {
+      font-size: 28px;
+    }
+    
+    .parallax-text p {
+      font-size: 16px;
+    }
+    
+    .feature-icons {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .feature {
+      flex-direction: row;
+      gap: 10px;
+    }
+  }
+  

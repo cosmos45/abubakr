@@ -11,46 +11,44 @@ export class HeaderSearch {
 
   async init() {
     this.searchInput = document.getElementById("search-input");
-    this.categorySelect = document.getElementById("category-select");
     this.suggestionsContainer = document.getElementById("search-suggestions");
     this.searchWrapper = document.querySelector(".search-wrapper");
-
-    if (!this.searchInput || !this.categorySelect) return;
-
-    await this.populateCategories();
+  
+    if (!this.searchInput) return;
+  
     await this.cart.init();
     this.setupEventListeners();
   }
 
-  async populateCategories() {
-    try {
-      const categories = await this.searchService.getAllCategories();
+  // async populateCategories() {
+  //   try {
+  //     const categories = await this.searchService.getAllCategories();
       
-      // Clear existing options
-      this.categorySelect.innerHTML = '<option value="all">All categories</option>';
+  //     // Clear existing options
+  //     this.categorySelect.innerHTML = '<option value="all">All categories</option>';
 
-      // Add categories that are active
-      categories
-        .filter(category => category.is_active === 1)
-        .forEach(category => {
-          const option = document.createElement("option");
-          option.value = category.id;
-          option.textContent = category.name;
-          this.categorySelect.appendChild(option);
-        });
+  //     // Add categories that are active
+  //     categories
+  //       .filter(category => category.is_active === 1)
+  //       .forEach(category => {
+  //         const option = document.createElement("option");
+  //         option.value = category.id;
+  //         option.textContent = category.name;
+  //         this.categorySelect.appendChild(option);
+  //       });
 
-      // Add change event listener for category selection
-      this.categorySelect.addEventListener("change", () => {
-        const query = this.searchInput.value.trim();
-        if (query.length >= 3) {
-          this.handleSearch();
-        }
-      });
-    } catch (error) {
-      console.error("Error populating categories:", error);
-      this.categorySelect.innerHTML = '<option value="all">All categories</option>';
-    }
-  }
+  //     // Add change event listener for category selection
+  //     this.categorySelect.addEventListener("change", () => {
+  //       const query = this.searchInput.value.trim();
+  //       if (query.length >= 3) {
+  //         this.handleSearch();
+  //       }
+  //     });
+  //   } catch (error) {
+  //     console.error("Error populating categories:", error);
+  //     this.categorySelect.innerHTML = '<option value="all">All categories</option>';
+  //   }
+  // }
 
   showSuggestions() {
     if (this.suggestionsContainer) {
@@ -66,7 +64,7 @@ export class HeaderSearch {
 
   setupEventListeners() {
     let debounceTimer;
-
+  
     this.searchInput.addEventListener("input", () => {
       const query = this.searchInput.value.trim();
       
@@ -74,7 +72,7 @@ export class HeaderSearch {
       if (query.length >= 3) {
         this.showLoadingAnimation();
       }
-
+  
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         if (query.length >= 3) {
@@ -84,15 +82,9 @@ export class HeaderSearch {
         }
       }, 300);
     });
-
-    // Handle category change
-    this.categorySelect.addEventListener("change", () => {
-      const query = this.searchInput.value.trim();
-      if (query.length >= 3) {
-        this.handleSearch();
-      }
-    });
-
+  
+    // Remove category change event listener since there's no category select anymore
+  
     // Close suggestions on outside click
     document.addEventListener("click", (e) => {
       if (!this.searchWrapper?.contains(e.target)) {
@@ -100,6 +92,7 @@ export class HeaderSearch {
       }
     });
   }
+  
 
   showLoadingAnimation() {
     if (!this.suggestionsContainer) return;
@@ -115,13 +108,13 @@ export class HeaderSearch {
 
   async handleSearch() {
     const query = this.searchInput.value.trim();
-    const categoryId = this.categorySelect.value;
-
+    const categoryId = "all"; // Always use "all" since we removed the dropdown
+  
     if (query.length < 3) {
       this.hideSuggestions();
       return;
     }
-
+  
     try {
       const results = await this.searchService.search(query, categoryId);
       this.renderSuggestions(results);
@@ -130,6 +123,7 @@ export class HeaderSearch {
       this.renderError();
     }
   }
+  
 
   renderSuggestions(results) {
     if (!this.suggestionsContainer) return;

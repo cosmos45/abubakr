@@ -1,40 +1,69 @@
 /* components/carousel/carousel.css */
 .hero-carousel {
-    width: 100%;
+    width: 100vw;
     height: 500px;
     background-color: transparent;
     position: relative;
     overflow: hidden;
     margin-top: 70px;
-}
-.carousel-item img {
-  object-fit: contain;
-  width: 100%;
-  height: auto;
-  max-height: 100vh;
+    margin-left: calc(-50vw + 50%);
 }
 
-.carousel-inner {
-  width: 100%;
+.carousel-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
 }
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    z-index: 1;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+    z-index: 2;
+}
+
 .carousel-content {
     width: 100%;
-    max-width: 1920px;
+    max-width: 100%;
     height: 100%;
-    margin: 0 auto;
+    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-end;
-    background: url('../../assets/images/promo-banner/Carousel1.jpg') center center no-repeat;
-    background-size: cover;
     position: relative;
-    padding-bottom: 40px; /* Space for dots below button */
+    padding-bottom: 40px;
+    z-index: 3;
+    /* Remove the background image from here as it conflicts with slides */
+    /* background: url('../../assets/images/promo-banner/Carousel1.jpg') center center no-repeat; */
+    /* background-size: cover; */
+}
+
+.carousel-item img {
+    object-fit: contain;
+    width: 100%;
+    height: auto;
+    max-height: 100vh;
+}
+
+.carousel-inner {
+    width: 100%;
 }
 
 .carousel-text {
     width: 100%;
-    z-index: 2;
+    z-index: 4;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -79,11 +108,11 @@
     align-items: center;
     justify-content: center;
     min-width: 150px;
-    margin: 0 auto 10px auto; /* Reduced bottom margin to be closer to dots */
+    margin: 0 auto 10px auto;
     position: absolute;
-    bottom: 30px; /* Position from bottom to align with dots */
+    bottom: 30px;
     left: 50%;
-    transform: translateX(-50%); /* Center horizontally */
+    transform: translateX(-50%);
     z-index: 10;
 }
 
@@ -93,17 +122,66 @@
     border: 1px solid #6B8E4E;
 }
 
+/* Add indicator styles */
+.carousel-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    z-index: 5;
+}
+
+.indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.indicator.active {
+    background-color: white;
+}
+
 /* Remove container padding for full-width carousel */
 main.container {
     padding: 0;
     max-width: 100%;
+    overflow-x: hidden;
+    width: 100%;
 }
-
+/* Add this to your carousel.css file */
+.carousel-slide:first-child {
+    background-position: right center;
+  }
+  
+  /* Mobile-specific adjustment */
+  @media screen and (max-width: 768px) {
+    .carousel-slide:first-child {
+      background-position: 80% center; /* Focus on the right side (table with products) */
+    }
+    
+    /* Keep second slide centered */
+    .carousel-slide:nth-child(2) {
+      background-position: center center;
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .carousel-slide:first-child {
+      background-position: 85% center; /* Focus even more on the right side for smaller screens */
+    }
+  }
+  
 /* Wide screen adjustments */
 @media screen and (min-width: 1921px) {
-    .carousel-content {
+    .carousel-slide {
         background-size: cover;
-        background-position: right right;
+        background-position: center center;
     }
 }
 
@@ -111,10 +189,6 @@ main.container {
 @media screen and (max-width: 1024px) {
     .hero-carousel {
         height: 450px;
-    }
-    
-    .carousel-content {
-        background-position: right right;
     }
 }
 
@@ -125,15 +199,13 @@ main.container {
     
     .carousel-content {
         padding-bottom: 30px;
-        background-position: right right;
     }
     
     .shop-now-carousel {
         margin-bottom: 15px;
         min-width: 140px;
         font-size: 16px;
-        bottom: 25px; /* Adjust for mobile */
-
+        bottom: 25px;
     }
 }
 
@@ -141,11 +213,10 @@ main.container {
 @media screen and (max-width: 480px) {
     .hero-carousel {
         height: 350px;
-        margin-top: 60px; /* Add space below the search bar */
+        margin-top: 60px;
     }
     
     .carousel-content {
-        background-position: right top;
         padding-bottom: 20px;
     }
     
@@ -154,8 +225,7 @@ main.container {
         height: 38px;
         min-width: 130px;
         font-size: 15px;
-        bottom: 20px; /* Further adjust for smaller screens */
-
+        bottom: 20px;
     }
 }
 

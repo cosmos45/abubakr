@@ -11,6 +11,7 @@ import { CategoryManager } from "./modules/category-manager.js";
 import { SearchService } from "./services/search-service.js";
 import { HeaderSearch } from "./modules/header-search.js";
 import Loader from "../components/loader/loader.js";
+import BrandBanner from "../components/brand-banner/brand-banner.js";
 
 window.globalLoader = new Loader();
 
@@ -35,7 +36,9 @@ async function initializeApp() {
     const categoryManager = new CategoryManager();
     await categoryManager.init();
     await categoryManager.initializeNavigation();
-
+// Initialize the brand banner
+const brandBanner = new BrandBanner();
+await brandBanner.init();
     // Load all components
     await Promise.all([
       loadComponent("header", "/components/header/header.html"),
@@ -45,15 +48,16 @@ async function initializeApp() {
         "featured-deals-container",
         "/components/featured-deals/featured-deals.html"
       ),
+      await loadComponent(
+        "best-deals-container",
+        "/components/best-deals/best-deals.html"
+      ),
       loadComponent(
         "popular-categories",
         "/components/popular-categories/popular-categories.html"
       ),
       loadComponent("fresh-finds", "/components/fresh-finds/fresh-finds.html"),
-      await loadComponent(
-        "promo-banners",
-        "/components/promo-banners/promo-banners.html"
-      ),
+     
       loadComponent(
         "most-popular",
         "/components/most-popular/most-popular.html"
@@ -67,15 +71,21 @@ async function initializeApp() {
         "/components/subscribe/subscribe.html"
       ),
       await loadComponent("footer", "/components/footer/footer.html"),
-      await loadComponent(
-        "best-deals-container",
-        "/components/best-deals/best-deals.html"
-      ),
+    
       await loadComponent(
         "start-cart-container",
         "/components/start-cart/start-cart.html"
       ),
+      await loadComponent(
+        "promo-banners",
+        "/components/promo-banners/promo-banners.html"
+      ),
+      await loadComponent(
+        "brand-banner-container",
+        "/components/brand-banner/brand-banner.html"
+      ),
     ]);
+    
 
     categoryManager.initializeNavigation();
 

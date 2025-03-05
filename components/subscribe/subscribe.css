@@ -1,4 +1,4 @@
-.organic-parallax-banner {
+/* .organic-parallax-banner {
   position: relative;
   height: 80vh;
   min-height: 600px;
@@ -8,7 +8,7 @@
   perspective: 1px;
 }
 
-.parallax-background {
+.parallax-backgrounds {
   position: absolute;
   top: 0;
   left: 0;
@@ -48,4 +48,4 @@
   .parallax-background {
     transform: none;
   }
-}
+} */

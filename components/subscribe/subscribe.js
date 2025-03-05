@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const parallaxBanner = document.querySelector('.organic-parallax-banner');
-    const parallaxBg = document.querySelector('.parallax-background');
+    const parallaxBg = document.querySelector('.parallax-backgrounds');
     
     if (!parallaxBanner || !parallaxBg) return;
     
