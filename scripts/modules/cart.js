@@ -542,17 +542,18 @@ showToast(message, type = 'success') {
 
   updateCartCount() {
     const countElements = document.querySelectorAll(".cart-count");
-    const totalItems = this.getTotalItems();
-
+    const uniqueItemCount = this.items.size;
+  
     countElements.forEach((element) => {
-      element.textContent = totalItems;
+      element.textContent = uniqueItemCount;
     });
-
+  
     const cartTitle = document.querySelector(".cart-header h2");
     if (cartTitle) {
-      cartTitle.textContent = `Cart (${totalItems} items)`;
+      cartTitle.textContent = `Cart (${uniqueItemCount} ${uniqueItemCount === 1 ? 'item' : 'items'})`;
     }
   }
+  
 
   getTotalItems() {
     let total = 0;
