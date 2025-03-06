@@ -1,11 +1,16 @@
 import { Cart } from "../../scripts/modules/cart.js";
 import { loadComponent } from "../../scripts/utils/components.js";
 import Loader from '../../components/loader/loader.js';
-
+import { GlobalSearch } from "../../scripts/modules/global-search.js";
+import { MobileMenu } from "../../scripts/modules/mobile-menu.js";
+import { initializeFooter } from "../../components/footer/footer.js";
+import { initializeStickyHeader } from "../../scripts/modules/sticky-header.js";
 class CartPage {
     constructor() {
         this.cart = new Cart();
         this.loader = new Loader();
+        this.globalSearch = new GlobalSearch();
+
         
         // Cart-specific creative loading messages
         this.loader.customMessages = [
@@ -37,19 +42,23 @@ class CartPage {
                 loadComponent("header", "/components/header/header.html"),
                 loadComponent("footer", "/components/footer/footer.html")
             ]);
+                // Initialize mobile menu
+         const mobileMenu = new MobileMenu();
+         mobileMenu.init();
 
             // Initialize cart
             await this.cart.init();
-            
+             // Initialize global search
+      await this.globalSearch.init();
             // Render cart page
             this.cart.renderCartPage();
             
             // Initialize mobile menu
-            this.initializeMobileMenu();
             
             // Add event listeners for cart interactions
             this.addCartEventListeners();
-            
+            await initializeFooter();
+
             // Hide loader when everything is ready
             this.loader.hide();
             

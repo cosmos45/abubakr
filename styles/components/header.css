@@ -3,6 +3,101 @@
     --header-green: #386741;
     --white: #ffffff;
 }
+body.sticky-header .header-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s forwards;
+  }
+
+  body.sticky-header .top-bar {
+  display: none;
+}
+
+/* Sticky header styles */
+.header-container, header {
+    width: 100%;
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .sticky-header {
+    position: fixed;
+    top: 0 !important; /* Use !important to override any inline styles */
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s forwards;
+  }
+
+  .sticky-header header .header-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s forwards;
+  }
+
+  .sticky-header header .top-bar {
+    display: none;
+  }
+  
+  /* Hide top bar in sticky mode for cleaner look */
+  .sticky-header .top-bar {
+    display: none;
+  }
+  
+  /* Animation for sticky header appearance */
+  @keyframes slideDown {
+    from {
+      transform: translateY(-100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  /* Mobile-specific adjustments */
+  @media (max-width: 991px) {
+    
+    .sticky-header {
+      min-height: 120px; /* Increased from 60px */
+    }
+    
+    .sticky-header .main-header {
+      height: 120px; /* Increased from 60px */
+      padding-top: 10px; /* Added to create space at top */
+      padding-bottom: 10px;
+    }
+    
+    .sticky-header .logo img {
+      width: 60px;
+      padding-top: 30px; /* Adjusted from 10px */
+      margin-top: 10px; /* Added to prevent cutoff */
+    }
+    
+    .sticky-header .mobile-menu-toggle {
+      margin-top: 20px; /* Added to prevent cutoff */
+    }
+    
+    .sticky-header .header-icons {
+      margin-top: 20px; /* Added to prevent cutoff */
+    }
+    
+    .sticky-header .search-container {
+      margin-top: 15px; /* Ensure search is visible */
+    }
+  }
+  
+  
 
 /* Mobile Menu Styles */
 .mobile-menu-container {
@@ -387,13 +482,18 @@
     font-size: 12px;
 }
 .header-container {
+    width: 100%;
+    z-index: 1000;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .sticky-header .header-container {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
-    transition: transform 0.3s ease-in-out;
-}
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: slideDown 0.3s forwards;
+  }
 
 .header-hidden {
     transform: translateY(-100%);
@@ -639,22 +739,26 @@
 
 
 
-/* Ensure main nav stays behind suggestions */
 .main-nav {
-    height: 15px;
-    position: relative;
-    z-index: 1000;
+  position: relative;
+  z-index: 999; /* Lower than header-container */
+  background-color: #fff;
+  width: 100%;
+
 }
 
 
 .nav-menu {
-    height: 50px;
+    height: 25px;
     display: flex;
     list-style: none;
     margin: 0;
-    padding: 50px;
+    padding-top: 50px;
     gap: 85px;
     padding-left: 250px;
+    background-color: #fff;
+    width: 100%;
+    padding-bottom: 35px;
 }
 
 .nav-menu a {
@@ -821,8 +925,10 @@
     padding: 10px;
     position: relative;
     z-index: 1001;
-    padding-top: 40px;
+    padding-top: 25px; /* Reduced from 40px to 25px for better alignment */
+    margin-top: 10px; /* Added to shift button down */
 }
+
 
 @media (max-width: 991px) {
     .top-bar {
@@ -830,28 +936,34 @@
     }
     .mobile-menu-toggle {
         display: block;
-    }
-
-    .header-content {
+        padding-top: 20px; /* Reduced from 40px to 20px */
+        margin-top: 50px; /* Added to shift down */
+      }
+    
+      .header-icons {
+        margin-top: 65px; /* Added to shift cart icon down */
+      }
+      .header-content {
         display: grid;
         grid-template-columns: auto 1fr auto;
         gap: 15px;
         align-items: center;
         padding: 10px;
-    }
+        padding-bottom: 15px; /* Added to create space below */
+      }
 
     .logo img {
         width: 70px;
-        padding-top: 40px;
+        padding-top: 65px; /* Reduced from 70px to 40px */
 
     }
 
     .search-container {
         grid-column: 1 / -1;
         grid-row: 2;
-        margin: 10px;
+        margin: 10px 10px 10px; /* Added top margin */
         max-width: 100%;
-        width: calc(100% - 20px);
+        width: calc(100% - 30px);
     }
 
     .nav-menu {

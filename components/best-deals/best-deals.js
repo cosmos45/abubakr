@@ -1,9 +1,13 @@
 // components/special-offers/special-offers.js
 import { ProductCard } from "../product-card/product-card.js";
 import { ProductService } from "../../scripts/services/product-service.js";
+import { categoryData } from "../../scripts/services/category-service.js";
 
 export async function initializeSpecialOffers() {
-  const slider = document.getElementById("special-offers-slider");
+  console.log("Initializing special offers...");
+  const slider = document.getElementById("deals-slider");
+  const viewAllBtn = document.querySelector(".view-all-btn");
+  
   if (!slider) {
     console.warn("Special offers slider not found");
     return;
@@ -13,6 +17,7 @@ export async function initializeSpecialOffers() {
     slider.innerHTML = '<div class="loading">Loading special offers...</div>';
 
     const specialOffersProducts = await ProductService.getSpecialOffersProducts();
+    console.log("Special offers products loaded:", specialOffersProducts?.length);
 
     if (!specialOffersProducts?.length) {
       slider.innerHTML = '<div class="no-offers">No special offers available</div>';
@@ -47,14 +52,38 @@ export async function initializeSpecialOffers() {
 
     slider.appendChild(fragment);
     initializeSliderControls();
+    
+    // Set up the "Shop Special Offers" button link
+    if (viewAllBtn) {
+      setupSpecialOffersLink(viewAllBtn);
+    } else {
+      console.warn("View all button not found");
+    }
   } catch (error) {
     console.error("Error initializing special offers:", error);
     slider.innerHTML = '<div class="error">Failed to load special offers</div>';
   }
 }
 
+function setupSpecialOffersLink(linkElement) {
+  // Direct approach with hardcoded URL - most reliable solution
+  const categoryUrl = "/pages/category/category-page.html?name=Special%20Offers";
+  
+  // Set the href attribute
+  linkElement.href = categoryUrl;
+  
+  // Add direct click handler with proper navigation
+  linkElement.addEventListener("click", function(e) {
+    e.preventDefault();
+    console.log("Special offers link clicked, navigating to:", categoryUrl);
+    window.location.href = categoryUrl;
+  });
+  
+  console.log("Special offers link configured with direct URL:", categoryUrl);
+}
+
 function initializeSliderControls() {
-  const slider = document.getElementById("special-offers-slider");
+  const slider = document.getElementById("deals-slider");
   const prevBtn = document.querySelector(".special-offers-section .prev-btn");
   const nextBtn = document.querySelector(".special-offers-section .next-btn");
   

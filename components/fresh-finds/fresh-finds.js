@@ -1,6 +1,9 @@
 // components/fresh-finds/fresh-finds.js
 import { ProductCard } from '../product-card/product-card.js';
 import { ProductService } from '../../scripts/services/product-service.js';
+// components/fresh-finds/fresh-finds.js
+import { ProductCard } from '../product-card/product-card.js';
+import { ProductService } from '../../scripts/services/product-service.js';
 
 export async function initializeFreshFinds() {
     const slider = document.getElementById("fresh-finds-slider");
@@ -52,19 +55,20 @@ export async function initializeFreshFinds() {
         sectionTitle.textContent = "Chinese Cuisine";
       }
       
-      // Update the "Continue Shopping" button text
+      // Update the "Continue Shopping" button text and link
       const continueShoppingBtn = document.querySelector(".fresh-finds-section .continue-shopping");
       if (continueShoppingBtn) {
         continueShoppingBtn.textContent = "Shop Chinese Cuisine";
+        continueShoppingBtn.href = "/pages/category/category-page.html?name=Chinese";
       }
       
-      initializeFreshFindsSlider();
+      this.initializeFreshFindsSlider();
     } catch (error) {
       console.error("Error initializing Chinese cuisine products:", error);
       slider.innerHTML = '<div class="error">Failed to load Chinese cuisine products</div>';
     }
   }
-  
+
 
 export function initFreshFindsSlider() {
     const slider = document.querySelector('#fresh-finds-slider');

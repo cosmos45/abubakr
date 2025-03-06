@@ -137,12 +137,18 @@
   .filter-section.collapsed .filter-toggle-icon {
     transform: rotate(-90deg);
   }
-  
+  .filter-option span::after {
+    content: attr(data-count);
+    margin-left: 5px;
+    font-size: 12px;
+    color: #999;
+    font-weight: normal;
+  }
   .filter-options {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: 200px;
+    max-height: 375px;
     overflow-y: auto;
     padding-right: 5px;
     margin-top: 0.5rem;
@@ -184,11 +190,16 @@
     width: 18px;
     height: 18px;
     border: 1px solid #ddd;
+    border-radius: 3px;
     margin: 0;
     position: relative;
     cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
   }
-  
+  .filter-option input[type="checkbox"]:checked {
+    background-color: #fff;
+    border-color: #77a464;
+  }
   .filter-option input[type="checkbox"]:checked::before {
     content: '✓';
     position: absolute;
@@ -197,6 +208,9 @@
     transform: translate(-50%, -50%);
     color: #77a464;
     font-size: 12px;
+  }
+  .filter-option:hover input[type="checkbox"]:not(:checked) {
+    border-color: #77a464;
   }
   
   .filter-option span {

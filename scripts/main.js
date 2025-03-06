@@ -12,7 +12,10 @@ import { SearchService } from "./services/search-service.js";
 import { HeaderSearch } from "./modules/header-search.js";
 import Loader from "../components/loader/loader.js";
 import BrandBanner from "../components/brand-banner/brand-banner.js";
-
+import { GlobalSearch } from "./modules/global-search.js";
+import { MobileMenu } from "./modules/mobile-menu.js";
+import { initializeFooter } from "../components/footer/footer.js";
+import {initializeStickyHeader} from "../scripts/modules/sticky-header.js"
 window.globalLoader = new Loader();
 
 let cart; // Global cart instance
@@ -21,7 +24,9 @@ let cart; // Global cart instance
 async function initializeApp() {
   try {
     window.globalLoader.show("Loading Abu Bakr Store...");
-
+    // Initialize mobile menu
+    const mobileMenu = new MobileMenu();
+    mobileMenu.init();
     await ProductService.getSpecialOffersProducts();
 
     // Initialize cart first
@@ -36,9 +41,9 @@ async function initializeApp() {
     const categoryManager = new CategoryManager();
     await categoryManager.init();
     await categoryManager.initializeNavigation();
-// Initialize the brand banner
-const brandBanner = new BrandBanner();
-await brandBanner.init();
+    // Initialize the brand banner
+    const brandBanner = new BrandBanner();
+    await brandBanner.init();
     // Load all components
     await Promise.all([
       loadComponent("header", "/components/header/header.html"),
@@ -57,7 +62,7 @@ await brandBanner.init();
         "/components/popular-categories/popular-categories.html"
       ),
       loadComponent("fresh-finds", "/components/fresh-finds/fresh-finds.html"),
-     
+
       loadComponent(
         "most-popular",
         "/components/most-popular/most-popular.html"
@@ -71,7 +76,7 @@ await brandBanner.init();
         "/components/subscribe/subscribe.html"
       ),
       await loadComponent("footer", "/components/footer/footer.html"),
-    
+
       await loadComponent(
         "start-cart-container",
         "/components/start-cart/start-cart.html"
@@ -84,8 +89,10 @@ await brandBanner.init();
         "brand-banner-container",
         "/components/brand-banner/brand-banner.html"
       ),
+      await loadComponent("footer", "/components/footer/footer.html")
+      
     ]);
-    
+    initializeStickyHeader();
 
     categoryManager.initializeNavigation();
 
@@ -102,9 +109,11 @@ await brandBanner.init();
     initializeCartIcon();
     initializeQuantityControls();
     initializeAddToCart();
-    new HeaderSearch();
+    await initializeFooter();
+
+    new GlobalSearch();
+
     window.globalLoader.hide();
-    
   } catch (error) {
     console.error("Error initializing application:", error);
     window.globalLoader.hide();
@@ -181,6 +190,9 @@ function initializeMobileMenu() {
     });
   }
 }
+
+
+
 async function initializeMeatInStartCart() {
   const slider = document.getElementById("start-cart-products");
   if (!slider) {
@@ -230,14 +242,14 @@ async function initializeMeatInStartCart() {
     // Update the section title to reflect Meat products
     const sectionTitle = document.querySelector(".start-cart-section .section-title");
     if (sectionTitle) {
-      sectionTitle.textContent = "Meat Products";
+      sectionTitle.textContent = "Halal Meat";
     }
     
-    // Update the "Shop More" button link
+    // Update the "Shop More" button link to the Halal Meat category
     const shopMoreBtn = document.querySelector(".start-cart-section .shop-more-btn");
     if (shopMoreBtn) {
-      shopMoreBtn.href = "/category/meat";
-      shopMoreBtn.textContent = "Shop More Meat Products";
+      shopMoreBtn.href = "/pages/category/category-page.html?name=Halal%20Meat";
+      shopMoreBtn.textContent = "Shop Halal Meat";
     }
     
     initStartCartSlider(); // Reuse the existing slider initialization
@@ -249,6 +261,7 @@ async function initializeMeatInStartCart() {
     }
   }
 }
+
 export async function initializeBestDeals() {
   const slider = document.getElementById("deals-slider");
   if (!slider) {
@@ -408,7 +421,6 @@ function initializeCartIcon() {
 // Initialize the application when DOM is ready
 document.addEventListener("DOMContentLoaded", initializeApp);
 
-
 async function initializeFreshFinds() {
   console.log("Main.js initializeFreshFinds called");
   const slider = document.getElementById("fresh-finds-slider");
@@ -418,24 +430,26 @@ async function initializeFreshFinds() {
   }
 
   try {
-    slider.innerHTML = '<div class="loading">Loading Chinese cuisine products...</div>';
-    
+    slider.innerHTML =
+      '<div class="loading">Loading Chinese cuisine products...</div>';
+
     // Use Chinese products instead of Special Offers
     console.log("Fetching Chinese products from main.js");
     const products = await ProductService.getChineseProducts();
     console.log("Chinese products:", products);
-    
+
     if (!products?.length) {
       console.warn("No Chinese products available");
-      slider.innerHTML = '<div class="no-products">No Chinese cuisine products available</div>';
+      slider.innerHTML =
+        '<div class="no-products">No Chinese cuisine products available</div>';
       return;
     }
 
     slider.innerHTML = "";
-    
+
     // Batch render products for better performance
     const fragment = document.createDocumentFragment();
-    
+
     for (const product of products) {
       const productCard = new ProductCard({
         id: product.id,
@@ -444,104 +458,106 @@ async function initializeFreshFinds() {
         stock_id: product.id,
         imageUrl: product.imageUrl,
         oldPrice: product.oldPrice,
-        size: product.size
+        size: product.size,
       });
-      
+
       const cardHtml = await productCard.render();
       const tempContainer = document.createElement("div");
       tempContainer.innerHTML = cardHtml;
       const cardElement = tempContainer.firstElementChild;
-      
+
       // Initialize listeners before adding to DOM
       ProductCard.initializeCardListeners(cardElement);
       fragment.appendChild(cardElement);
     }
-    
+
     slider.appendChild(fragment);
-    
+
     // Update the section title
-    const sectionTitle = document.querySelector(".fresh-finds-section .section-title");
+    const sectionTitle = document.querySelector(
+      ".fresh-finds-section .section-title"
+    );
     if (sectionTitle) {
       sectionTitle.textContent = "Chinese Cuisine";
     }
-    
+
     // Update the "Continue Shopping" button text
-    const continueShoppingBtn = document.querySelector(".fresh-finds-section .continue-shopping");
+    const continueShoppingBtn = document.querySelector(
+      ".fresh-finds-section .continue-shopping"
+    );
     if (continueShoppingBtn) {
       continueShoppingBtn.textContent = "Shop Chinese Cuisine";
     }
-    
+
     // Initialize the slider controls
     initializeFreshFindsSlider();
   } catch (error) {
     console.error("Error initializing Chinese cuisine products:", error);
-    slider.innerHTML = '<div class="error">Failed to load Chinese cuisine products</div>';
+    slider.innerHTML =
+      '<div class="error">Failed to load Chinese cuisine products</div>';
   }
 }
 function initializeFreshFindsSlider() {
-  const slider = document.querySelector('#fresh-finds-slider');
-  const prevBtn = document.querySelector('.fresh-finds-section .prev-btn');
-  const nextBtn = document.querySelector('.fresh-finds-section .next-btn');
-  
+  const slider = document.querySelector("#fresh-finds-slider");
+  const prevBtn = document.querySelector(".fresh-finds-section .prev-btn");
+  const nextBtn = document.querySelector(".fresh-finds-section .next-btn");
+
   if (!slider || !prevBtn || !nextBtn) return;
-  
+
   let currentIndex = 0;
   const cardWidth = 280;
   const cardGap = 24;
   const totalWidth = cardWidth + cardGap;
-  
+
   function updateSliderPosition() {
     if (window.innerWidth <= 768) {
-      slider.style.transform = '';
+      slider.style.transform = "";
       return;
     }
-    
+
     const containerWidth = slider.parentElement.offsetWidth - 120;
     const visibleCards = Math.floor(containerWidth / totalWidth);
     const maxIndex = Math.max(0, slider.children.length - visibleCards);
-    
+
     currentIndex = Math.min(currentIndex, maxIndex);
     const offset = currentIndex * totalWidth;
-    
+
     slider.style.transform = `translateX(-${offset}px)`;
-    
+
     prevBtn.disabled = currentIndex === 0;
     nextBtn.disabled = currentIndex >= maxIndex;
-    
-    prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
-    nextBtn.style.opacity = currentIndex >= maxIndex ? '0.5' : '1';
+
+    prevBtn.style.opacity = currentIndex === 0 ? "0.5" : "1";
+    nextBtn.style.opacity = currentIndex >= maxIndex ? "0.5" : "1";
   }
-  
-  prevBtn.addEventListener('click', () => {
+
+  prevBtn.addEventListener("click", () => {
     if (currentIndex > 0) {
       currentIndex--;
       updateSliderPosition();
     }
   });
-  
-  nextBtn.addEventListener('click', () => {
+
+  nextBtn.addEventListener("click", () => {
     const containerWidth = slider.parentElement.offsetWidth - 120;
     const visibleCards = Math.floor(containerWidth / totalWidth);
     const maxIndex = Math.max(0, slider.children.length - visibleCards);
-    
+
     if (currentIndex < maxIndex) {
       currentIndex++;
       updateSliderPosition();
     }
   });
-  
+
   updateSliderPosition();
-  
-  window.addEventListener('resize', () => {
+
+  window.addEventListener("resize", () => {
     currentIndex = 0;
     updateSliderPosition();
   });
 }
 
 // Add to initializeApp function
-
-
-
 
 async function initializeSearch() {
   try {

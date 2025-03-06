@@ -45,6 +45,14 @@
 .deal-content {
   padding: 3rem;
   color: #000;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.juice-deal .deal-content {
+  justify-content: space-between;
+  min-height: 350px;
 }
 
 .juice-deal .tag {
@@ -75,7 +83,7 @@
 
 .limited-supply {
   position: absolute;
-  top: 2rem;
+  top: 3.5rem;
   right: 2rem;
   background: var(--top-bar-green);
   color: white;
@@ -136,6 +144,12 @@
   transition: all 0.3s ease;
   text-decoration: none;
   display: inline-block;
+  margin-top: auto;
+}
+
+.juice-deal .shop-now {
+  align-self: flex-start;
+  margin-top: 2rem;
 }
 
 .shop-now:hover {

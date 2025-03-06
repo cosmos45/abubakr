@@ -47,6 +47,13 @@ export async function initializeMostPopular() {
         }
         
         slider.appendChild(fragment);
+        
+        // Update the shop more button to link to Milk & Dairy category
+        const shopMoreBtn = document.querySelector('.most-popular-section .shop-more-btn');
+        if (shopMoreBtn) {
+            shopMoreBtn.href = "/pages/category/category-page.html?name=Milk%20%26%20Dairy";
+        }
+        
         initMostPopularSlider();
         
     } catch (error) {

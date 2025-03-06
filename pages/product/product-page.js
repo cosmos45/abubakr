@@ -2,6 +2,11 @@ import { loadComponent } from "../../scripts/utils/components.js";
 import { Cart } from "../../scripts/modules/cart.js";
 import { ProductService } from "../../scripts/services/product-service.js";
 import Loader from "../../components/loader/loader.js";
+import { GlobalSearch } from "../../scripts/modules/global-search.js";
+import { MobileMenu } from "../../scripts/modules/mobile-menu.js";
+import { initializeFooter } from "../../components/footer/footer.js";
+import { initializeStickyHeader } from "../../scripts/modules/sticky-header.js";
+import { CategoryManager } from "../../scripts/modules/category-manager.js";
 
 class ProductPage {
   constructor() {
@@ -13,6 +18,7 @@ class ProductPage {
       window.location.href = "/";
       return;
     }
+    this.categoryManager = new CategoryManager();
 
       this.cart = new Cart();
     this.loader = new Loader();
@@ -41,23 +47,34 @@ class ProductPage {
       // Show loader immediately
       this.loader.show("Loading product details...");
 
+
       // Load header and footer first
       await Promise.all([
         loadComponent("header", "/components/header/header.html"),
         loadComponent("footer", "/components/footer/footer.html"),
       ]);
+      // Current problematic sequence in your code
+await this.categoryManager.init();
+this.categoryManager.initializeNavigation();
+      initializeStickyHeader();
+
+         // Initialize mobile menu
+         const mobileMenu = new MobileMenu();
+         mobileMenu.init();
 
       // Initialize cart and ensure proper DOM structure
       await this.cart.init();
       this.moveCartToBody();
-
+      new GlobalSearch();
       await this.loadProductData();
       this.initializeEventListeners();
       this.initializeSections();
       this.initializeCartIcon();
+      await initializeFooter();
 
       // Hide loader when everything is loaded
       this.loader.hide();
+     
     } catch (error) {
       console.error("Error initializing product page:", error);
       this.loader.hide();

@@ -4,68 +4,13 @@ export class CategoryManager {
   constructor() {
     this.categories = [];
     this.maxFeaturedCategories = 5;
-    this.mobileMenuOpen = false;
   }
 
   async init() {
     this.categories = await categoryData.getActiveCategories();
-    this.setupMobileMenu();
   }
 
-  setupMobileMenu() {
-    const menuToggle = document.querySelector('.mobile-menu-toggle');
-    const menuClose = document.querySelector('#mobile-menu-close');
-    const menuOverlay = document.querySelector('#menu-overlay');
-    
-    if (menuToggle) {
-      menuToggle.addEventListener('click', () => {
-        this.toggleMobileMenu(true);
-      });
-    }
-
-    if (menuClose) {
-      menuClose.addEventListener('click', () => {
-        this.toggleMobileMenu(false);
-      });
-    }
-
-    if (menuOverlay) {
-      menuOverlay.addEventListener('click', () => {
-        this.toggleMobileMenu(false);
-      });
-    }
-  }
-  toggleMobileMenu(open) {
-    const menuOverlay = document.querySelector('#menu-overlay');
-    const mobileMenuContainer = document.querySelector('#mobile-menu-container');
-    const body = document.body;
-    
-    if (open) {
-      menuOverlay.classList.add('active');
-      mobileMenuContainer.classList.add('active');
-      body.style.overflow = "hidden";
-      this.mobileMenuOpen = true;
-    } else {
-      menuOverlay.classList.remove('active');
-      mobileMenuContainer.classList.remove('active');
-      body.style.overflow = "";
-      this.mobileMenuOpen = false;
-      
-      // Reset all submenus
-      const activeSubmenus = document.querySelectorAll('.mobile-submenu.active');
-      activeSubmenus.forEach(submenu => {
-        submenu.classList.remove('active');
-      });
-      
-      // Reset parent categories visibility
-      const parentItems = document.querySelectorAll('.mobile-menu-item.parent-active, .mobile-menu-item.current-parent');
-      parentItems.forEach(item => {
-        item.classList.remove('parent-active');
-        item.classList.remove('current-parent');
-      });
-    }
-  }
-
+ 
 
   async initializeNavigation() {
     const navMenu = document.querySelector(".nav-menu");

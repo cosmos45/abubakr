@@ -10,6 +10,10 @@ import axiosService from '../../scripts/services/axiosService.js';
 import { FilterService } from '../../scripts/services/filter-service.js';
 import Loader from '../../components/loader/loader.js';
 import { ProductServiceCategory } from "../../scripts/services/product-service.js";
+import { GlobalSearch } from "../../scripts/modules/global-search.js";
+import { initializeFooter } from "../../components/footer/footer.js";
+import { initializeStickyHeader } from "../../scripts/modules/sticky-header.js";
+import { MobileMenu } from '../../scripts/modules/mobile-menu.js';
 
 class CategoryPage {
   
@@ -34,6 +38,8 @@ class CategoryPage {
     this.filterData = null;
     this.activeFilters = new Map();
     this.loader = new Loader(); 
+    this.globalSearch = new GlobalSearch();
+
 
   }
 
@@ -48,6 +54,7 @@ class CategoryPage {
       
       this.cart = new Cart();
       await this.cart.init();
+      await this.globalSearch.init();
 
       const category = await categoryData.getCategoryByName(this.categoryName);
       if (!category) {
@@ -65,6 +72,12 @@ class CategoryPage {
         loadComponent("header", "/components/header/header.html"),
         loadComponent("footer", "/components/footer/footer.html"),
       ]);
+      initializeStickyHeader();
+        // Initialize mobile menu
+               const mobileMenu = new MobileMenu();
+               mobileMenu.init();
+
+
 
       // Initialize navigation
       this.categoryManager.initializeNavigation();
@@ -93,6 +106,7 @@ class CategoryPage {
       this.loader.hide();
 
       this.initializeAddToCart();
+      await initializeFooter();
 
     } catch (error) {
       console.error("Error initializing category page:", error);
@@ -463,7 +477,7 @@ showError(message) {
     const filterContainer = document.querySelector(".filters-sidebar");
     if (!filterContainer) return;
     
-    filterContainer.innerHTML = '<h2>Filter Products</h2>';
+    filterContainer.innerHTML = '<h2>Filters</h2>';
     
     // Only display Categories filter
     if (this.filterData && this.filterData.categories && this.filterData.categories.length > 0) {
@@ -537,7 +551,7 @@ showError(message) {
       mobileFilterDrawer.innerHTML = `
         <div class="mobile-filter-content">
           <div class="mobile-filter-header">
-            <h2>Filter Products</h2>
+            <h2>Filters</h2>
             <button class="mobile-filter-close">&times;</button>
           </div>
           <div class="mobile-filter-body">

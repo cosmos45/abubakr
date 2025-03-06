@@ -48,6 +48,12 @@ export async function initializeMeatProducts() {
         slider.appendChild(fragment);
         initMeatProductsSlider();
         
+        // Update the "Shop More" button link
+        const shopMoreBtn = document.querySelector('.start-cart-section .shop-more-btn');
+        if (shopMoreBtn) {
+            shopMoreBtn.href = "/pages/category/category-page.html?name=Halal%20Meat";
+        }
+        
     } catch (error) {
         console.error('Error initializing meat products:', error);
         slider.innerHTML = '<div class="error">Failed to load meat products</div>';
