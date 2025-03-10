@@ -1,4 +1,3 @@
-/* components/carousel/carousel.css */
 .hero-carousel {
     width: 100vw;
     height: 500px;
@@ -9,6 +8,13 @@
     margin-left: calc(-50vw + 50%);
 }
 
+
+.search-bar, 
+.search-container, 
+form[role="search"] {
+    position: relative;
+    z-index: 10; /* Higher than carousel z-index */
+}
 .carousel-container {
     width: 100%;
     height: 100%;
@@ -33,6 +39,15 @@
     z-index: 2;
 }
 
+/* Specific slide adjustments */
+.carousel-slide:first-child {
+    background-position: right center;
+}
+
+.carousel-slide:nth-child(2) {
+    background-position: center top; /* Fix for second slide to prevent top cutoff */
+}
+
 .carousel-content {
     width: 100%;
     max-width: 100%;
@@ -45,9 +60,6 @@
     position: relative;
     padding-bottom: 40px;
     z-index: 3;
-    /* Remove the background image from here as it conflicts with slides */
-    /* background: url('../../assets/images/promo-banner/Carousel1.jpg') center center no-repeat; */
-    /* background-size: cover; */
 }
 
 .carousel-item img {
@@ -114,8 +126,7 @@
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
-    text-decoration: none; /* Add this line to remove the underline */
-
+    text-decoration: none;
 }
 
 .shop-now-carousel:hover {
@@ -151,41 +162,102 @@
 
 /* Remove container padding for full-width carousel */
 main.container {
-    margin-top: -60px; /* Add this negative margin to pull the nav up */
-
+    margin-top: -60px;
     padding: 0;
     max-width: 100%;
     overflow-x: hidden;
     width: 100%;
 }
-/* Add this to your carousel.css file */
-.carousel-slide:first-child {
-    background-position: right center;
-  }
-  
-  /* Mobile-specific adjustment */
-  @media screen and (max-width: 768px) {
+
+/* Mobile-specific adjustment */
+@media screen and (max-width: 768px) {
     .carousel-slide:first-child {
-      background-position: 80% center; /* Focus on the right side (table with products) */
+        background-position: 80% center;
     }
     
-    /* Keep second slide centered */
+    /* Keep second slide centered but visible */
     .carousel-slide:nth-child(2) {
-      background-position: center center;
+        background-position: center 20%; /* Adjusted for mobile to show more of the top */
     }
-  }
-  
-  @media screen and (max-width: 480px) {
+}
+
+@media screen and (max-width: 480px) {
     .carousel-slide:first-child {
-      background-position: 85% center; /* Focus even more on the right side for smaller screens */
+        background-position: 85% center;
     }
-  }
-  
-/* Wide screen adjustments */
+    
+    .carousel-slide:nth-child(2) {
+        background-position: center 15%; /* Further adjusted for smaller screens */
+    }
+}
+
+/* Wide screen adjustments - IMPROVED */
+@media screen and (min-width: 1441px) {
+    .hero-carousel {
+        height: 600px; /* Taller carousel for wider screens */
+    }
+    
+    .carousel-slide {
+        background-size: cover; /* Changed from 100% auto to cover for better fitting */
+    }
+    
+    /* Specific positioning for second slide on wide screens */
+    .carousel-slide:nth-child(2) {
+        background-position: center 25%; /* Show more of the top portion */
+    }
+}
+
 @media screen and (min-width: 1921px) {
+    .hero-carousel {
+        height: 700px; /* Even taller for ultra-wide screens */
+    }
+    
     .carousel-slide {
         background-size: cover;
-        background-position: center center;
+    }
+    
+    /* Specific positioning for second slide on ultra-wide screens */
+    .carousel-slide:nth-child(2) {
+        background-position: center 30%;
+        background-size: 100% auto; /* This helps prevent vertical stretching */
+    }
+    
+    /* Ensure content stays visible */
+    .carousel-content {
+        max-width: 1800px;
+        margin: 0 auto;
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+    
+    /* Scale up button for ultra-wide displays */
+    .shop-now-carousel {
+        min-width: 180px;
+        height: 46px;
+        font-size: 20px;
+    }
+}
+
+/* Extra wide screen adjustments - NEW */
+@media screen and (min-width: 2560px) {
+    .hero-carousel {
+        height: 800px;
+    }
+    
+    .carousel-slide {
+        background-size: 100% auto; /* Prevent excessive stretching */
+        background-position: center top; /* Default position for all slides */
+    }
+    
+    /* Specific positioning for second slide on extra-wide screens */
+    .carousel-slide:nth-child(2) {
+        background-position: center 35%;
+        background-attachment: scroll; /* Override fixed attachment for better control */
+    }
+    
+    /* Center content for ultra-wide screens */
+    .carousel-content {
+        max-width: 2000px;
     }
 }
 

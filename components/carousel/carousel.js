@@ -73,4 +73,17 @@ export function initCarousel() {
     if (slides.length > 1) {
         slideInterval = setInterval(nextSlide, intervalTime);
     }
+    
+    // Handle window resize for responsive behavior
+    window.addEventListener('resize', function() {
+        // This ensures slides maintain proper aspect ratio on resize
+        const activeSlide = document.querySelector('.carousel-slide.active');
+        if (activeSlide) {
+            // Force a repaint to ensure proper scaling
+            activeSlide.style.display = 'none';
+            setTimeout(() => {
+                activeSlide.style.display = '';
+            }, 10);
+        }
+    });
 }
