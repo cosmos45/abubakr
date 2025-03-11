@@ -1,100 +1,129 @@
-import { ProductService } from "./product-service.js";
-import { categoryData } from "./category-service.js";
+// scripts/services/search-service.js
+import axiosServices from './axiosService.js';
 
 export class SearchService {
   constructor() {
+    console.log("Initializing SearchService...");
     this.products = [];
-    this.categories = [];
-    this.init();
+    this.initialized = false;
   }
 
   async init() {
+    if (this.initialized) return;
+    
     try {
-      // Initialize categories first
-      this.categories = await categoryData.fetchCategories();
-      // Initialize products by waiting for them to load
-      const allProducts = await ProductService.getAllProducts(); // Fetch all products instead of just special offers
-      this.products = allProducts || [];
+      await this.loadProducts();
+      this.initialized = true;
+      console.log(`SearchService initialized with ${this.products.length} products`);
     } catch (error) {
       console.error("Error initializing SearchService:", error);
+    }
+  }
+
+  async loadProducts() {
+    try {
+      const response = await axiosServices.get('/commerce/stock');
+      // Correctly access the products array from the response
+      if (response.data && response.data.data && response.data.data.stock && response.data.data.stock.data) {
+        this.products = response.data.data.stock.data;
+        console.log("Products loaded:", this.products.length);
+      } else {
+        console.warn("Unexpected API response structure:", response.data);
+        this.products = [];
+      }
+    } catch (error) {
+      console.error("Error loading products for search:", error);
       this.products = [];
     }
   }
 
-  async getAllCategories() {
-    if (!this.categories.length) {
-      this.categories = await categoryData.fetchCategories();
+  async search(query, categoryId = 'all') {
+    if (!this.initialized) {
+      await this.init();
     }
 
-    const flattenCategories = (categories) => {
-      if (!categories) return [];
-
-      let result = [];
-      categories.forEach((category) => {
-        result.push({
-          id: category.uid,
-          name: category.name,
-          is_active: category.is_active,
-        });
-
-        if (category.child && category.child.length > 0) {
-          result = result.concat(flattenCategories(category.child));
-        }
-      });
-      return result;
-    };
-
-    return flattenCategories(this.categories);
-  }
-
-  async search(query, categoryId = "all") {
-    if (!query || query.length < 3) return [];
-
-    query = query.toLowerCase();
-    let filteredProducts = [...this.products];
-
-    // Filter by category if specified
-    if (categoryId !== "all") {
-      filteredProducts = filteredProducts.filter((product) => {
-        return this.isProductInCategory(product, categoryId);
-      });
+    query = query.toLowerCase().trim();
+    
+    if (query.length < 3) {
+      return [];
     }
 
-    // Search by name and description
-    return filteredProducts
-      .filter(
-        (product) =>
-          product.name.toLowerCase().includes(query) ||
-          (product.description &&
-            product.description.toLowerCase().includes(query))
-      )
-      .slice(0, 5); // Limit results to the top 5 matches
-  }
-
-  isProductInCategory(product, categoryId) {
-    const category = this.findCategory(this.categories, categoryId);
-    if (!category) return false;
-
-    return this.isProductInCategoryTree(product, category);
-  }
-
-  isProductInCategoryTree(product, category) {
-    if (product.category_uid === category.uid) return true;
-    if (!category.child) return false;
-
-    return category.child.some((child) =>
-      this.isProductInCategoryTree(product, child)
-    );
-  }
-
-  findCategory(categories, categoryId) {
-    for (const category of categories) {
-      if (category.uid === categoryId) return category;
-      if (category.child) {
-        const found = this.findCategory(category.child, categoryId);
-        if (found) return found;
+    try {
+      // Use the API for search
+      const response = await axiosServices.get('/commerce/stock', {
+        params: { query: query }
+      });
+      
+      // Correctly access the products from the response
+      let results = [];
+      if (response.data && response.data.stock && response.data.stock.data) {
+        results = response.data.stock.data;
+        console.log("Search results found:", results.length);
+      } else {
+        console.warn("Unexpected search API response structure:", response.data);
       }
+      
+      // Format results based on the actual API response structure
+      return results.map(product => ({
+        id: product.uid,
+        stockId: product.uid,
+        name: product.name || 'Unknown Product',
+        price: parseFloat(product.price) || 0,
+        oldPrice: product.retail_price && product.retail_price !== product.price ? 
+                 parseFloat(product.retail_price) : null,
+        imageUrl: this.getProductImageUrl(product),
+        description: product.short_description || '',
+        size: product.size || '',
+        category: product.brand || 'Uncategorized'
+      }));
+    } catch (error) {
+      console.error("Search API error:", error);
+      
+      // Fallback to local search if API fails
+      return this.localSearch(query);
     }
-    return null;
+  }
+
+  // Helper method to get the image URL from attachments
+  getProductImageUrl(product) {
+    if (product.attachments && product.attachments.length > 0) {
+      return product.attachments[0].path;
+    }
+    return '/assets/images/default-product.png';
+  }
+
+  localSearch(query) {
+    query = query.toLowerCase().trim();
+    
+    let results = this.products.filter(product => {
+      const name = (product.name || '').toLowerCase();
+      const description = (product.short_description || '').toLowerCase();
+      
+      return name.includes(query) || description.includes(query);
+    });
+    
+    // Format results based on the actual data structure
+    return results.map(product => ({
+      id: product.uid,
+      stockId: product.uid,
+      name: product.name || 'Unknown Product',
+      price: parseFloat(product.price) || 0,
+      oldPrice: product.retail_price && product.retail_price !== product.price ? 
+               parseFloat(product.retail_price) : null,
+      imageUrl: this.getProductImageUrl(product),
+      description: product.short_description || '',
+      size: product.size || '',
+      category: product.brand || 'Uncategorized'
+    }));
+  }
+
+  async getAllCategories() {
+    try {
+      const response = await axiosServices.get('/commerce/categories');
+      return response.data.categories || [];
+    } catch (error) {
+      console.error("Error fetching categories for search:", error);
+      return [];
+    }
   }
 }

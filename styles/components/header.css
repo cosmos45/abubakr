@@ -431,7 +431,10 @@ body.sticky-header .header-container {
     flex: 1;
     max-width: 740px;
     position: relative;
+    z-index: 9999 !important;
+    isolation: isolate;
 }
+
 
 .search-container input {
     width: 100%;
@@ -485,6 +488,8 @@ body.sticky-header .header-container {
     width: 100%;
     z-index: 1000;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative; /* Ensure proper stacking context */
+
   }
   .sticky-header .header-container {
     position: fixed;
@@ -503,9 +508,10 @@ body.sticky-header .header-container {
 .search-wrapper {
     display: flex;
     width: 100%;
-    position: relative;
     border: 1px solid #ddd;
     overflow: hidden;
+    position: relative;
+    z-index: 9999 !important;
 }
   .search-wrapper input {
     flex: 1;
@@ -565,17 +571,19 @@ body.sticky-header .header-container {
 
 
 .search-suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: calc(100% - 50px); /* Subtract search button width */
-    background: white;
-    border: 1px solid #ddd;
-    border-top: none;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    z-index: 1050;
-    display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: calc(100% - 50px);
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 9999 !important;
+  display: none;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 
@@ -759,6 +767,10 @@ body.sticky-header .header-container {
     background-color: #fff;
     width: 100%;
     padding-bottom: 35px;
+    .nav-menu {
+      position: relative;
+      z-index: 998 !important;
+    }
 }
 
 .nav-menu a {
@@ -937,7 +949,7 @@ body.sticky-header .header-container {
     .mobile-menu-toggle {
         display: block;
         padding-top: 20px; /* Reduced from 40px to 20px */
-        margin-top: 50px; /* Added to shift down */
+        margin-top: 30px; /* Added to shift down */
       }
     
       .header-icons {
@@ -954,7 +966,7 @@ body.sticky-header .header-container {
 
     .logo img {
         width: 70px;
-        padding-top: 65px; /* Reduced from 70px to 40px */
+        padding-top: 40px; /* Reduced from 70px to 40px */
 
     }
 
@@ -964,6 +976,10 @@ body.sticky-header .header-container {
         margin: 10px 10px 10px; /* Added top margin */
         max-width: 100%;
         width: calc(100% - 30px);
+        z-index: 9999; /* Match the suggestions z-index */
+        isolation: isolate; /* Create a new stacking context */
+        
+
     }
 
     .nav-menu {
@@ -1059,6 +1075,8 @@ body.sticky-header .header-container {
         width: calc(100% - 50px);
         left: 0;
         margin: 0;
+        z-index: 9999; /* Match desktop value */
+
     }
     .search-wrapper input,
     .category-select select {
@@ -1082,6 +1100,9 @@ body.sticky-header .header-container {
     .search-container {
         margin: 5px;
         width: calc(100% - 10px);
+        z-index: 9999; /* Match desktop value */
+        isolation: isolate;
+        margin-top: -7px;
     }
 
     .category-select select {

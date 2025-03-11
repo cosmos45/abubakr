@@ -21,7 +21,7 @@ export function initCarousel() {
     // Carousel functionality
     const slides = document.querySelectorAll('.carousel-slide');
     const indicatorsContainer = document.querySelector('.carousel-indicators');
-    let currentSlide = 0;
+    let a = 0;
     let slideInterval;
     const intervalTime = 5000; // 5 seconds between slides
     

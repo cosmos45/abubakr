@@ -1,4 +1,4 @@
-
+// scripts/modules/global-search.js
 import { SearchService } from "../services/search-service.js";
 import { Cart } from "./cart.js";
 
@@ -14,50 +14,26 @@ export class GlobalSearch {
     this.suggestionsContainer = document.getElementById("search-suggestions");
     this.searchWrapper = document.querySelector(".search-wrapper");
 
-    if (!this.searchInput) return;
+    if (!this.searchInput || !this.suggestionsContainer) {
+      console.warn("Search elements not found in DOM");
+      return;
+    }
 
+    await this.searchService.init();
     await this.cart.init();
     this.setupEventListeners();
   }
 
-  // async populateCategories() {
-  //   try {
-  //     const categories = await this.searchService.getAllCategories();
-      
-  //     // Clear existing options
-  //     this.categorySelect.innerHTML = '<option value="all">All categories</option>';
-
-  //     // Add categories that are active
-  //     categories
-  //       .filter(category => category.is_active === 1)
-  //       .forEach(category => {
-  //         const option = document.createElement("option");
-  //         option.value = category.id;
-  //         option.textContent = category.name;
-  //         this.categorySelect.appendChild(option);
-  //       });
-
-  //     // Add change event listener for category selection
-  //     this.categorySelect.addEventListener("change", () => {
-  //       const query = this.searchInput.value.trim();
-  //       if (query.length >= 3) {
-  //         this.handleSearch();
-  //       }
-  //     });
-  //   } catch (error) {
-  //     console.error("Error populating categories:", error);
-  //     this.categorySelect.innerHTML = '<option value="all">All categories</option>';
-  //   }
-  // }
-
   showSuggestions() {
     if (this.suggestionsContainer) {
+      this.suggestionsContainer.classList.add("active");
       this.suggestionsContainer.style.display = "block";
     }
   }
 
   hideSuggestions() {
     if (this.suggestionsContainer) {
+      this.suggestionsContainer.classList.remove("active");
       this.suggestionsContainer.style.display = "none";
     }
   }
@@ -71,6 +47,8 @@ export class GlobalSearch {
       // Show loading animation when typing
       if (query.length >= 3) {
         this.showLoadingAnimation();
+      } else {
+        this.hideSuggestions();
       }
   
       clearTimeout(debounceTimer);
@@ -83,7 +61,13 @@ export class GlobalSearch {
       }, 300);
     });
   
-    // Remove category change event listener since there's no category select anymore
+    // Focus event to show suggestions if there's text
+    this.searchInput.addEventListener("focus", () => {
+      const query = this.searchInput.value.trim();
+      if (query.length >= 3) {
+        this.handleSearch();
+      }
+    });
   
     // Close suggestions on outside click
     document.addEventListener("click", (e) => {
@@ -92,7 +76,6 @@ export class GlobalSearch {
       }
     });
   }
-  
 
   showLoadingAnimation() {
     if (!this.suggestionsContainer) return;
@@ -108,7 +91,7 @@ export class GlobalSearch {
 
   async handleSearch() {
     const query = this.searchInput.value.trim();
-    const categoryId = "all"; // Always use "all" since we removed the dropdown
+    const categoryId = "all"; // Default to all categories
   
     if (query.length < 3) {
       this.hideSuggestions();
@@ -123,7 +106,6 @@ export class GlobalSearch {
       this.renderError();
     }
   }
-  
 
   renderSuggestions(results) {
     if (!this.suggestionsContainer) return;
@@ -131,7 +113,9 @@ export class GlobalSearch {
     if (results.length === 0) {
       this.suggestionsContainer.innerHTML = `
         <div class="no-results">
+          <i class="fas fa-search"></i>
           <p>No products found</p>
+          <span>Try a different search term</span>
         </div>
       `;
       this.showSuggestions();
@@ -144,7 +128,7 @@ export class GlobalSearch {
              onerror="this.src='/assets/images/default-product.png'">
         <div class="product-info">
           <div class="product-name">${product.name}</div>
-          <div class="product-price">£${product.price.toFixed(2)}</div>
+          <div class="product-price">£${parseFloat(product.price).toFixed(2)}</div>
           <div class="product-actions">
             <button class="add-to-cart-btn" data-stock-id="${product.stockId || product.id}">Add to Cart</button>
           </div>
@@ -155,10 +139,6 @@ export class GlobalSearch {
     this.attachSuggestionListeners();
     this.showSuggestions();
   }
-  
-  
-  
-  
 
   renderError() {
     if (!this.suggestionsContainer) return;
@@ -171,7 +151,6 @@ export class GlobalSearch {
     this.showSuggestions();
   }
 
-  // Modify the attachSuggestionListeners function in header-search.js
   attachSuggestionListeners() {
     // Product click listener (navigate to product page)
     this.suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
@@ -235,8 +214,4 @@ export class GlobalSearch {
       });
     });
   }
-  
-  
-  
-
 }

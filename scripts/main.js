@@ -638,4 +638,3 @@ async function initializeSearch() {
 }
 
 // Add to initializeApp function
-await initializeSearch();
