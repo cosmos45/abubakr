@@ -5,12 +5,10 @@ import { GlobalSearch } from "../../scripts/modules/global-search.js";
 import { MobileMenu } from "../../scripts/modules/mobile-menu.js";
 import { initializeFooter } from "../../components/footer/footer.js";
 import { initializeStickyHeader } from "../../scripts/modules/sticky-header.js";
+
 class CartPage {
     constructor() {
-        this.cart = new Cart();
         this.loader = new Loader();
-        this.globalSearch = new GlobalSearch();
-
         
         // Cart-specific creative loading messages
         this.loader.customMessages = [
@@ -37,23 +35,30 @@ class CartPage {
             // Show loader with cart-specific message
             this.loader.show("Loading your shopping cart...");
             
+            // Initialize cart first to prevent duplicate calls
+            if (!window.globalCart) {
+                window.globalCart = new Cart();
+                await window.globalCart.init();
+            }
+            this.cart = window.globalCart;
+            
             // Load header and footer
             await Promise.all([
                 loadComponent("header", "/components/header/header.html"),
                 loadComponent("footer", "/components/footer/footer.html")
             ]);
-                // Initialize mobile menu
-         const mobileMenu = new MobileMenu();
-         mobileMenu.init();
-
-            // Initialize cart
-            await this.cart.init();
-             // Initialize global search
-      await this.globalSearch.init();
-            // Render cart page
-            this.cart.renderCartPage();
             
             // Initialize mobile menu
+            const mobileMenu = new MobileMenu();
+            mobileMenu.init();
+            
+            // Initialize global search with the same cart instance
+            this.globalSearch = new GlobalSearch();
+            this.globalSearch.cart = this.cart;
+            await this.globalSearch.init(true); // Pass true to skip cart initialization
+            
+            // Render cart page
+            this.cart.renderCartPage();
             
             // Add event listeners for cart interactions
             this.addCartEventListeners();
@@ -79,6 +84,11 @@ class CartPage {
             }
         }
     }
+
+
+
+
+
     addCartEventListeners() {
         // Show loader during quantity updates
         document.addEventListener('click', (e) => {
@@ -128,7 +138,7 @@ class CartPage {
     }
 }
 
-// Initialize when DOM is ready
+// Initialize when DOM is ready// Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
     const loader = new Loader();
     loader.show("Initializing your cart...");

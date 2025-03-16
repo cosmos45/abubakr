@@ -53,6 +53,8 @@ class ProductPage {
         loadComponent("header", "/components/header/header.html"),
         loadComponent("footer", "/components/footer/footer.html"),
       ]);
+      const globalSearch = new GlobalSearch();
+      await globalSearch.init();
       // Current problematic sequence in your code
 await this.categoryManager.init();
 this.categoryManager.initializeNavigation();
@@ -65,7 +67,6 @@ this.categoryManager.initializeNavigation();
       // Initialize cart and ensure proper DOM structure
       await this.cart.init();
       this.moveCartToBody();
-      new GlobalSearch();
       await this.loadProductData();
       this.initializeEventListeners();
       this.initializeSections();

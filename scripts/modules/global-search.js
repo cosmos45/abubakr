@@ -5,24 +5,30 @@ import { Cart } from "./cart.js";
 export class GlobalSearch {
   constructor() {
     this.searchService = new SearchService();
-    this.cart = new Cart();
-    this.init();
-  }
+    // Use existing cart instance if available
+    this.cart = window.globalCart || Cart.instance || new Cart();
+}
 
-  async init() {
+  async init(skipCartInit = false) {
     this.searchInput = document.getElementById("search-input");
     this.suggestionsContainer = document.getElementById("search-suggestions");
     this.searchWrapper = document.querySelector(".search-wrapper");
 
     if (!this.searchInput || !this.suggestionsContainer) {
-      console.warn("Search elements not found in DOM");
-      return;
+        console.warn("Search elements not found in DOM");
+        return;
     }
 
     await this.searchService.init();
-    await this.cart.init();
+    
+    // Only initialize cart if not already initialized and not skipped
+    if (!skipCartInit && !this.cart.initialized) {
+        await this.cart.init();
+    }
+    
     this.setupEventListeners();
-  }
+}
+
 
   showSuggestions() {
     if (this.suggestionsContainer) {

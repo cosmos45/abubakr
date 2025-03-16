@@ -4,16 +4,16 @@
     --white: #ffffff;
 }
 body.sticky-header .header-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    animation: slideDown 0.3s forwards;
-  }
-
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s forwards;
+  background-color: #fff;
+}
   body.sticky-header .top-bar {
   display: none;
 }
@@ -59,9 +59,11 @@ body.sticky-header .header-container {
   @keyframes slideDown {
     from {
       transform: translateY(-100%);
+      opacity: 0;
     }
     to {
       transform: translateY(0);
+      opacity: 1;
     }
   }
   
@@ -485,12 +487,11 @@ body.sticky-header .header-container {
     font-size: 12px;
 }
 .header-container {
-    width: 100%;
-    z-index: 1000;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    position: relative; /* Ensure proper stacking context */
-
-  }
+  width: 100%;
+  z-index: 1000;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
   .sticky-header .header-container {
     position: fixed;
     top: 0;
@@ -501,9 +502,13 @@ body.sticky-header .header-container {
   }
 
 .header-hidden {
+  top: -100px !important;
+
     transform: translateY(-100%);
 }
-
+body.sticky-header {
+  padding-top: var(--header-height, 170px);
+}
 /* Search styles */
 .search-wrapper {
     display: flex;
@@ -940,7 +945,24 @@ body.sticky-header .header-container {
     padding-top: 25px; /* Reduced from 40px to 25px for better alignment */
     margin-top: 10px; /* Added to shift button down */
 }
-
+    
+.header-container.sticky-header,
+header.sticky-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1020 !important; /* Use Bootstrap's z-index value */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
+.hero-carousel, 
+.carousel-container, 
+.carousel-slide {
+  z-index: 1 !important;
+  position: relative;
+}
 
 @media (max-width: 991px) {
     .top-bar {
@@ -981,6 +1003,8 @@ body.sticky-header .header-container {
         
 
     }
+
+    
 
     .nav-menu {
         display: none;

@@ -1,10 +1,17 @@
+// components/popular-categories/popular-categories.js
 import { categoryData } from '../../scripts/services/category-service.js';
 
-async function renderPopularCategories() {
+export async function renderPopularCategories() {
     try {
+        // Use the cached categories data
         const categories = await categoryData.getActiveCategories();
         const categoriesWithImages = categories.filter(cat => cat.thumbnail);
         const gridContainer = document.getElementById('categoriesGrid');
+        
+        if (!gridContainer) {
+            console.warn('Categories grid container not found');
+            return;
+        }
         
         // Sort categories to match the desired order
         const categoryOrder = [
@@ -17,6 +24,8 @@ async function renderPopularCategories() {
             .filter(Boolean)
             .slice(0, 8);
 
+        gridContainer.innerHTML = ''; // Clear existing content
+        
         sortedCategories.forEach(category => {
             const categoryCard = createCategoryCard(category);
             gridContainer.appendChild(categoryCard);
@@ -57,5 +66,3 @@ function initPopularCategories() {
         observer.observe(card);
     });
 }
-
-export { renderPopularCategories };

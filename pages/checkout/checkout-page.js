@@ -11,10 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Show loader immediately
         loader.show("Preparing your checkout experience...");
-        await Promise.all([
-            loadComponent('header', '/components/header/header.html'),
-            loadComponent('footer', '/components/footer/footer.html')
-        ]);
+     
         new GlobalSearch();
          // Initialize mobile menu
          const mobileMenu = new MobileMenu();

@@ -1,4 +1,5 @@
 // scripts/main.js
+// scripts/main.js
 import { loadComponent } from "./utils/components.js";
 import { initCarousel } from "../components/carousel/carousel.js";
 import { ProductCard } from "../components/product-card/product-card.js";
@@ -24,26 +25,36 @@ let cart; // Global cart instance
 async function initializeApp() {
   try {
     window.globalLoader.show("Loading Abu Bakr Store...");
+
     // Initialize mobile menu
     const mobileMenu = new MobileMenu();
     mobileMenu.init();
-    await ProductService.getSpecialOffersProducts();
 
-    // Initialize cart first
-    cart = new Cart();
-    const cartInitialized = await cart.init();
-
-    if (!cartInitialized) {
-      console.error("Cart failed to initialize");
-      window.globalLoader.hide();
-      return;
+    // Initialize cart only once using the singleton pattern
+    if (!window.globalCart) {
+      cart = new Cart();
+      window.globalCart = cart; // Store reference globally
+      
+      const initResult = await cart.init();
+      if (!initResult) {
+        console.error("Cart failed to initialize");
+        window.globalLoader.hide();
+        return;
+      }
+      console.log("Cart initialized successfully");
+    } else {
+      cart = window.globalCart; // Use existing global reference
+      console.log("Using existing cart instance");
     }
+
     const categoryManager = new CategoryManager();
     await categoryManager.init();
     await categoryManager.initializeNavigation();
+    
     // Initialize the brand banner
     const brandBanner = new BrandBanner();
     await brandBanner.init();
+    
     // Load all components
     await Promise.all([
       loadComponent("header", "/components/header/header.html"),
@@ -62,7 +73,6 @@ async function initializeApp() {
         "/components/popular-categories/popular-categories.html"
       ),
       loadComponent("fresh-finds", "/components/fresh-finds/fresh-finds.html"),
-
       loadComponent(
         "most-popular",
         "/components/most-popular/most-popular.html"
@@ -75,8 +85,6 @@ async function initializeApp() {
         "subscribe-section",
         "/components/subscribe/subscribe.html"
       ),
-      await loadComponent("footer", "/components/footer/footer.html"),
-
       await loadComponent(
         "start-cart-container",
         "/components/start-cart/start-cart.html"
@@ -90,10 +98,12 @@ async function initializeApp() {
         "/components/brand-banner/brand-banner.html"
       ),
       await loadComponent("footer", "/components/footer/footer.html")
-      
     ]);
     initializeStickyHeader();
 
+   // Add GlobalSearch initialization here, after header is loaded
+   const globalSearch = new GlobalSearch();
+   await globalSearch.init();
     categoryManager.initializeNavigation();
 
     // Initialize all components in sequence
@@ -101,17 +111,17 @@ async function initializeApp() {
     initCarousel();
     await initializeBestDeals();
     await renderPopularCategories();
-
-    await initializeMeatInStartCart(); // Modified function name but keeping the same component
+    await initializeMeatInStartCart();
     await initializeMostPopular();
-
     await initializeFreshFinds();
+
+    // Initialize cart-related UI elements
     initializeCartIcon();
     initializeQuantityControls();
     initializeAddToCart();
+
     await initializeFooter();
 
-    new GlobalSearch();
 
     window.globalLoader.hide();
   } catch (error) {
@@ -124,6 +134,10 @@ async function initializeApp() {
     }
   }
 }
+
+
+
+
 function initializeMobileMenu() {
   const menuToggle = document.querySelector(".mobile-menu-toggle");
   const menuClose = document.querySelector("#mobile-menu-close");

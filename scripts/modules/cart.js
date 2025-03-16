@@ -1,38 +1,118 @@
 // scripts/modules/cart.js
 import axiosServices from '../../scripts/services/axiosService.js';
 
+let refreshBasketTimeout = null;
 
 export class Cart {
-  constructor() {
-    if (Cart.instance) return Cart.instance;
-    Cart.instance = this;
-    this.items = new Map();
-    this.initialized = false;
-    this.shippingRates = [];
-    this.selectedShippingRate = null;
-    this.subtotal = 0;
-    this.total = 0;
-    this.shippingCharges = 0;
-}
-
-
-  async init() {
-    if (this.initialized) return true;
-    try {
-      if (!document.querySelector(".cart-sidebar")) {
-        this.createCartStructure();
-      }
-      await this.refreshBasket();
-      await this.loadShippingRates();
-      this.bindEvents();
-      this.initialized = true;
-      return true;
-    } catch (error) {
-      console.error("Error initializing cart:", error);
-      return false;
-    }
+  // Add at the top of the Cart class
+static basketResponse = null;
+static basketPromise = null;
+static shippingRatesResponse = null;
+static shippingRatesPromise = null;
+// scripts/modules/cart.js
+constructor() {
+  // Check if instance already exists and return it
+  if (Cart.instance) {
+    console.log("Cart instance already exists, returning existing instance");
+    return Cart.instance;
   }
   
+  // Create new instance
+  Cart.instance = this;
+  this.items = new Map();
+  this.initialized = false;
+  this.shippingRates = [];
+  this.selectedShippingRate = null;
+  this.subtotal = 0;
+  this.total = 0;
+  this.shippingCharges = 0;
+}
+async init() {
+  if (this.initialized) {
+    console.log("Cart already initialized, skipping initialization");
+    return true;
+  }
+  
+  try {
+    if (!document.querySelector(".cart-sidebar")) {
+      this.createCartStructure();
+    }
+    
+    // Use cached basket response if available, or fetch it only once
+    let basketResponse;
+    if (Cart.basketResponse) {
+      console.log("Using cached basket response");
+      basketResponse = Cart.basketResponse;
+    } else if (Cart.basketPromise) {
+      console.log("Waiting for existing basket request to complete");
+      basketResponse = await Cart.basketPromise;
+    } else {
+      console.log("Fetching basket data for the first time");
+      // Create a promise for the basket request that can be shared
+      Cart.basketPromise = axiosServices.get('/commerce/basket');
+      basketResponse = await Cart.basketPromise;
+      Cart.basketResponse = basketResponse;
+    }
+    
+    if (basketResponse.status && basketResponse.data.basket) {
+      const basketData = basketResponse.data.basket;
+      
+      this.subtotal = parseFloat(basketData.sub_total) || 0;
+      this.total = parseFloat(basketData.total) || 0;
+      this.shippingCharges = parseFloat(basketData.shipping_charges) || 0;
+      
+      // Clear existing items map before populating with new data
+      this.items = new Map();
+      
+      // Populate items map with all basket items
+      if (basketData.items && Array.isArray(basketData.items)) {
+        basketData.items.forEach(item => {
+          const imageUrl = item.stock?.attachments?.[0]?.path || '/assets/images/default-product.png';
+          
+          const mappedItem = {
+            id: item.stock_id,
+            stock_id: item.stock_id,
+            basket_item_id: item.basket_item__id,
+            name: item.name,
+            price: parseFloat(item.price),
+            quantity: item.quantity,
+            totalPrice: parseFloat(item.total),
+            imageUrl: imageUrl,
+            size: item.stock?.size || null
+          };
+          
+          this.items.set(item.basket_item__id.toString(), mappedItem);
+        });
+      }
+      
+      // Render all items in the cart
+      this.renderSavedItems();
+      this.updateCartCount();
+      this.updateSubtotal();
+      
+      // Pass the basket data to loadShippingRates to avoid a second request
+      if (basketData.items && basketData.items.length > 0) {
+        await this.loadShippingRates(basketData);
+      } else {
+        this.shippingRates = [];
+        this.selectedShippingRate = null;
+        this.renderShippingRates();
+      }
+    }
+    
+    this.bindEvents();
+    this.initialized = true;
+    console.log("Cart initialization completed");
+    return true;
+  } catch (error) {
+    console.error("Error initializing cart:", error);
+    // Clear the promise if there was an error
+    if (Cart.basketPromise) {
+      Cart.basketPromise = null;
+    }
+    return false;
+  }
+}
   renderShippingRates() {
     const container = document.getElementById('shipping-rates-container');
     if (!container) return;
@@ -75,40 +155,70 @@ export class Cart {
     });
   }
   
-  
-  async loadShippingRates() {
-    try {
-      const currentBasket = await axiosServices.get('/commerce/basket');
-      const basketData = currentBasket.data.basket;
+ // In cart.js - update the loadShippingRates method
+ async loadShippingRates(basketData = null) {
+  try {
+    // Only fetch basket data if not provided
+    let currentBasketData = basketData;
+    if (!currentBasketData) {
+      // Use cached basket response if available
+      if (Cart.basketResponse) {
+        currentBasketData = Cart.basketResponse.data.basket;
+      } else {
+        const currentBasket = await axiosServices.get('/commerce/basket');
+        currentBasketData = currentBasket.data.basket;
+      }
+    }
+    
+    if (!this.items.size) {
+      this.shippingRates = [];
+      this.selectedShippingRate = null;
+      this.renderShippingRates();
+      this.updateCheckoutButtonState();
+      return;
+    }
+
+    // Use cached shipping rates if available
+    let shippingRatesResponse;
+    if (Cart.shippingRatesResponse) {
+      console.log("Using cached shipping rates");
+      shippingRatesResponse = Cart.shippingRatesResponse;
+    } else if (Cart.shippingRatesPromise) {
+      console.log("Waiting for existing shipping rates request to complete");
+      shippingRatesResponse = await Cart.shippingRatesPromise;
+    } else {
+      console.log("Fetching shipping rates for the first time");
+      // Create a promise for the shipping rates request that can be shared
+      Cart.shippingRatesPromise = axiosServices.get("/commerce/shipping-rates");
+      shippingRatesResponse = await Cart.shippingRatesPromise;
+      Cart.shippingRatesResponse = shippingRatesResponse;
+    }
+
+    if (shippingRatesResponse.status && shippingRatesResponse.data.shippingRates) {
+      this.shippingRates = shippingRatesResponse.data.shippingRates;
       
-      if (!this.items.size) {
-        this.shippingRates = [];
+      // Check if basket has existing shipping rate
+      if (currentBasketData.shipping_rate_id) {
+        this.selectedShippingRate = this.shippingRates.find(
+          rate => rate.shipping_rate__id === currentBasketData.shipping_rate_id
+        );
+      } else {
         this.selectedShippingRate = null;
-        this.renderShippingRates();
-        this.updateCheckoutButtonState();
-        return;
       }
-  
-      const response = await axiosServices.get("/commerce/shipping-rates");
-      if (response.status && response.data.shippingRates) {
-        this.shippingRates = response.data.shippingRates;
-        
-        // Check if basket has existing shipping rate
-        if (basketData.shipping_rate_id) {
-          this.selectedShippingRate = this.shippingRates.find(
-            rate => rate.shipping_rate__id === basketData.shipping_rate_id
-          );
-        } else {
-          this.selectedShippingRate = null;
-        }
-        
-        this.renderShippingRates();
-        this.updateCheckoutButtonState();
-      }
-    } catch (error) {
-      console.error("Error loading shipping rates:", error);
+      
+      this.renderShippingRates();
+      this.updateCheckoutButtonState();
+    }
+  } catch (error) {
+    console.error("Error loading shipping rates:", error);
+    // Clear the promise if there was an error
+    if (Cart.shippingRatesPromise) {
+      Cart.shippingRatesPromise = null;
     }
   }
+}
+
+  
 
   updateTotalsWithShipping(shippingAmount) {
     const subtotalElement = document.querySelector(".subtotal-amount");
@@ -225,8 +335,17 @@ export class Cart {
     }
   }
 
-  async refreshBasket() {
+ // Add at the top of cart.js
+ async refreshBasket() {
+  // If basket is already being refreshed, wait for that promise
+  if (this.refreshPromise) {
+    return this.refreshPromise;
+  }
+  
+  // Create a new refresh promise
+  this.refreshPromise = new Promise(async (resolve) => {
     try {
+      console.log("Refreshing basket...");
       const response = await axiosServices.get('/commerce/basket');
       if (response.status && response.data.basket) {
         const basketData = response.data.basket;
@@ -236,7 +355,7 @@ export class Cart {
         this.shippingCharges = parseFloat(basketData.shipping_charges) || 0;
         
         // Update selected shipping rate
-        if (basketData.shipping_rate_id) {
+        if (basketData.shipping_rate_id && this.shippingRates.length > 0) {
           this.selectedShippingRate = this.shippingRates.find(
             rate => rate.shipping_rate__id === basketData.shipping_rate_id
           );
@@ -271,13 +390,23 @@ export class Cart {
         this.updateCartCount();
         this.updateSubtotal();
         this.renderShippingRates();
+        resolve(true);
+      } else {
+        resolve(false);
       }
     } catch (error) {
       console.error('Error refreshing basket:', error);
       this.showToast('Failed to refresh basket', 'error');
+      resolve(false);
+    } finally {
+      // Clear the promise reference
+      this.refreshPromise = null;
     }
-  }
+  });
   
+  return this.refreshPromise;
+}
+
 
   
   

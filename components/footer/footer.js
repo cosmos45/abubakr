@@ -1,19 +1,23 @@
 // components/footer/footer.js
-import { categoryData } from '../../scripts/services/category-service.js';
+import { categoryData, getCategoriesCache } from '../../scripts/services/category-service.js';
 
 export async function initializeFooter() {
     try {
-        await populateFooterMenuCategories();
-        await populateFooterPopularCategories();
+        // Get categories from cache if available
+        const categories = getCategoriesCache() || await categoryData.getActiveCategories();
+        
+        // Filter for featured categories
+        const featuredCategories = categories.filter(cat => cat.is_featured === 1);
+        
+        await populateFooterMenuCategories(featuredCategories);
+        await populateFooterPopularCategories(categories);
     } catch (error) {
         console.error('Error initializing footer:', error);
     }
 }
 
-async function populateFooterMenuCategories() {
+async function populateFooterMenuCategories(featuredCategories) {
     try {
-        // Get featured categories for the Menu section
-        const featuredCategories = await categoryData.getFeaturedCategories();
         const menuCategoriesContainer = document.getElementById('footer-menu-categories');
         
         if (!menuCategoriesContainer) return;
@@ -37,10 +41,8 @@ async function populateFooterMenuCategories() {
     }
 }
 
-async function populateFooterPopularCategories() {
+async function populateFooterPopularCategories(categories) {
     try {
-        // Use the same categories as in popular-categories component
-        const categories = await categoryData.getActiveCategories();
         const categoriesWithImages = categories.filter(cat => cat.thumbnail);
         const popularCategoriesContainer = document.getElementById('footer-popular-categories');
         
