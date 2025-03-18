@@ -29,6 +29,7 @@ const processQueue = (error, token = null) => {
     failedQueue = [];
 };
 
+// Add a request interceptor to handle token refresh
 const fetchToken = async () => {
     try {
         const response = await axios.post(`${backendApi}/auth/token`, apiCredentials, {
