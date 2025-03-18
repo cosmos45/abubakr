@@ -1,5 +1,5 @@
 // axiosService.js
-const backendApi = 'https://api.flowpos.co.uk/api';
+const backendApi = 'https://backendv3.tech1solutions.uk/api';
 const apiCredentials = {
     api_key: 'cpul47tu91fbr6kles1v560lvfwtig',
     api_secret: 'ylx7wiblk6fqpvsh2qxmh26kss4hajk9kj8jrlt4t14qh94wwnob1ctszgvnoenkenv7tc99u0h5woc9joobpr232b11pvxd9',
