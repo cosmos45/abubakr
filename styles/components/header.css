@@ -3,6 +3,11 @@
     --header-green: #386741;
     --white: #ffffff;
 }
+.link-separator {
+  margin: 0 8px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 body.sticky-header .header-container {
   position: fixed;
   top: 0;

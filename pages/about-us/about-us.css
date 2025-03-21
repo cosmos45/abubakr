@@ -1,0 +1,305 @@
+/* pages/about-us/about-us.css */
+
+/* Manufacturers section styling */
+.manufacturers-section {
+  padding: 3rem 0;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 2rem;
+}
+
+.manufacturers-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #4a8b2c;
+}
+
+.manufacturers-carousel {
+  position: relative;
+  overflow: hidden;
+  padding: 0 15px;
+}
+
+.carousel-container {
+  overflow: hidden;
+  position: relative;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-slide {
+  min-width: 100%;
+  padding: 0 15px;
+}
+
+.manufacturer-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  height: 100%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.manufacturer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.manufacturer-card img {
+  max-width: 120px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.manufacturer-card h4 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 0;
+}
+
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.prev-btn, .next-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #4a8b2c;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 0 10px;
+}
+
+.carousel-indicators {
+  display: flex;
+  gap: 8px;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ddd;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.indicator.active {
+  background-color: #4a8b2c;
+}
+
+
+
+.about-us-hero {
+    background-color: #f8f9fa;
+    padding: 3rem 0;
+    text-align: center;
+    margin-bottom: 3rem;
+    border-radius: 8px;
+  }
+  
+  .about-us-hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #333;
+  }
+  
+  .about-video-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .about-video {
+    width: 100%;
+    display: block;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .video-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .about-video-container:hover .video-controls {
+    opacity: 1;
+  }
+
+  .play-pause-btn, .mute-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .timeline-container {
+    flex-grow: 1;
+    margin: 0 15px;
+  }
+  .timeline {
+    height: 5px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    position: relative;
+    cursor: pointer;
+  }  
+
+  .progress-bar-video {
+    position: absolute;
+    height: 100%;
+    background-color: #4a8b2c;
+    border-radius: 5px;
+    width: 0;
+  }
+  .about-story h2,
+  .services-info h2,
+  .delivery-info h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #4a8b2c;
+  }
+  
+  .about-story p,
+  .services-info p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    color: #555;
+  }
+  
+  .feature-card {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    height: 100%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feature-icon {
+    font-size: 2.5rem;
+    color: #4a8b2c;
+    margin-bottom: 1rem;
+  }
+  
+  .feature-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .feature-card p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #666;
+  }
+  
+  .delivery-info {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    height: 100%;
+  }
+  
+  .delivery-rates {
+    margin-bottom: 1.5rem;
+  }
+  
+  .delivery-rate {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .delivery-rate:last-child {
+    border-bottom: none;
+  }
+  
+  .delivery-rate.highlight {
+    background-color: #e8f5e9;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 0.5rem;
+    font-weight: 600;
+  }
+  
+  .rate-title {
+    font-size: 1.1rem;
+    color: #555;
+  }
+  
+  .rate-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .delivery-note {
+    background-color: #fff3cd;
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+  
+  .delivery-note p {
+    margin: 0;
+    color: #856404;
+  }
+  
+  @media (max-width: 991.98px) {
+    .about-story {
+      margin-top: 2rem;
+    }
+  }
+  
+  @media (max-width: 767.98px) {
+    .about-us-hero h1 {
+      font-size: 2.5rem;
+    }
+    
+    .feature-card {
+      margin-bottom: 1.5rem;
+    }
+  }
+  

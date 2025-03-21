@@ -57,7 +57,7 @@ export default class Loader {
       if (!document.querySelector('link[href="components/loader/loader.css"]')) {
         const linkElement = document.createElement('link');
         linkElement.rel = 'stylesheet';
-        linkElement.href = 'components/loader/loader.css';
+        linkElement.href = '/components/loader/loader.css'; // Use absolute path with leading slash
         document.head.appendChild(linkElement);
       }
     }
@@ -128,4 +128,5 @@ export default class Loader {
       }
     }
   }
+  
   
