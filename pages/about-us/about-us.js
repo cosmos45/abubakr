@@ -5,6 +5,7 @@ import { MobileMenu } from "../../scripts/modules/mobile-menu.js";
 import { initializeFooter } from "../../components/footer/footer.js";
 import { initializeStickyHeader } from "../../scripts/modules/sticky-header.js";
 import Loader from '../../components/loader/loader.js';
+import { CategoryManager } from "../../scripts/modules/category-manager.js";
 
 class AboutUsPage {
 constructor() {
@@ -25,6 +26,8 @@ this.loader = new Loader();
     
     this.currentSlide = 0;
     this.slideCount = 2; // We have 2 slides
+    this.categoryManager = new CategoryManager(); // Add this line
+
 }
 
 async init() {
@@ -38,6 +41,7 @@ async init() {
             loadComponent("footer", "/components/footer/footer.html")
         ]);
         
+        
         // Initialize mobile menu
         const mobileMenu = new MobileMenu();
         mobileMenu.init();
@@ -48,7 +52,7 @@ async init() {
         
         // Initialize sticky header
         initializeStickyHeader();
-
+        this.categoryManager.initializeNavigation();
         
         // Initialize footer
         await initializeFooter();
