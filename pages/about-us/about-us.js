@@ -48,7 +48,6 @@ async init() {
         
         // Initialize sticky header
         initializeStickyHeader();
-        this.initInstagramVideos();
 
         
         // Initialize footer
@@ -281,3 +280,4 @@ aboutUsPage.init().catch(error => {
     loader.hide();
 });
 });
+

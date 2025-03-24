@@ -17,6 +17,143 @@ main {
 #footer {
   flex-shrink: 0;
 }
+
+/* Instagram Feed Section Styling */
+.instagram-section {
+  padding: 3rem 0;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-top: 2rem;
+}
+
+.instagram-section h2 {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #4a8b2c;
+}
+
+.instagram-feed-container {
+  padding: 0 15px;
+}
+
+.instagram-post-container {
+  position: relative;
+  border-radius: 8px;
+  overflow: visible;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+}
+
+.instagram-post-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.embed-placeholder {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* Fix for Instagram embeds */
+.embed-placeholder .instagram-media {
+  margin: 0 auto !important;
+  width: 100% !important;
+  max-width: 540px !important;
+}
+
+.instagram-follow-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white;
+  border-radius: 30px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 1.5rem;
+}
+
+.instagram-follow-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  color: white;
+}
+
+.instagram-follow-btn i {
+  font-size: 1.2rem;
+  margin-right: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1199.98px) {
+  .row.justify-content-center {
+    --bs-gutter-x: 1rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .instagram-post-container {
+    margin-bottom: 2rem;
+  }
+  
+  .col-md-6 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .instagram-section {
+    padding: 2rem 0;
+  }
+  
+  .col-md-6 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .instagram-post-container {
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .instagram-section {
+    padding: 1.5rem 0;
+  }
+  
+  .instagram-feed-container {
+    padding: 0 10px;
+  }
+}
+
+/* Fix for Instagram embed script */
+.instagram-media {
+  background: #FFF;
+  border: 0;
+  border-radius: 3px;
+  box-shadow: 0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15);
+  margin: 1px auto !important;
+  padding: 0;
+  width: 99.375%;
+  width: -webkit-calc(100% - 2px);
+  width: calc(100% - 2px);
+}
+
+
+
+
 .container {
   max-width: 1400px;
   margin: 0 auto;
