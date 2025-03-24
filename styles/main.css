@@ -18,12 +18,17 @@ main {
   flex-shrink: 0;
 }
 
+
 /* Instagram Feed Section Styling */
+.instagram-header-section {
+  margin-bottom: 2rem;
+}
+
 .instagram-section {
-  padding: 3rem 0;
+  padding: 2rem 0;
   background-color: #f8f9fa;
   border-radius: 8px;
-  margin-top: 2rem;
+  margin-top: 0;
 }
 
 .instagram-section h2 {
@@ -115,7 +120,7 @@ main {
 
 @media (max-width: 767.98px) {
   .instagram-section {
-    padding: 2rem 0;
+    padding: 1.5rem 0;
   }
   
   .col-md-6 {
@@ -130,7 +135,7 @@ main {
 
 @media (max-width: 575.98px) {
   .instagram-section {
-    padding: 1.5rem 0;
+    padding: 1rem 0;
   }
   
   .instagram-feed-container {
@@ -150,8 +155,6 @@ main {
   width: -webkit-calc(100% - 2px);
   width: calc(100% - 2px);
 }
-
-
 
 
 .container {
