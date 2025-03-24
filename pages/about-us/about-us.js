@@ -48,6 +48,8 @@ async init() {
         
         // Initialize sticky header
         initializeStickyHeader();
+        this.initInstagramVideos();
+
         
         // Initialize footer
         await initializeFooter();
@@ -222,6 +224,31 @@ goToSlide(index) {
     this.currentSlide = index;
     this.updateCarousel();
 }
+initInstagramVideos() {
+    const instagramVideos = document.querySelectorAll('.instagram-video');
+    
+    instagramVideos.forEach(video => {
+      // Ensure videos autoplay on mobile
+      video.setAttribute('playsinline', '');
+      video.setAttribute('muted', '');
+      video.muted = true;
+      
+      // Play videos when they come into view
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            video.play().catch(error => {
+              console.error("Autoplay failed:", error);
+            });
+          } else {
+            video.pause();
+          }
+        });
+      }, { threshold: 0.5 });
+      
+      observer.observe(video);
+    });
+  }
 
 updateCarousel() {
     const track = document.querySelector('.carousel-track');
