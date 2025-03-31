@@ -1,4 +1,42 @@
 /* components/cart/cart.css */
+/* Add to components/cart/cart.css */
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.form-check-input {
+  margin-right: 0.5rem;
+  margin-top: 0;
+}
+
+.form-check-label {
+  margin-bottom: 0;
+}
+
+.shipping-rates p.mb-2 {
+  margin-bottom: 0.75rem;
+}
+
+/* Ensure discount rows appear in the right order */
+.discount-row {
+  order: 3;
+}
+
+.total-discount-row {
+  order: 4;
+}
+
+.summary-details hr {
+  order: 5;
+}
+
+.summary-details > div:last-child {
+  order: 6;
+}
+
+
 .cart-sidebar {
     position: fixed;
     top: 0;

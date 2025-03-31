@@ -9,6 +9,8 @@ static basketResponse = null;
 static basketPromise = null;
 static shippingRatesResponse = null;
 static shippingRatesPromise = null;
+
+
 // scripts/modules/cart.js
 constructor() {
   // Check if instance already exists and return it
@@ -26,6 +28,11 @@ constructor() {
   this.subtotal = 0;
   this.total = 0;
   this.shippingCharges = 0;
+  
+  // Initialize discount properties
+  this.discountAmount = 0;
+  this.totalDiscount = 0;
+  this.discount = null;
 }
 async init() {
   if (this.initialized) {
@@ -60,6 +67,11 @@ async init() {
       this.subtotal = parseFloat(basketData.sub_total) || 0;
       this.total = parseFloat(basketData.total) || 0;
       this.shippingCharges = parseFloat(basketData.shipping_charges) || 0;
+      
+      // Store discount information
+      this.discountAmount = parseFloat(basketData.discount_amount) || 0;
+      this.totalDiscount = parseFloat(basketData.total_discount) || 0;
+      this.discount = basketData.discount || null;
       
       // Clear existing items map before populating with new data
       this.items = new Map();
@@ -98,6 +110,9 @@ async init() {
         this.selectedShippingRate = null;
         this.renderShippingRates();
       }
+      
+      // Update discount display
+      this.updateDiscountDisplay();
     }
     
     this.bindEvents();
@@ -113,48 +128,48 @@ async init() {
     return false;
   }
 }
-  renderShippingRates() {
-    const container = document.getElementById('shipping-rates-container');
-    if (!container) return;
-  
-    if (this.shippingRates.length === 0 || this.items.size === 0) {
-      container.innerHTML = `
-        <div class="shipping-rates mb-3">
-          <p class="mb-2">Shipping</p>
-          <p class="text-muted">Add items to cart to see shipping options</p>
-        </div>`;
-      return;
-    }
-  
+renderShippingRates() {
+  const container = document.getElementById('shipping-rates-container');
+  if (!container) return;
+
+  if (this.shippingRates.length === 0 || this.items.size === 0) {
     container.innerHTML = `
       <div class="shipping-rates mb-3">
         <p class="mb-2">Shipping</p>
-        ${this.shippingRates.map(rate => `
-          <div class="form-check">
-            <input type="radio" 
-              id="shipping_${rate.shipping_rate__id}" 
-              name="shipping_method" 
-              class="form-check-input"
-              value="${rate.shipping_rate__id}"
-              ${this.selectedShippingRate?.shipping_rate__id === rate.shipping_rate__id ? 'checked' : ''}
-            />
-            <label class="form-check-label" for="shipping_${rate.shipping_rate__id}">
-              ${rate.name}: £${rate.amount.toFixed(2)}
-            </label>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  
-    // Add event listeners
-    const radioButtons = container.querySelectorAll('input[type="radio"]');
-    radioButtons.forEach(radio => {
-      radio.addEventListener('change', (e) => {
-        this.updateShippingRate(parseInt(e.target.value));
-      });
-    });
+        <p class="text-muted">Add items to cart to see shipping options</p>
+      </div>`;
+    return;
   }
-  
+
+  container.innerHTML = `
+    <div class="shipping-rates d-flex justify-content-between mb-3">
+      <p class="mb-2">Shipping</p>
+      ${this.shippingRates.map(rate => `
+        <div class="form-check ">
+          <input type="radio" 
+            id="shipping_${rate.shipping_rate__id}" 
+            name="shipping_method" 
+            class="form-check-input me-2"
+            value="${rate.shipping_rate__id}"
+            ${this.selectedShippingRate?.shipping_rate__id === rate.shipping_rate__id ? 'checked' : ''}
+          />
+          <label class="form-check-label" for="shipping_${rate.shipping_rate__id}">
+            ${rate.name}: £${rate.amount.toFixed(2)}
+          </label>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Add event listeners
+  const radioButtons = container.querySelectorAll('input[type="radio"]');
+  radioButtons.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      this.updateShippingRate(parseInt(e.target.value));
+    });
+  });
+}
+
  // In cart.js - update the loadShippingRates method
  async loadShippingRates(basketData = null) {
   try {
@@ -240,7 +255,6 @@ async init() {
   }
   
   
-
   async updateShippingRate(shippingRateId) {
     try {
       const selectedRate = this.shippingRates.find(
@@ -266,6 +280,7 @@ async init() {
   
       if (response.status) {
         await this.refreshBasket();
+        // The refreshBasket method will update the discount display
       }
     } catch (error) {
       console.error("Error updating shipping rate:", error);
@@ -354,6 +369,11 @@ async init() {
         this.total = parseFloat(basketData.total) || 0;
         this.shippingCharges = parseFloat(basketData.shipping_charges) || 0;
         
+        // Store discount information
+        this.discountAmount = parseFloat(basketData.discount_amount) || 0;
+        this.totalDiscount = parseFloat(basketData.total_discount) || 0;
+        this.discount = basketData.discount || null;
+        
         // Update selected shipping rate
         if (basketData.shipping_rate_id && this.shippingRates.length > 0) {
           this.selectedShippingRate = this.shippingRates.find(
@@ -390,6 +410,7 @@ async init() {
         this.updateCartCount();
         this.updateSubtotal();
         this.renderShippingRates();
+        this.updateDiscountDisplay();
         resolve(true);
       } else {
         resolve(false);
@@ -406,13 +427,61 @@ async init() {
   
   return this.refreshPromise;
 }
+updateDiscountDisplay() {
+  // Get the order summary container
+  const summaryDetails = document.querySelector('.summary-details');
+  if (!summaryDetails) return;
+  
+  // Remove any existing discount rows
+  const existingDiscountRows = document.querySelectorAll('.discount-row, .total-discount-row');
+  existingDiscountRows.forEach(row => row.remove());
+  
+  console.log("Updating discount display:", {
+    discount: this.discount,
+    discountAmount: this.discountAmount,
+    totalDiscount: this.totalDiscount
+  });
+  
+  // Only show discount if there is a discount amount and discount object
+  if (this.discount && this.discount.name && this.discountAmount > 0) {
+    // Create discount row element
+    const discountRow = document.createElement('div');
+    discountRow.className = 'discount-row d-flex justify-content-between mb-3';
+    discountRow.innerHTML = `
+      <span>Discount <span class="discount-name">(${this.discount.name})</span></span>
+      <span class="discount-amount text-success">-£${this.discountAmount.toFixed(2)}</span>
+    `;
+    
+    // Find shipping rates container to insert after
+    const shippingContainer = document.getElementById('shipping-rates-container');
+    if (shippingContainer) {
+      shippingContainer.after(discountRow);
+    } else {
+      // If no shipping container, insert before the total
+      const totalRow = summaryDetails.querySelector('hr');
+      if (totalRow) {
+        totalRow.before(discountRow);
+      }
+    }
+  }
+  
+  // Add total discount row if total discount exists (even if it's the same as discount amount)
+  if (this.totalDiscount > 0) {
+    const totalDiscountRow = document.createElement('div');
+    totalDiscountRow.className = 'total-discount-row d-flex justify-content-between mb-3';
+    totalDiscountRow.innerHTML = `
+      <span>Total Discount</span>
+      <span class="total-discount-amount text-success">-£${this.totalDiscount.toFixed(2)}</span>
+    `;
+    
+    // Insert before the total (before the hr)
+    const totalRow = summaryDetails.querySelector('hr');
+    if (totalRow) {
+      totalRow.before(totalDiscountRow);
+    }
+  }
+}
 
-
-  
-  
-  
-  
-  
   
   
   
@@ -689,24 +758,28 @@ showToast(message, type = 'success') {
     this.items.forEach((item) => (total += item.quantity));
     return total;
   }
-updateSubtotal() {
-  const subtotalElement = document.querySelector(".subtotal-amount");
-  const totalElement = document.querySelector(".total-amount");
-  const shippingElement = document.querySelector("#shipping-charges");
 
-  if (subtotalElement) {
-    subtotalElement.textContent = `£${this.subtotal.toFixed(2)}`;
+  updateSubtotal() {
+    const subtotalElement = document.querySelector(".subtotal-amount");
+    const totalElement = document.querySelector(".total-amount");
+    const shippingElement = document.querySelector("#shipping-charges");
+  
+    if (subtotalElement) {
+      subtotalElement.textContent = `£${this.subtotal.toFixed(2)}`;
+    }
+  
+    if (totalElement) {
+      totalElement.textContent = `£${this.total.toFixed(2)}`;
+    }
+  
+    if (shippingElement && this.shippingCharges) {
+      shippingElement.textContent = `£${this.shippingCharges.toFixed(2)}`;
+    }
+    
+    // Update discount display whenever totals are updated
+    this.updateDiscountDisplay();
   }
-
-  if (totalElement) {
-    totalElement.textContent = `£${this.total.toFixed(2)}`;
-  }
-
-  if (shippingElement && this.shippingCharges) {
-    shippingElement.textContent = `£${this.shippingCharges.toFixed(2)}`;
-  }
-}
-
+  
 
 renderSavedItems() {
   const cartItems = document.querySelector(".cart-items");
@@ -765,50 +838,49 @@ renderSavedItems() {
   this.updateSubtotal();
 }
 
-  
-  renderCartPage() {
-    const cartItemsContainer = document.getElementById("cart-items-container");
-    if (!cartItemsContainer) return;
+renderCartPage() {
+  const cartItemsContainer = document.getElementById("cart-items-container");
+  if (!cartItemsContainer) return;
 
-    cartItemsContainer.innerHTML = "";
+  cartItemsContainer.innerHTML = "";
 
-    if (this.items.size === 0) {
-        cartItemsContainer.innerHTML = `
-            <div class="empty-cart">
-                <p>Your cart is empty</p>
-                <a href="/" class="continue-shopping">Continue Shopping</a>
-            </div>`;
-        return;
-    }
+  if (this.items.size === 0) {
+      cartItemsContainer.innerHTML = `
+          <div class="empty-cart">
+              <p>Your cart is empty</p>
+              <a href="/" class="continue-shopping">Continue Shopping</a>
+          </div>`;
+      return;
+  }
 
-    this.items.forEach((item) => {
-        const itemHtml = `
-            <div class="cart-item" data-basket-item-id="${item.basket_item_id}">
-                <img src="${item.imageUrl}" alt="${item.name}" 
-                     onerror="this.src='/assets/images/default-product.png'">
-                <div class="cart-item-details">
-                    <h3 class="item-name">${item.name}</h3>
-                    <div class="price-info">
-                        <span class="current-price">£${item.price.toFixed(2)}</span>
-                    </div>
-                    <div class="d-flex align-items-center mt-3">
-                        <div class="quantity-control">
-                            <button class="qty-btn minus">−</button>
-                            <input type="number" value="${item.quantity}" min="1" max="99" readonly>
-                            <button class="qty-btn plus">+</button>
-                        </div>
-                        <span class="item-total">£${item.totalPrice.toFixed(2)}</span>
-                    </div>
-                </div>
-                <button class="remove-item" aria-label="Remove item">×</button>
-            </div>`;
-        cartItemsContainer.insertAdjacentHTML("beforeend", itemHtml);
-    });
+  this.items.forEach((item) => {
+      const itemHtml = `
+          <div class="cart-item" data-basket-item-id="${item.basket_item_id}">
+              <img src="${item.imageUrl}" alt="${item.name}" 
+                   onerror="this.src='/assets/images/default-product.png'">
+              <div class="cart-item-details">
+                  <h3 class="item-name">${item.name}</h3>
+                  <div class="price-info">
+                      <span class="current-price">£${item.price.toFixed(2)}</span>
+                  </div>
+                  <div class="d-flex align-items-center mt-3">
+                      <div class="quantity-control">
+                          <button class="qty-btn minus">−</button>
+                          <input type="number" value="${item.quantity}" min="1" max="99" readonly>
+                          <button class="qty-btn plus">+</button>
+                      </div>
+                      <span class="item-total">£${item.totalPrice.toFixed(2)}</span>
+                  </div>
+              </div>
+              <button class="remove-item" aria-label="Remove item">×</button>
+          </div>`;
+      cartItemsContainer.insertAdjacentHTML("beforeend", itemHtml);
+  });
 
-    this.initializeCartPageControls();
-    this.updateCartPageTotals();
+  this.initializeCartPageControls();
+  this.updateCartPageTotals();
+  this.updateDiscountDisplay(); // Make sure discounts are displayed
 }
-
 
 initializeCartPageControls() {
   const cartItems = document.querySelectorAll(".cart-item");
@@ -855,7 +927,11 @@ updateCartPageTotals() {
   if (shippingElement && this.shippingCharges) {
     shippingElement.textContent = `£${this.shippingCharges.toFixed(2)}`;
   }
+  
+  // Update discount display
+  this.updateDiscountDisplay();
 }
+
 
 
 
