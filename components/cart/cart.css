@@ -36,7 +36,6 @@
   order: 6;
 }
 
-
 .cart-sidebar {
     position: fixed;
     top: 0;
@@ -48,12 +47,13 @@
     display: flex;
     flex-direction: column;
     transition: right 0.3s ease;
-    z-index: 1000;
+    z-index: 1050; /* Increased z-index from 1000 to 1050 */
     visibility: visible;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: env(safe-area-inset-bottom, 20px); /* Add this line */
+    padding-bottom: env(safe-area-inset-bottom, 20px);
 }
+
 
 .cart-sidebar.active {
     right: 0;
