@@ -11,7 +11,6 @@ import { initializeMostPopular } from "../components/most-popular/most-popular.j
 import { CategoryManager } from "./modules/category-manager.js";
 import { SearchService } from "./services/search-service.js";
 import { HeaderSearch } from "./modules/header-search.js";
-import Loader from "../components/loader/loader.js";
 import BrandBanner from "../components/brand-banner/brand-banner.js";
 import { GlobalSearch } from "./modules/global-search.js";
 import { MobileMenu } from "./modules/mobile-menu.js";
@@ -19,14 +18,12 @@ import { initializeFooter } from "../components/footer/footer.js";
 import {initializeStickyHeader} from "../scripts/modules/sticky-header.js"
 import { initializeSocialMedia } from "../components/social-media/social-media.js";
 
-window.globalLoader = new Loader();
 
 let cart; // Global cart instance
 
 // Main initialization
 async function initializeApp() {
   try {
-    window.globalLoader.show("Loading Abu Bakr Store...");
 
     // Initialize mobile menu
     const mobileMenu = new MobileMenu();
@@ -40,7 +37,6 @@ async function initializeApp() {
       const initResult = await cart.init();
       if (!initResult) {
         console.error("Cart failed to initialize");
-        window.globalLoader.hide();
         return;
       }
       console.log("Cart initialized successfully");
@@ -128,10 +124,8 @@ async function initializeApp() {
     await initializeFooter();
 
 
-    window.globalLoader.hide();
   } catch (error) {
     console.error("Error initializing application:", error);
-    window.globalLoader.hide();
     const mainContainer = document.querySelector("main.container");
     if (mainContainer) {
       mainContainer.innerHTML =

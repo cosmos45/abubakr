@@ -1,84 +1,45 @@
 import { Cart } from "../../scripts/modules/cart.js";
 import { loadComponent } from "../../scripts/utils/components.js";
-import Loader from '../../components/loader/loader.js';
 import { GlobalSearch } from "../../scripts/modules/global-search.js";
 import { MobileMenu } from "../../scripts/modules/mobile-menu.js";
 import { initializeFooter } from "../../components/footer/footer.js";
 import { initializeStickyHeader } from "../../scripts/modules/sticky-header.js";
 
 class CartPage {
-    constructor() {
-        this.loader = new Loader();
-        
-        // Cart-specific creative loading messages
-        this.loader.customMessages = [
-            "Counting your items...",
-            "Calculating your savings...",
-            "Preparing your cart summary...",
-            "Checking for special offers...",
-            "Getting your cart ready...",
-            "Verifying product availability...",
-            "Almost ready for checkout...",
-            "Polishing your shopping cart...",
-            "Adding up your total...",
-            "Finding the best shipping options...",
-            "Checking for discount codes...",
-            "Organizing your shopping bag...",
-            "Preparing a smooth checkout experience...",
-            "Making sure everything's in order...",
-            "Just a moment while we prepare your cart..."
-        ];
-    }
+    constructor() {}
 
     async init() {
         try {
-            // Show loader with cart-specific message
-            this.loader.show("Loading your shopping cart...");
-            
-            // Initialize cart first to prevent duplicate calls
             if (!window.globalCart) {
                 window.globalCart = new Cart();
                 await window.globalCart.init();
             }
             this.cart = window.globalCart;
             
-            // Load header and footer
             await Promise.all([
                 loadComponent("header", "/components/header/header.html"),
                 loadComponent("footer", "/components/footer/footer.html")
             ]);
             
-            // Initialize mobile menu
             const mobileMenu = new MobileMenu();
             mobileMenu.init();
             
-            // Initialize global search with the same cart instance
             this.globalSearch = new GlobalSearch();
             this.globalSearch.cart = this.cart;
-            await this.globalSearch.init(true); // Pass true to skip cart initialization
+            await this.globalSearch.init(true);
             
-            // Ensure cart sidebar is properly positioned
             this.moveCartToBody();
             
-            // Initialize cart icon event listeners
             this.initializeCartIcon();
             
-            // Render cart page
             this.cart.renderCartPage();
             
-            // Add event listeners for cart interactions
             this.addCartEventListeners();
             await initializeFooter();
     
-            // Hide loader when everything is ready
-            this.loader.hide();
-            
         } catch (error) {
             console.error("Error initializing cart page:", error);
-            // Hide loader on error
-            this.loader.hide();
             
-            // Show error message
             const mainContainer = document.querySelector("main.container");
             if (mainContainer) {
                 mainContainer.innerHTML = `
@@ -91,73 +52,61 @@ class CartPage {
         }
     }
 
-    // Add these two methods to the CartPage class
-moveCartToBody() {
-    const mainCartElements = document.querySelectorAll(
-        "main .cart-sidebar, main .cart-overlay"
-    );
-    mainCartElements.forEach((element) => element.remove());
+    moveCartToBody() {
+        const mainCartElements = document.querySelectorAll(
+            "main .cart-sidebar, main .cart-overlay"
+        );
+        mainCartElements.forEach((element) => element.remove());
 
-    const cartSidebar = document.querySelector(".cart-sidebar");
-    const cartOverlay = document.querySelector(".cart-overlay");
+        const cartSidebar = document.querySelector(".cart-sidebar");
+        const cartOverlay = document.querySelector(".cart-overlay");
 
-    if (cartSidebar && cartSidebar.parentElement !== document.body) {
-        document.body.appendChild(cartSidebar);
+        if (cartSidebar && cartSidebar.parentElement !== document.body) {
+            document.body.appendChild(cartSidebar);
+        }
+        if (cartOverlay && cartOverlay.parentElement !== document.body) {
+            document.body.appendChild(cartOverlay);
+        }
+
+        if (cartSidebar && cartOverlay) {
+            cartSidebar.style.visibility = "hidden";
+            cartOverlay.style.visibility = "hidden";
+            cartSidebar.classList.remove("active");
+            cartOverlay.classList.remove("active");
+        }
     }
-    if (cartOverlay && cartOverlay.parentElement !== document.body) {
-        document.body.appendChild(cartOverlay);
+
+    initializeCartIcon() {
+        const cartIcon = document.querySelector(".cart-icon");
+        const closeBtn = document.querySelector(".close-cart");
+        const overlay = document.querySelector(".cart-overlay");
+
+        cartIcon?.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.cart.showCart();
+        });
+
+        closeBtn?.addEventListener("click", () => this.cart.hideCart());
+        overlay?.addEventListener("click", () => this.cart.hideCart());
     }
-
-    if (cartSidebar && cartOverlay) {
-        // Ensure proper initial state
-        cartSidebar.style.visibility = "hidden";
-        cartOverlay.style.visibility = "hidden";
-        cartSidebar.classList.remove("active");
-        cartOverlay.classList.remove("active");
-    }
-}
-
-initializeCartIcon() {
-    const cartIcon = document.querySelector(".cart-icon");
-    const closeBtn = document.querySelector(".close-cart");
-    const overlay = document.querySelector(".cart-overlay");
-
-    cartIcon?.addEventListener("click", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        this.cart.showCart();
-    });
-
-    closeBtn?.addEventListener("click", () => this.cart.hideCart());
-    overlay?.addEventListener("click", () => this.cart.hideCart());
-}
-
-
-
-
 
     addCartEventListeners() {
-        // Show loader during quantity updates
         document.addEventListener('click', (e) => {
-            // Quantity update buttons
             if (e.target.classList.contains('quantity-btn')) {
-                this.loader.showFor(800, "Updating your cart...");
+                // Handle quantity update
             }
             
-            // Remove item button
             if (e.target.classList.contains('remove-item') || 
                 e.target.closest('.remove-item')) {
-                this.loader.showFor(1000, "Removing item from cart...");
+                // Handle item removal
             }
             
-            // Checkout button
             if (e.target.classList.contains('checkout-btn')) {
-                this.loader.show("Preparing for checkout...");
-                // The loader will be hidden when the new page loads
+                // Handle checkout
             }
         });
     }
-
 
     initializeMobileMenu() {
         const menuToggle = document.querySelector(".mobile-menu-toggle");
@@ -185,14 +134,9 @@ initializeCartIcon() {
     }
 }
 
-// Initialize when DOM is ready// Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
-    const loader = new Loader();
-    loader.show("Initializing your cart...");
-    
     const cartPage = new CartPage();
     cartPage.init().catch(error => {
         console.error("Failed to initialize cart page:", error);
-        loader.hide();
     });
 });

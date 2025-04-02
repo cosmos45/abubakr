@@ -4,26 +4,12 @@ import { GlobalSearch } from "../../scripts/modules/global-search.js";
 import { MobileMenu } from "../../scripts/modules/mobile-menu.js";
 import { initializeFooter } from "../../components/footer/footer.js";
 import { initializeStickyHeader } from "../../scripts/modules/sticky-header.js";
-import Loader from '../../components/loader/loader.js';
 import { CategoryManager } from "../../scripts/modules/category-manager.js";
 
 class AboutUsPage {
 constructor() {
-this.loader = new Loader();
 
-    // About Us specific loading messages
-    this.loader.customMessages = [
-        "Loading our story...",
-        "Preparing our journey...",
-        "Getting to know us better...",
-        "Sharing our values...",
-        "Telling our story...",
-        "Showcasing our commitment...",
-        "Revealing our heritage...",
-        "Presenting our mission...",
-        "Sharing our vision..."
-    ];
-    
+   
     this.currentSlide = 0;
     this.slideCount = 2; // We have 2 slides
     this.categoryManager = new CategoryManager(); // Add this line
@@ -32,8 +18,7 @@ this.loader = new Loader();
 
 async init() {
     try {
-        // Show loader with about us specific message
-        this.loader.show("Loading our story...");
+        
         
         // Load header and footer
         await Promise.all([
@@ -66,13 +51,11 @@ async init() {
         // Initialize manufacturers carousel
         this.initManufacturersCarousel();
         
-        // Hide loader when everything is ready
-        this.loader.hide();
+     
         
     } catch (error) {
         console.error("Error initializing about us page:", error);
-        // Hide loader on error
-        this.loader.hide();
+   
         
         // Show error message
         const mainContainer = document.querySelector("main.container");
@@ -275,13 +258,11 @@ updateCarousel() {
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
-const loader = new Loader();
-loader.show("Loading our story...");
+
 
 const aboutUsPage = new AboutUsPage();
 aboutUsPage.init().catch(error => {
     console.error("Failed to initialize about us page:", error);
-    loader.hide();
 });
 });
 
