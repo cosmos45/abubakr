@@ -650,4 +650,3 @@ async function initializeSearch() {
   }
 }
 
-// Add to initializeApp function

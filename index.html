@@ -2,14 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
 
     <title>Abu Bakr Store</title>
     <link
-    rel="shortcut icon"
-    href="assets/favicon_io/favicon.ico"
-    type="image/x-icon"
-  />
+      rel="shortcut icon"
+      href="assets/favicon_io/favicon.ico"
+      type="image/x-icon"
+    />
     <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -36,7 +39,6 @@
 
     <link rel="stylesheet" href="components/social-media/social-media.css" />
 
-
     <link
       rel="stylesheet"
       href="components/featured-deals/featured-deals.css"
@@ -57,27 +59,6 @@
   </head>
 
   <body>
-<!-- loader.html -->
-<div class="global-loader" id="globalLoader">
-  <div class="loader-container">
-    <div class="loader-brand">
-      <div class="loader-icon">
-        <div class="pulse-container">
-          <div class="pulse-circle"></div>
-          <div class="pulse-circle"></div>
-          <div class="pulse-circle"></div>
-        </div>
-        <div class="spinner-container">
-          <div class="spinner"></div>
-        </div>
-      </div>
-    </div>
-    <div class="loader-message">Preparing your shopping experience...</div>
-   
-  </div>
-</div>
-
-
     <!-- Header Component -->
     <div id="header"></div>
 
@@ -96,17 +77,12 @@
       <div id="most-popular"></div>
       <div id="brand-banner-container"></div>
 
-
-
       <div id="fresh-finds"></div>
       <div id="promo-banners"></div>
 
       <div id="social-media-container"></div>
 
-      
       <div id="subscribe-section"></div>
-
-
 
       <!-- Content will be dynamically loaded -->
     </main>
@@ -126,14 +102,13 @@
     <script type="module" src="/components/subscribe/subscribe.js"></script>
     <script>
       // Ensure we have only one cart instance across the application
-      window.getCartInstance = function() {
+      window.getCartInstance = function () {
         if (!window.globalCart) {
           // This will be initialized properly in main.js
           console.log("Creating placeholder for global cart");
         }
         return window.globalCart;
-      }
+      };
     </script>
-    
   </body>
 </html>

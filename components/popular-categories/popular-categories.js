@@ -15,7 +15,7 @@ export async function renderPopularCategories() {
         
         // Sort categories to match the desired order
         const categoryOrder = [
-            'Special Offers', 'Fruit & Vegetables', 'Bakery Items', 'Juice & Drinks', 'Milk & Dairy',
+            'Herbs', 'Fruit & Vegetables', 'Bakery Items', 'Juice & Drinks', 'Milk & Dairy',
             'Halal Meat', 'Cans (Drinks)', 'Household Items', 'Biscuits & Cereals'
         ];
         

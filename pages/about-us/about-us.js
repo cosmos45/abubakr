@@ -8,8 +8,7 @@ import { CategoryManager } from "../../scripts/modules/category-manager.js";
 
 class AboutUsPage {
 constructor() {
-
-   
+    
     this.currentSlide = 0;
     this.slideCount = 2; // We have 2 slides
     this.categoryManager = new CategoryManager(); // Add this line

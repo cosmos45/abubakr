@@ -914,11 +914,7 @@ body.sticky-header {
 
 /* Arrow indicator for items with children */
 .category-dropdown-item > a::after {
-    content: '›';
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
+  content: none;
 }
 
 
