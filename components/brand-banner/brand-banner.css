@@ -155,6 +155,9 @@
     .abu-bakr-parallax {
       height: 450px;
       background-attachment: scroll;
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
     }
     
     .parallax-text h2 {
