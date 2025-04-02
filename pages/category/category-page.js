@@ -13,7 +13,7 @@ import { GlobalSearch } from "../../scripts/modules/global-search.js";
 import { initializeFooter } from "../../components/footer/footer.js";
 import { initializeStickyHeader } from "../../scripts/modules/sticky-header.js";
 import { MobileMenu } from '../../scripts/modules/mobile-menu.js';
-
+ 
 class CategoryPage {
   
   constructor() {
@@ -136,7 +136,7 @@ async handlePaginationData(stockData) {
   this.pageLinks = pagination.links;
   this.products = pagination.data;
   
-  await this.renderPagination();
+   this.renderPagination();
   await this.renderProducts(this.products);
 }
 
@@ -213,8 +213,14 @@ initializePaginationEvents() {
     this.currentPage = newPage;
     console.log("Setting current page to:", this.currentPage);
 
-    // Fetch products for the new page
-    await this.fetchCategoryStock();
+    // Check if we have active filters (including category filters)
+    if (this.activeFilters.size > 0) {
+      // If filters are active, apply them with the new page number
+      await this.applyFilters(this.currentPage);
+    } else {
+      // If no filters are active, fetch products for the original category
+      await this.fetchCategoryStock(this.currentPage);
+    }
 
     // Scroll to top of products
     document.querySelector(".products-grid")?.scrollIntoView({ behavior: "smooth" });
@@ -252,9 +258,12 @@ initializePaginationControls() {
 }
 
 
-async fetchCategoryStock() {
+async fetchCategoryStock(page = 1) {
   try {
-    console.debug('Fetching stock data for category:', this.categoryName);
+    console.debug(`Fetching stock data for category: ${this.categoryName}, page: ${page}`);
+    
+    // Store the requested page
+    this.currentPage = page;
 
     const response = await ProductServiceCategory.getStockByCategory(this.categoryName, this.currentPage);
     console.log("Stock response:", response);
@@ -274,6 +283,7 @@ async fetchCategoryStock() {
     console.error('Error fetching category stock:', error);
   } 
 }
+
 
 
 
@@ -736,7 +746,10 @@ showError(message) {
       this.activeFilters.get(filterType).add(value);
     });
   
-    await this.applyFilters();
+    // Reset to page 1 when filters change
+    this.currentPage = 1;
+    
+    await this.applyFilters(this.currentPage);
   }
   
   
@@ -783,70 +796,73 @@ showError(message) {
     }
   }
   
-async applyFilters() {
-  try {
-    
-    // Create separate parameters for different filter types
-    const filterParams = {};
-    
-    // Track selected categories separately
-    const selectedCategories = [];
-    // Always include the current category unless another is selected
-    selectedCategories.push(this.categoryName);
-    
-    // Process all active filters by type
-    this.activeFilters.forEach((values, filterType) => {
-      if (filterType === 'Size' || filterType === 'Colour') {
-        // Size and Colour go into choices parameter
-        if (!filterParams.choices) {
-          filterParams.choices = [];
-        }
-        filterParams.choices.push(...Array.from(values));
-      } else if (filterType === 'Categories') {
-        // Handle category selection - replace the current category
-        if (values.size > 0) {
-          // Clear the default category and use selected ones
-          selectedCategories.length = 0;
-          selectedCategories.push(...Array.from(values));
-        }
-      } else {
-        // For other filter types, add as separate parameters
-        filterParams[filterType] = Array.from(values).join(',');
-      }
-    });
-    
-    // Convert choices array to comma-separated string
-    if (filterParams.choices && filterParams.choices.length > 0) {
-      filterParams.choices = filterParams.choices.join(',');
-    }
-    
-    // Set the categories parameter
-    if (selectedCategories.length > 0) {
-      filterParams.categories = selectedCategories.join(',');
-    }
-    
-    console.debug("Filter parameters:", filterParams);
-    
-    // Fetch filtered products from API
-    const response = await this.getFilteredStockByCategory(
-      this.currentPage,
-      filterParams
-    );
-    
-    if (response && response.products) {
-      this.products = response.products;
-      this.pagination = response.pagination;
+  async applyFilters(page = 1) {
+    try {
+      // Store the requested page
+      this.currentPage = page;
       
-      // Render filtered products and pagination
-      await this.renderProducts(this.products);
-      this.renderPagination();
-    } else {
-      console.error("Invalid response for filtered products");
-    }
-  } catch (error) {
-    console.error("Error applying filters:", error);
-  } 
-}
+      // Create separate parameters for different filter types
+      const filterParams = {};
+      
+      // Track selected categories separately
+      const selectedCategories = [];
+      // Always include the current category unless another is selected
+      selectedCategories.push(this.categoryName);
+      
+      // Process all active filters by type
+      this.activeFilters.forEach((values, filterType) => {
+        if (filterType === 'Size' || filterType === 'Colour') {
+          // Size and Colour go into choices parameter
+          if (!filterParams.choices) {
+            filterParams.choices = [];
+          }
+          filterParams.choices.push(...Array.from(values));
+        } else if (filterType === 'Categories') {
+          // Handle category selection - replace the current category
+          if (values.size > 0) {
+            // Clear the default category and use selected ones
+            selectedCategories.length = 0;
+            selectedCategories.push(...Array.from(values));
+          }
+        } else {
+          // For other filter types, add as separate parameters
+          filterParams[filterType] = Array.from(values).join(',');
+        }
+      });
+      
+      // Convert choices array to comma-separated string
+      if (filterParams.choices && filterParams.choices.length > 0) {
+        filterParams.choices = filterParams.choices.join(',');
+      }
+      
+      // Set the categories parameter
+      if (selectedCategories.length > 0) {
+        filterParams.categories = selectedCategories.join(',');
+      }
+      
+      console.debug("Filter parameters:", filterParams);
+      
+      // Fetch filtered products from API with the current page
+      const response = await this.getFilteredStockByCategory(
+        this.currentPage,
+        filterParams
+      );
+      
+      if (response && response.products) {
+        this.products = response.products;
+        this.pagination = response.pagination;
+        
+        // Render filtered products and pagination
+        await this.renderProducts(this.products);
+        this.renderPagination();
+      } else {
+        console.error("Invalid response for filtered products");
+      }
+    } catch (error) {
+      console.error("Error applying filters:", error);
+    } 
+  }
+  
 
   
   
