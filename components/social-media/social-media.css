@@ -1,0 +1,331 @@
+/* Social Media Section Styling */
+.social-media-section {
+    padding: 3rem 0;
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    margin: 2rem 0;
+  }
+  
+  .social-media-section h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #4a8b2c;
+    font-weight: 700;
+    font-size: 2.2rem;
+    position: relative;
+    padding-bottom: 15px;
+  }
+  
+  .social-media-section h2:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(to right, #4a8b2c, #8bc34a);
+  }
+  
+  .social-media-section p {
+    font-size: 1.1rem;
+    color: #555;
+    max-width: 700px;
+    margin: 0 auto 2rem;
+  }
+  
+  .social-feed-container {
+    padding: 0 15px;
+    margin-bottom: 2rem;
+  }
+  
+  .social-post-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    height: 100%;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .social-post-container:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  }
+  
+  .social-post-container:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+  }
+  
+  .instagram-container:before {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  }
+  
+  .tiktok-container:before {
+    background: linear-gradient(45deg, #00f2ea 0%, #ff0050 100%);
+  }
+  
+  .facebook-container:before {
+    background: linear-gradient(45deg, #3b5998 0%, #4c6bba 100%);
+  }
+  
+  .embed-placeholder {
+    width: 100%;
+    min-height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border-radius: 8px;
+    position: relative;
+  }
+  
+  /* Fix for TikTok embeds */
+  .tiktok-container .embed-placeholder {
+    height: auto;
+    width: 100%;
+    overflow: visible;
+  }
+  
+  .tiktok-embed {
+    margin: 0 auto !important;
+    min-width: 325px !important;
+    max-width: 605px !important;
+    width: 100% !important;
+    border: none !important;
+  }
+  
+  /* Instagram specific styling */
+  .instagram-container .embed-placeholder {
+    height: auto;
+  }
+  
+  .embed-placeholder .instagram-media {
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 540px !important;
+  }
+  
+  /* Facebook specific styling */
+  .facebook-container .embed-placeholder {
+    height: auto;
+  }
+  
+  .facebook-container iframe {
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+    display: block !important;
+    border: none !important;
+  }
+  
+  /* Social follow buttons */
+  .social-follow-container {
+    margin-top: 2.5rem;
+    position: relative;
+    padding-top: 2rem;
+  }
+  
+  .social-follow-container:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150px;
+    height: 1px;
+    background: rgba(0, 0, 0, 0.1);
+  }
+  
+  .social-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+  
+  .social-follow-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    color: white;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+  
+  .social-follow-btn:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-100%);
+    transition: transform 0.4s ease;
+    z-index: -1;
+  }
+  
+  .social-follow-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    color: white;
+    text-decoration: none;
+  }
+  
+  .social-follow-btn:hover:before {
+    transform: translateX(0);
+  }
+  
+  .social-follow-btn i {
+    font-size: 1.3rem;
+    margin-right: 10px;
+  }
+  
+  .instagram-btn {
+    background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  }
+  
+  .tiktok-btn {
+    background: linear-gradient(45deg, #000000 0%, #25F4EE 50%, #FE2C55 100%);
+  }
+  
+  .facebook-btn {
+    background: linear-gradient(45deg, #3b5998 0%, #4c6bba 100%);
+  }
+  
+  /* Loading indicator for embeds */
+  .embed-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 2;
+  }
+  
+  .embed-loading:after {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #4a8b2c;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 1199.98px) {
+    .row.justify-content-center {
+      --bs-gutter-x: 1.5rem;
+    }
+    
+    .social-media-section h2 {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 991.98px) {
+    .social-post-container {
+      margin-bottom: 2rem;
+    }
+    
+    .col-md-6 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    .social-media-section h2 {
+      font-size: 1.8rem;
+    }
+  }
+  
+  @media (max-width: 767.98px) {
+    .social-media-section {
+      padding: 2rem 0;
+    }
+    
+    .col-md-6 {
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+    
+    .social-post-container {
+      margin-bottom: 1.5rem;
+    }
+    
+    .social-buttons {
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .social-follow-btn {
+      width: 80%;
+      max-width: 300px;
+    }
+  }
+  
+  @media (max-width: 575.98px) {
+    .social-media-section {
+      padding: 1.5rem 0;
+    }
+    
+    .social-feed-container {
+      padding: 0 10px;
+    }
+    
+    .social-media-section h2 {
+      font-size: 1.6rem;
+    }
+    
+    .social-media-section p {
+      font-size: 1rem;
+    }
+    
+    .embed-placeholder {
+      min-height: 400px;
+    }
+  }
+  
+  /* Fix for Instagram embed script */
+  .instagram-media {
+    background: #FFF;
+    border: 0;
+    border-radius: 3px;
+    box-shadow: 0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15);
+    margin: 1px auto !important;
+    padding: 0;
+    width: 99.375%;
+    width: -webkit-calc(100% - 2px);
+    width: calc(100% - 2px);
+  }
+  

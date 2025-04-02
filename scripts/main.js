@@ -17,6 +17,8 @@ import { GlobalSearch } from "./modules/global-search.js";
 import { MobileMenu } from "./modules/mobile-menu.js";
 import { initializeFooter } from "../components/footer/footer.js";
 import {initializeStickyHeader} from "../scripts/modules/sticky-header.js"
+import { initializeSocialMedia } from "../components/social-media/social-media.js";
+
 window.globalLoader = new Loader();
 
 let cart; // Global cart instance
@@ -93,6 +95,8 @@ async function initializeApp() {
         "promo-banners",
         "/components/promo-banners/promo-banners.html"
       ),
+      loadComponent("social-media-container", "/components/social-media/social-media.html"),
+
       await loadComponent(
         "brand-banner-container",
         "/components/brand-banner/brand-banner.html"
@@ -114,6 +118,7 @@ async function initializeApp() {
     await initializeMeatInStartCart();
     await initializeMostPopular();
     await initializeFreshFinds();
+    initializeSocialMedia();
 
     // Initialize cart-related UI elements
     initializeCartIcon();

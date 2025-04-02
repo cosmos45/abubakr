@@ -57,13 +57,19 @@ class CartPage {
             this.globalSearch.cart = this.cart;
             await this.globalSearch.init(true); // Pass true to skip cart initialization
             
+            // Ensure cart sidebar is properly positioned
+            this.moveCartToBody();
+            
+            // Initialize cart icon event listeners
+            this.initializeCartIcon();
+            
             // Render cart page
             this.cart.renderCartPage();
             
             // Add event listeners for cart interactions
             this.addCartEventListeners();
             await initializeFooter();
-
+    
             // Hide loader when everything is ready
             this.loader.hide();
             
@@ -84,6 +90,47 @@ class CartPage {
             }
         }
     }
+
+    // Add these two methods to the CartPage class
+moveCartToBody() {
+    const mainCartElements = document.querySelectorAll(
+        "main .cart-sidebar, main .cart-overlay"
+    );
+    mainCartElements.forEach((element) => element.remove());
+
+    const cartSidebar = document.querySelector(".cart-sidebar");
+    const cartOverlay = document.querySelector(".cart-overlay");
+
+    if (cartSidebar && cartSidebar.parentElement !== document.body) {
+        document.body.appendChild(cartSidebar);
+    }
+    if (cartOverlay && cartOverlay.parentElement !== document.body) {
+        document.body.appendChild(cartOverlay);
+    }
+
+    if (cartSidebar && cartOverlay) {
+        // Ensure proper initial state
+        cartSidebar.style.visibility = "hidden";
+        cartOverlay.style.visibility = "hidden";
+        cartSidebar.classList.remove("active");
+        cartOverlay.classList.remove("active");
+    }
+}
+
+initializeCartIcon() {
+    const cartIcon = document.querySelector(".cart-icon");
+    const closeBtn = document.querySelector(".close-cart");
+    const overlay = document.querySelector(".cart-overlay");
+
+    cartIcon?.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.cart.showCart();
+    });
+
+    closeBtn?.addEventListener("click", () => this.cart.hideCart());
+    overlay?.addEventListener("click", () => this.cart.hideCart());
+}
 
 
 
