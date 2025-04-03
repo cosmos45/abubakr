@@ -184,6 +184,17 @@ renderPagination() {
 
   paginationContainer.innerHTML = paginationHTML;
   this.initializePaginationEvents();
+  this.updateFilterOptionsMaxHeight();
+
+}
+updateFilterOptionsMaxHeight() {
+  const filterOptions = document.querySelectorAll('.filter-options');
+  if (filterOptions.length > 0) {
+    filterOptions.forEach(option => {
+      option.style.maxHeight = '800px';
+    });
+    console.log('Filter options max height increased to 600px');
+  }
 }
 
 
@@ -939,60 +950,68 @@ showError(message) {
         }
       }
     }
-
   
-    this.initializeQuantityControls();
-    this.initializeAddToCart();
+    // Initialize quantity controls and add to cart AFTER all products are rendered
+    setTimeout(() => {
+      this.initializeQuantityControls();
+      this.initializeAddToCart();
+    }, 100);
   }
+  
+  
 
   
 // In CategoryPage class
 initializeQuantityControls() {
-  document.querySelectorAll(".quantity-control").forEach((control) => {
-    const input = control.querySelector(".quantity-input");
-    const minusBtn = control.querySelector(".minus");
-    const plusBtn = control.querySelector(".plus");
-    const productCard = control.closest('.product-card');
-
-    if (!input || !productCard) return;
-
-    // Set default value if not set
-    if (!input.value) input.value = "1";
-
-    minusBtn?.addEventListener("click", async () => {
+  document.querySelectorAll(".product-card").forEach((productCard) => {
+    const minusBtn = productCard.querySelector(".qty-btn.minus");
+    const plusBtn = productCard.querySelector(".qty-btn.plus");
+    const input = productCard.querySelector(".quantity-control input");
+    
+    if (!input || !minusBtn || !plusBtn) return;
+    
+    // Remove existing event listeners to prevent duplicates
+    minusBtn.replaceWith(minusBtn.cloneNode(true));
+    plusBtn.replaceWith(plusBtn.cloneNode(true));
+    
+    // Get the new references after replacing
+    const newMinusBtn = productCard.querySelector(".qty-btn.minus");
+    const newPlusBtn = productCard.querySelector(".qty-btn.plus");
+    
+    // Set default value if not already set
+    if (!input.value || input.value === "0") {
+      input.value = "1";
+    }
+    
+    // Add event listeners to new buttons
+    newMinusBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       let value = parseInt(input.value) || 1;
       if (value > 1) {
         value--;
         input.value = value;
-        // Update the hidden quantity input if it exists
-        const hiddenInput = productCard.querySelector('input[name="quantity"]');
-        if (hiddenInput) hiddenInput.value = value;
       }
     });
-
-    plusBtn?.addEventListener("click", async () => {
+    
+    newPlusBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
       let value = parseInt(input.value) || 1;
       if (value < 99) {
         value++;
         input.value = value;
-        // Update the hidden quantity input if it exists
-        const hiddenInput = productCard.querySelector('input[name="quantity"]');
-        if (hiddenInput) hiddenInput.value = value;
       }
     });
-
+    
     // Add input validation
     input.addEventListener("change", () => {
       let value = parseInt(input.value) || 1;
       value = Math.max(1, Math.min(99, value));
       input.value = value;
-      // Update the hidden quantity input if it exists
-      const hiddenInput = productCard.querySelector('input[name="quantity"]');
-      if (hiddenInput) hiddenInput.value = value;
     });
   });
 }
-
 
 
 
@@ -1022,19 +1041,39 @@ initializeQuantityControls() {
   // Add this method to handle add to cart
   initializeAddToCart() {
     document.querySelectorAll(".add-to-cart-btn").forEach((btn) => {
-      btn.addEventListener("click", async (e) => {
+      // Remove existing event listeners to prevent duplicates
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      
+      newBtn.addEventListener("click", async (e) => {
         e.preventDefault();
+        e.stopPropagation();
+        
         const productCard = e.target.closest(".product-card");
         if (!productCard) return;
-
+        
         const productId = productCard.dataset.productId;
-        const quantityInput = productCard.querySelector(".quantity-input");
+        const stockId = productCard.dataset.stockId || productId;
+        const quantityInput = productCard.querySelector(".quantity-control input");
         const quantity = parseInt(quantityInput?.value || "1");
-
+        
         try {
-          await this.cart.addToBasket(productId, quantity);
+          // Disable button temporarily to prevent double clicks
+          newBtn.disabled = true;
+          newBtn.textContent = "Adding...";
+          
+          await this.cart.addToBasket(stockId, quantity);
+          
+          // Reset quantity to 1 after adding to cart
+          if (quantityInput) {
+            quantityInput.value = "1";
+          }
         } catch (error) {
           console.error("Error adding item to cart:", error);
+        } finally {
+          // Re-enable button
+          newBtn.disabled = false;
+          newBtn.textContent = "Add to Cart";
         }
       });
     });

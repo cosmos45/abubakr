@@ -53,7 +53,7 @@ async function populateFooterPopularCategories(categories) {
         
         // Sort categories to match the desired order from popular-categories
         const categoryOrder = [
-            'Fruit & Vegetables', 'Bakery Items', 'Juice & Drinks', 'Milk & Dairy',
+            'Herbs', 'Bakery Items', 'Juice & Drinks', 'Milk & Dairy',
             'Halal Meat', 'Cans (Drinks)', 'Household Items', 'Biscuits & Cereals'
         ];
         

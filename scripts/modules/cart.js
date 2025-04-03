@@ -349,6 +349,7 @@ renderShippingRates() {
       return false;
     }
   }
+  
 
  // Add at the top of cart.js
  async refreshBasket() {
@@ -761,7 +762,7 @@ showToast(message, type = 'success') {
 
   updateSubtotal() {
     const subtotalElement = document.querySelector(".subtotal-amount");
-    const totalElement = document.querySelector(".total-amount");
+    const totalElement = document.getElementById("total-amount");
     const shippingElement = document.querySelector("#shipping-charges");
   
     if (subtotalElement) {

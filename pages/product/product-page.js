@@ -1,7 +1,6 @@
 import { loadComponent } from "../../scripts/utils/components.js";
 import { Cart } from "../../scripts/modules/cart.js";
 import { ProductService } from "../../scripts/services/product-service.js";
-import Loader from "../../components/loader/loader.js";
 import { GlobalSearch } from "../../scripts/modules/global-search.js";
 import { MobileMenu } from "../../scripts/modules/mobile-menu.js";
 import { initializeFooter } from "../../components/footer/footer.js";
@@ -19,33 +18,16 @@ class ProductPage {
       return;
     }
     this.categoryManager = new CategoryManager();
+    this.cart = new Cart();
 
-      this.cart = new Cart();
-    this.loader = new Loader();
+    
 
-    // Product-specific creative loading messages
-    this.loader.customMessages = [
-      "Finding your perfect product...",
-      "Getting all the details for you...",
-      "Checking product availability...",
-      "Loading product information...",
-      "Preparing product details...",
-      "Gathering product specifications...",
-      "Loading high-quality images...",
-      "Just a moment while we fetch this item...",
-      "Verifying product information...",
-      "Checking for special offers on this item...",
-      "Retrieving the latest product details...",
-      "Preparing a detailed product view...",
-      "Looking up product specifications...",
-      "Finding related products you might like...",
-      "Checking stock levels for this item...",
-    ];
+  
   }
+
   async init() {
     try {
       // Show loader immediately
-      this.loader.show("Loading product details...");
 
 
       // Load header and footer first
@@ -74,11 +56,9 @@ this.categoryManager.initializeNavigation();
       await initializeFooter();
 
       // Hide loader when everything is loaded
-      this.loader.hide();
      
     } catch (error) {
       console.error("Error initializing product page:", error);
-      this.loader.hide();
 
       // Show error message
       document.querySelector(".container").innerHTML =
@@ -185,7 +165,6 @@ this.categoryManager.initializeNavigation();
 
   async loadProductData() {
     try {
-      this.loader.show("Loading product details...");
       this.setupImageLoader();
 
       const product = await ProductService.getProductById(this.productId);
@@ -233,10 +212,8 @@ this.categoryManager.initializeNavigation();
         document.getElementById("product-old-price").textContent = `£${product.oldPrice}`;
       }
 
-      this.loader.hide();
     } catch (error) {
       console.error("Error loading product data:", error);
-      this.loader.hide();
       document.querySelector(".container").innerHTML = "<div class='alert alert-danger'>Failed to load product details. Please try again later.</div>";
     }
   }
@@ -288,8 +265,6 @@ this.categoryManager.initializeNavigation();
     addToCartBtn?.addEventListener("click", async () => {
       const quantity = parseInt(quantityInput.value);
 
-      // Show loader with a specific message
-      this.loader.show("Adding to your cart...");
 
       // Disable button and show loading state
       addToCartBtn.disabled = true;
@@ -304,15 +279,12 @@ this.categoryManager.initializeNavigation();
 
         // If successful, show the cart
         if (success) {
-          this.loader.hide();
           this.showCartSidebar();
         } else {
-          this.loader.hide();
         }
       } catch (error) {
         console.error("Error adding to cart:", error);
         addToCartBtn.textContent = "Error";
-        this.loader.hide();
       } finally {
         // Re-enable button
         addToCartBtn.disabled = false;
@@ -328,12 +300,10 @@ this.categoryManager.initializeNavigation();
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
-  const loader = new Loader();
-  loader.show("Initializing product page...");
+
 
   const productPage = new ProductPage();
   productPage.init().catch((error) => {
     console.error("Failed to initialize product page:", error);
-    loader.hide();
   });
 });
