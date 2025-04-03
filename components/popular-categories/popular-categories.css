@@ -16,8 +16,9 @@
 .categories-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    padding: 0 1rem;
+    gap: 1px;
+    background-color: #000;
+    border: 0.5px solid #000;
 }
 
 .category-card {
@@ -28,7 +29,6 @@
     justify-content: center;
     text-decoration: none;
     padding: 3rem 2rem;
-    border: 0.5px solid #000;
     height: 500px;
     transition: transform 0.3s ease;
     background: white;
@@ -47,8 +47,8 @@
     transition: all 0.6s ease;
     top: 50%;
     left: 50%;
-    margin-top: -100px; /* Half of height */
-    margin-left: -100px; /* Half of width */
+    margin-top: -100px;
+    margin-left: -100px;
 }
 
 .category-card img {
@@ -95,13 +95,84 @@
 }
 
 @media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
+    
     .categories-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .category-card {
+        height: 400px;
+        padding: 2rem 1rem;
+    }
+    
+    .circle-background {
+        width: 160px;
+        height: 160px;
+        margin-top: -80px;
+        margin-left: -80px;
+    }
+    
+    .category-card img {
+        width: 180px;
+        height: 180px;
     }
 }
 
 @media (max-width: 480px) {
+    .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 2rem;
+    }
+    
     .categories-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .category-card {
+        height: 200px;
+        padding: 1rem 0.5rem;
+    }
+    
+    .circle-background {
+        width: 100px;
+        height: 100px;
+        margin-top: -50px;
+        margin-left: -50px;
+    }
+    
+    .category-card img {
+        width: 100px;
+        height: 100px;
+        top: 50%;
+    }
+    
+    .category-card h3 {
+        font-size: 0.9rem;
+        bottom: 1rem;
+    }
+}
+
+@media (max-width: 350px) {
+    .categories-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .category-card {
+        height: 180px;
+    }
+    
+    .circle-background {
+        width: 80px;
+        height: 80px;
+        margin-top: -40px;
+        margin-left: -40px;
+    }
+    
+    .category-card img {
+        width: 80px;
+        height: 80px;
     }
 }

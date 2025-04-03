@@ -83,4 +83,14 @@
     .feature-text p {
         font-size: 15px;
     }
+    .feature-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 50px;
+        width: 0px;
+        
+    }
 }
