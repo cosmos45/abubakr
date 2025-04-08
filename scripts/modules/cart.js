@@ -630,29 +630,25 @@ showToast(message, type = 'success') {
     if (!cartItems) return;
   
     const itemHTML = `
-      <div class="cart-item" data-basket-item-id="${item.basket_item_id}">
+      <div 
+        class="cart-item" 
+        data-basket-item-id="${item.basket_item_id}" 
+        data-product-id="${item.id}" 
+        onclick="window.location.href='/pages/product/product-page.html?id=${item.id}'"
+      >
         <div class="cart-item-image">
           <img 
             src="${item.imageUrl}" 
-            alt="${item.name}"
+            alt="${item.name}" 
             onerror="this.onerror=null; this.src='/assets/images/default-product.png';"
-          >
+          />
         </div>
         <div class="cart-item-details">
           <h3>${item.name}</h3>
-          <div class="price-info">
-            <span class="price">£${item.price.toFixed(2)}</span>
-          </div>
-          <div class="quantity-control">
-            <button class="qty-btn minus">−</button>
-            <input type="number" value="${item.quantity}" min="1" max="99" readonly>
-            <button class="qty-btn plus">+</button>
-          </div>
+          <span class="price">£${item.price.toFixed(2)}</span>
         </div>
-        <div class="item-total">£${item.totalPrice.toFixed(2)}</div>
-        <button class="remove-item" data-basket-item-id="${item.basket_item_id}">×</button>
       </div>`;
-  
+    
     cartItems.insertAdjacentHTML("beforeend", itemHTML);
   }
   
@@ -780,64 +776,80 @@ showToast(message, type = 'success') {
     // Update discount display whenever totals are updated
     this.updateDiscountDisplay();
   }
-  
 
-renderSavedItems() {
-  const cartItems = document.querySelector(".cart-items");
-  if (!cartItems) return;
-
-  // Clear the cart items container first
-  cartItems.innerHTML = "";
+  renderSavedItems() {
+    const cartItems = document.querySelector(".cart-items");
+    if (!cartItems) return;
   
-  // Check if we have items
-  if (this.items.size === 0) {
-    cartItems.innerHTML = '<div class="empty-cart-message">Your cart is empty</div>';
-    return;
+    // Clear the cart items container first
+    cartItems.innerHTML = "";
+    
+    // Check if we have items
+    if (this.items.size === 0) {
+      cartItems.innerHTML = '<div class="empty-cart-message">Your cart is empty</div>';
+      return;
+    }
+    
+    // Create a document fragment for better performance
+    const fragment = document.createDocumentFragment();
+    
+    // Iterate through all items and add them to the cart
+    this.items.forEach((item) => {
+      const itemElement = document.createElement('div');
+      itemElement.className = 'cart-item';
+      itemElement.dataset.basketItemId = item.basket_item_id;
+      itemElement.dataset.productId = item.uid; // Change this to uid
+  
+      itemElement.innerHTML = `
+        <div class="cart-item-image">
+          <img 
+            src="${item.imageUrl}" 
+            alt="${item.name}"
+            onerror="this.onerror=null; this.src='/assets/images/default-product.png';"
+          >
+        </div>
+        <div class="cart-item-details">
+          <h3>${item.name}</h3>
+          <div class="price-info">
+            <span class="price">£${item.price.toFixed(2)}</span>
+            ${item.size ? `<span class="size">${item.size}</span>` : ''}
+          </div>
+          <div class="quantity-control">
+            <button class="qty-btn minus">−</button>
+            <input type="number" value="${item.quantity}" min="1" max="99" readonly>
+            <button class="qty-btn plus">+</button>
+          </div>
+        </div>
+        <div class="item-total">£${item.totalPrice.toFixed(2)}</div>
+        <button class="remove-item" data-basket-item-id="${item.basket_item_id}">×</button>
+      `;
+      
+      fragment.appendChild(itemElement);
+    });
+    
+    // Append all items at once for better performance
+    cartItems.appendChild(fragment);
+    
+    // Add click event listener to the cart items container
+    cartItems.addEventListener('click', (e) => {
+      const cartItem = e.target.closest('.cart-item');
+      if (!cartItem) return;
+  
+      const isQuantityControl = e.target.closest('.quantity-control');
+      const isRemoveButton = e.target.closest('.remove-item');
+  
+      // if (!isQuantityControl && !isRemoveButton) {
+      //   const productId = cartItem.dataset.productId;
+      //   window.location.href = `/pages/product/product-page.html?id=${productId}`;
+      // }
+    });
+    
+    // Update cart count and totals
+    this.updateCartCount();
+    this.updateSubtotal();
   }
   
-  // Create a document fragment for better performance
-  const fragment = document.createDocumentFragment();
   
-  // Iterate through all items and add them to the cart
-  this.items.forEach((item) => {
-    const itemElement = document.createElement('div');
-    itemElement.className = 'cart-item';
-    itemElement.dataset.basketItemId = item.basket_item_id;
-    
-    itemElement.innerHTML = `
-      <div class="cart-item-image">
-        <img 
-          src="${item.imageUrl}" 
-          alt="${item.name}"
-          onerror="this.onerror=null; this.src='/assets/images/default-product.png';"
-        >
-      </div>
-      <div class="cart-item-details">
-        <h3>${item.name}</h3>
-        <div class="price-info">
-          <span class="price">£${item.price.toFixed(2)}</span>
-          ${item.size ? `<span class="size">${item.size}</span>` : ''}
-        </div>
-        <div class="quantity-control">
-          <button class="qty-btn minus">−</button>
-          <input type="number" value="${item.quantity}" min="1" max="99" readonly>
-          <button class="qty-btn plus">+</button>
-        </div>
-      </div>
-      <div class="item-total">£${item.totalPrice.toFixed(2)}</div>
-      <button class="remove-item" data-basket-item-id="${item.basket_item_id}">×</button>
-    `;
-    
-    fragment.appendChild(itemElement);
-  });
-  
-  // Append all items at once for better performance
-  cartItems.appendChild(fragment);
-  
-  // Update cart count and totals
-  this.updateCartCount();
-  this.updateSubtotal();
-}
 
 renderCartPage() {
   const cartItemsContainer = document.getElementById("cart-items-container");

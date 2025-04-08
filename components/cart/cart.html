@@ -1,16 +1,32 @@
 <!-- components/cart/cart.html -->
 <div class="cart-sidebar">
     <div class="cart-header">
-        <h2>Cart (<span class="cart-count"></span> items)</h2>
-        <button class="close-cart">×</button>
+      <h2>Cart (<span class="cart-count"></span> items)</h2>
+      <button class="close-cart"></button>
     </div>
-    <div class="cart-items"></div>
-    <div class="cart-footer">
-        <div class="subtotal">
-            <span>Subtotal</span>
-            <span class="subtotal-amount">£0.00</span>
+    <div class="cart-items">
+      <!-- Each cart item will have this structure -->
+     
+        <div class="cart-item-image">
+          <img src="${imageUrl}" alt="${name}" />
         </div>
-        <button class="view-cart-btn" onclick="window.location.href='pages/cart/cart-page.html'">View Cart</button>
-
-            </div>
-</div>
+        <div class="cart-item-details">
+          <h3>${name}</h3>
+          <span class="price">£${price}</span>
+        </div>
+      </div>
+    </div>
+    <div class="cart-footer">
+      <div class="subtotal">
+        <span>Subtotal</span>
+        <span class="subtotal-amount">£0.00</span>
+      </div>
+      <button
+        class="view-cart-btn"
+        onclick="window.location.href='/pages/cart/cart-page.html'"
+      >
+        View Cart
+      </button>
+    </div>
+  </div>
+  

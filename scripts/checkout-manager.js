@@ -248,17 +248,17 @@ export class CheckoutManager {
           // Use the already fetched checkout data
           const data = this.checkoutData;
       
-          if (!data?.client_secret || !data?.stripe_publishable_key) {
+          if (!data?.client_secret || !data?.publishable_key) {
             throw new Error("Missing Stripe configuration data");
           }
       
           this.clientSecret = data.client_secret;
       
           // Initialize Stripe with the account ID if available
-          const stripeOptions = data.stripe_account_id ? 
-            { stripeAccount: data.stripe_account_id } : {};
+          const stripeOptions = data.account_id ? 
+            { stripeAccount: data.account_id } : {};
           
-          this.stripe = Stripe(data.stripe_publishable_key, stripeOptions);
+          this.stripe = Stripe(data.publishable_key, stripeOptions);
           this.elements = this.stripe.elements();
       
           const style = {
