@@ -1,5 +1,4 @@
 // scripts/services/search-service.js
-import axiosServices from './axiosService.js';
 
 export class SearchService {
   constructor() {

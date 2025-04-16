@@ -1,5 +1,3 @@
-// scripts/modules/cart.js
-import axiosServices from '../../scripts/services/axiosService.js';
 
 let refreshBasketTimeout = null;
 

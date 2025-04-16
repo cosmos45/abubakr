@@ -3,7 +3,7 @@ import { categoryData } from "../services/category-service.js";
 export class CategoryManager {
   constructor() {
     this.categories = [];
-    this.maxFeaturedCategories = 5;
+    this.maxFeaturedCategories = 8;
   }
 
   async init() {

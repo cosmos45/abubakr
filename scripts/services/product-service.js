@@ -1,5 +1,4 @@
 // services/product-service.js
-import axiosServices from './axiosService.js';
 
 export class ProductService {
   static products = [];

@@ -1,5 +1,4 @@
 // category-service.js
-import axiosServices from './axiosService.js';
 
 // Global cache for categories
 let categoriesCache = null;
@@ -24,6 +23,7 @@ export const categoryData = {
             console.log('Fetching categories from API');
             fetchPromise = axiosServices.get('/commerce/categories')
                 .then(response => {
+                    console.log('cats', response)
                     const categories = response.data.categories || [];
                     categoriesCache = categories;
                     fetchPromise = null;
