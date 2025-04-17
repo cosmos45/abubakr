@@ -1,6 +1,5 @@
 // scripts/checkout-manager.js
 import { Cart } from '../scripts/modules/cart.js';
-import axiosServices from '../scripts/services/axiosService.js';
 
 export class CheckoutManager {
     constructor(loader = null) {
@@ -55,12 +54,17 @@ export class CheckoutManager {
           // Fetch checkout data only once
           await this.fetchCheckoutData();
           
+          // Populate customer and address fields with data from checkout response
+          this.populateCustomerFields();
+          this.populateAddressFields();
+          
           // Initialize Stripe with the fetched data
           await this.initializeStripe();
           
           this.setupCardValidation();
           this.bindEvents();
           this.setupCustomerDetailsListeners();
+          this.setupAddressFieldsListeners();
           
           // Use the already fetched checkout data for order summary
           this.updateOrderSummaryFromData();
@@ -73,6 +77,157 @@ export class CheckoutManager {
         }
       }
       
+      
+
+      setupAddressFieldsListeners() {
+        console.log("CheckoutManager: Setting up address fields listeners");
+        const addressFields = ["address1", "address2", "city", "county", "postcode", "country"];
+        
+        addressFields.forEach((field) => {
+          const element = document.getElementById(field);
+          if (element) {
+            element.addEventListener("blur", async () => {
+              if (this.validateAddressFields()) {
+                await this.updateCustomerAndAddress();
+              }
+            });
+          }
+        });
+      }
+
+      validateAddressFields() {
+        console.log("CheckoutManager: Validating address fields");
+        const address1 = document.getElementById("address1").value.trim();
+        const city = document.getElementById("city").value.trim();
+        const county = document.getElementById("county").value.trim();
+        const postcode = document.getElementById("postcode").value.trim();
+        const country = document.getElementById("country").value.trim();
+      
+        // Return true only if required address fields are valid
+        return address1 && city && county && postcode && country;
+      }
+      async updateCustomerAndAddress() {
+        console.log("CheckoutManager: Updating customer details and address");
+        
+        try {
+          // Get current customer details
+          const customerName = document.getElementById("name").value.trim();
+          const customerEmail = document.getElementById("email").value.trim();
+          const customerPhone = document.getElementById("phone").value.trim();
+          
+          // Get current address details
+          const address1 = document.getElementById("address1").value.trim();
+          const address2 = document.getElementById("address2").value.trim() || "";
+          const city = document.getElementById("city").value.trim();
+          const county = document.getElementById("county").value.trim();
+          const postcode = document.getElementById("postcode").value.trim();
+          const country = document.getElementById("country").value.trim();
+          
+          console.log("CheckoutManager: Updating with customer and address details:", {
+            name: customerName,
+            email: customerEmail,
+            phone: customerPhone,
+            address: {
+              address_line_1: address1,
+              address_line_2: address2,
+              city: city,
+              state: county,
+              postcode: postcode,
+              country: country
+            }
+          });
+          
+          const formData = {
+            customer_name: customerName,
+            customer_email: customerEmail,
+            customer_phone: customerPhone,
+            address: {
+              address_line_1: address1,
+              address_line_2: address2,
+              city: city,
+              state: county,
+              postcode: postcode,
+              country: country
+            }
+          };
+          
+          const response = await axiosServices.post("/commerce/basket/update", formData);
+          
+          if (!response.status) {
+            throw new Error(response.data.message || "Failed to update customer and address");
+          }
+          
+          // Update local basket data
+          this.basketData = await this.fetchBasketData();
+          
+          return response.status;
+        } catch (error) {
+          console.error("CheckoutManager: Customer and address update failed:", error);
+          return false;
+        }
+      }
+            
+      
+      populateCustomerFields() {
+        console.log("CheckoutManager: Populating customer fields from checkout data");
+        
+        if (this.checkoutData?.basket) {
+          const basket = this.checkoutData.basket;
+          
+          // Get the form field elements
+          const nameField = document.getElementById("name");
+          const emailField = document.getElementById("email");
+          const phoneField = document.getElementById("phone");
+          
+          // Populate fields if they exist and are empty
+          if (nameField && !nameField.value && basket.customer_name) {
+            nameField.value = basket.customer_name;
+          }
+          
+          if (emailField && !emailField.value && basket.customer_email) {
+            emailField.value = basket.customer_email;
+          }
+          
+          if (phoneField && !phoneField.value && basket.customer_phone) {
+            phoneField.value = basket.customer_phone;
+          }
+          
+          console.log("CheckoutManager: Customer fields populated successfully");
+        } else {
+          console.log("CheckoutManager: No basket data available to populate customer fields");
+        }
+      }
+      
+
+       populateCustomerFields() {
+        console.log("CheckoutManager: Populating customer fields from checkout data");
+        
+        if (this.checkoutData?.basket) {
+          const basket = this.checkoutData.basket;
+          
+          // Get the form field elements
+          const nameField = document.getElementById("name");
+          const emailField = document.getElementById("email");
+          const phoneField = document.getElementById("phone");
+          
+          // Populate fields if they exist and are empty
+          if (nameField && !nameField.value && basket.customer_name) {
+            nameField.value = basket.customer_name;
+          }
+          
+          if (emailField && !emailField.value && basket.customer_email) {
+            emailField.value = basket.customer_email;
+          }
+          
+          if (phoneField && !phoneField.value && basket.customer_phone) {
+            phoneField.value = basket.customer_phone;
+          }
+          
+          console.log("CheckoutManager: Customer fields populated successfully");
+        } else {
+          console.log("CheckoutManager: No basket data available to populate customer fields");
+        }
+      }
     
       async fetchBasketData() {
         try {
@@ -117,7 +272,9 @@ export class CheckoutManager {
         if (!this.checkoutData) {
           const response = await axiosServices.get("/commerce/checkout");
           this.checkoutData = response.data;
+          console.log('checkoutdata', response)
           return this.checkoutData;
+          
         }
         return this.checkoutData;
       }
@@ -141,35 +298,47 @@ export class CheckoutManager {
     async updateFullBasket() {
         console.log("CheckoutManager: Updating full basket details");
         try {
-            const formData = {
-                customer_name: document.getElementById("name").value,
-                customer_email: document.getElementById("email").value,
-                customer_phone: document.getElementById("phone").value,
-                address: {
-                    address_line_1: document.getElementById("address1").value,
-                    address_line_2: document.getElementById("address2").value || "",
-                    city: document.getElementById("city").value,
-                    state: document.getElementById("county").value,
-                    postcode: document.getElementById("postcode").value,
-                    country: document.getElementById("country").value,
-                }
-            };
-      
-            const response = await axiosServices.post("/commerce/basket/update", formData);
-            
-            if (!response.status) {
-                throw new Error(response.data.message || "Failed to update basket");
+          // Get current customer details
+          const customerName = document.getElementById("name").value.trim();
+          const customerEmail = document.getElementById("email").value.trim();
+          const customerPhone = document.getElementById("phone").value.trim();
+          
+          console.log("CheckoutManager: Updating basket with full details including customer:", {
+            name: customerName,
+            email: customerEmail,
+            phone: customerPhone
+          });
+          
+          const formData = {
+            customer_name: customerName,
+            customer_email: customerEmail,
+            customer_phone: customerPhone,
+            address: {
+              address_line_1: document.getElementById("address1").value,
+              address_line_2: document.getElementById("address2").value || "",
+              city: document.getElementById("city").value,
+              state: document.getElementById("county").value,
+              postcode: document.getElementById("postcode").value,
+              country: document.getElementById("country").value,
             }
-            
-            // Update local basket data
-            this.basketData = await this.fetchBasketData();
+          };
       
-            return response.status;
+          const response = await axiosServices.post("/commerce/basket/update", formData);
+          
+          if (!response.status) {
+            throw new Error(response.data.message || "Failed to update basket");
+          }
+          
+          // Update local basket data
+          this.basketData = await this.fetchBasketData();
+      
+          return response.status;
         } catch (error) {
-            console.error("CheckoutManager: Full basket update failed:", error);
-            return false;
+          console.error("CheckoutManager: Full basket update failed:", error);
+          return false;
         }
-    }
+      }
+      
       
     setupCardValidation() {
         if (this.cardElement) {
@@ -319,12 +488,12 @@ export class CheckoutManager {
     
         try {
             const customerData = {
-                customer_name: document.getElementById("name").value.trim(),
-                customer_email: document.getElementById("email").value.trim(),
-                customer_phone: document.getElementById("phone").value.trim()
+                name: document.getElementById("name").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                phone: document.getElementById("phone").value.trim()
             };
     
-            const response = await axiosServices.post("/commerce/basket/update", customerData);
+            const response = await axiosServices.post("/commerce/basket/update", {customer: customerData});
             this.customerDetailsUpdated = response.status;
             
             // Update local basket data
@@ -338,7 +507,56 @@ export class CheckoutManager {
             return false;
         }
     }
-
+    populateAddressFields() {
+        console.log("CheckoutManager: Populating address fields from checkout data");
+        
+        if (this.checkoutData?.basket) {
+          const basket = this.checkoutData.basket;
+          
+          // Only proceed if basket has address data
+          if (basket.address) {
+            // Get the form field elements
+            const address1Field = document.getElementById("address1");
+            const address2Field = document.getElementById("address2");
+            const cityField = document.getElementById("city");
+            const countyField = document.getElementById("county");
+            const postcodeField = document.getElementById("postcode");
+            const countryField = document.getElementById("country");
+            
+            // Populate fields if they exist and are empty
+            if (address1Field && !address1Field.value && basket.address.address_line_1) {
+              address1Field.value = basket.address.address_line_1;
+            }
+            
+            if (address2Field && !address2Field.value && basket.address.address_line_2) {
+              address2Field.value = basket.address.address_line_2;
+            }
+            
+            if (cityField && !cityField.value && basket.address.city) {
+              cityField.value = basket.address.city;
+            }
+            
+            if (countyField && !countyField.value && basket.address.state) {
+              countyField.value = basket.address.state;
+            }
+            
+            if (postcodeField && !postcodeField.value && basket.address.postcode) {
+              postcodeField.value = basket.address.postcode;
+            }
+            
+            if (countryField && !countryField.value && basket.address.country) {
+              countryField.value = basket.address.country;
+            }
+            
+            console.log("CheckoutManager: Address fields populated successfully");
+          } else {
+            console.log("CheckoutManager: No address data available to populate fields");
+          }
+        } else {
+          console.log("CheckoutManager: No basket data available to populate address fields");
+        }
+      }
+      
     bindEvents() {
         const submitButton = document.getElementById("place-order-btn");
         if (!submitButton) return;

@@ -333,7 +333,7 @@ renderShippingRates() {
         formData.append('stock', stockId);
         formData.append('quantity', quantity);
     
-        const response = await axiosServices.post('/commerce/basket/add?type=stock', formData);
+        const response = await axiosServices.post('/commerce/basket', formData);
         
         if (response.status) {
           this.showToast('Product added to basket successfully!');
@@ -678,7 +678,7 @@ showToast(message, type = 'success') {
       formData.append('basket_item_id', basketItemId);
       formData.append('quantity', newQuantity);
   
-      const response = await axiosServices.post('/commerce/basket/update?type=stock', formData);
+      const response = await axiosServices.post('/commerce/basket/update', formData);
       
       if (response.status) {
         await this.refreshBasket();

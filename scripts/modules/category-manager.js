@@ -46,11 +46,23 @@ export class CategoryManager {
           if (category.child?.length > 0) {
             const dropdown = document.createElement("div");
             dropdown.className = "category-dropdown";
+            
+            // Sort child categories - items with children go to the top
+            const sortedChildren = [...category.child].sort((a, b) => {
+              const aHasChildren = a.child?.length > 0;
+              const bHasChildren = b.child?.length > 0;
+              return bHasChildren - aHasChildren; // Items with children first
+            });
   
-            category.child.forEach((childCategory) => {
+            sortedChildren.forEach((childCategory) => {
               if (childCategory.is_active === 1) {
                 const childItem = document.createElement("div");
                 childItem.className = "category-dropdown-item";
+                
+                // Add a class if this item has children
+                if (childCategory.child?.length > 0) {
+                  childItem.classList.add("has-children");
+                }
   
                 const childLink = document.createElement("a");
                 childLink.href = `/pages/category/category-page.html?name=${encodeURIComponent(childCategory.name)}`;
@@ -72,6 +84,8 @@ export class CategoryManager {
                   });
   
                   if (subDropdown.children.length > 0) {
+                    // Add arrow indicator for items with children
+                    childLink.innerHTML = `${childCategory.name} <span class="dropdown-arrow"></span>`;
                     childItem.appendChild(subDropdown);
                   }
                 }
@@ -87,6 +101,9 @@ export class CategoryManager {
   
           navMenu.appendChild(li);
         });
+        
+        // Add event listeners to adjust subdropdown positions
+        this.adjustSubdropdownPositions();
       }
   
       // Initialize mobile navigation
@@ -247,7 +264,38 @@ export class CategoryManager {
     }
   }
   
-
+  adjustSubdropdownPositions() {
+    const dropdownItems = document.querySelectorAll('.category-dropdown-item');
+    
+    dropdownItems.forEach(item => {
+      const subdropdown = item.querySelector('.category-subdropdown');
+      if (subdropdown) {
+        // Add a special class to indicate this item has a subdropdown
+        item.classList.add('has-subdropdown');
+        
+        // Calculate the optimal position for the subdropdown
+        item.addEventListener('mouseenter', () => {
+          const dropdownRect = item.parentElement.getBoundingClientRect();
+          const itemRect = item.getBoundingClientRect();
+          
+          // Reset any previous positioning
+          subdropdown.style.top = '';
+          
+          // Get the height of the subdropdown
+          const subdropdownHeight = subdropdown.offsetHeight;
+          
+          // Calculate available space below the item
+          const spaceBelow = window.innerHeight - itemRect.bottom;
+          
+          // If not enough space below, position at the top
+          if (spaceBelow < subdropdownHeight) {
+            // Position at the top of the parent dropdown
+            subdropdown.style.top = '0';
+          }
+        });
+      }
+    });
+  }
   
 
   // Add these methods to your CategoryManager class
