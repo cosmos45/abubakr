@@ -1,9 +1,10 @@
-<!-- components/product-card/product-card.html -->
-<div class="product-card" data-product-id="${id}" data-stock-id="${stock_id}">
-  <div
-    class="product-link"
-    onclick="window.location.href='/pages/product/product-page.html?id=${id}'"
-  >
+<div class="product-card" 
+     data-product-id="${id}" 
+     data-stock-id="${stock_id}" 
+     data-has-variants="${hasVariants}"
+     data-default-variant-id="${defaultVariantId}">
+  <!-- Product info (same for both types) -->
+  <div class="product-link" onclick="window.location.href='/pages/product/product-page.html?id=${id}'">
     <div class="product-image">
       <img src="${imageUrl}" alt="${name}" />
     </div>
@@ -13,10 +14,19 @@
       <span class="price">£${price}</span>
     </div>
   </div>
-  <div class="quantity-control">
-    <button class="qty-btn minus">−</button>
-    <input type="number" value="1" min="1" max="99" />
-    <button class="qty-btn plus" id="qty-plus">+</button>
+  
+  <!-- Card type 1: For products without variants -->
+  <div class="standard-product-actions">
+    <div class="quantity-control">
+      <button class="qty-btn minus">−</button>
+      <input type="number" value="1" min="1" max="99" />
+      <button class="qty-btn plus">+</button>
+    </div>
+    <button class="add-to-cart-btn">Add to Cart</button>
   </div>
-  <button class="add-to-cart-btn">Add to Cart</button>
+  
+  <!-- Card type 2: For products with variants -->
+  <div class="variant-product-actions">
+    <button class="select-options-btn">Select Options</button>
+  </div>
 </div>

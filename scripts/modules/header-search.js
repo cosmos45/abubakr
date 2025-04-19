@@ -146,7 +146,6 @@ export class HeaderSearch {
           <div class="product-name">${product.name}</div>
           <div class="product-price">£${product.price.toFixed(2)}</div>
           <div class="product-actions">
-            <button class="add-to-cart-btn" data-stock-id="${product.stockId || product.id}">Add to Cart</button>
           </div>
         </div>
       </div>
@@ -156,7 +155,8 @@ export class HeaderSearch {
     this.showSuggestions();
   }
   
-  
+  // <button class="add-to-cart-btn" data-stock-id="${product.stockId || product.id}">Add to Cart</button>
+
   
   
 

@@ -237,7 +237,10 @@ async function initializeMeatInStartCart() {
         stock_id: product.id,
         imageUrl: product.imageUrl,
         oldPrice: product.oldPrice,
-        size: product.size
+        size: product.size,
+        has_variants: product.has_variants
+
+
       });
       
       const cardHtml = await productCard.render();
@@ -306,6 +309,7 @@ export async function initializeBestDeals() {
         imageUrl: product.imageUrl,
         oldPrice: product.oldPrice,
         size: product.size,
+        has_variants: product.has_variants
       });
 
       const cardHtml = await productCard.render();
@@ -472,6 +476,8 @@ async function initializeFreshFinds() {
         imageUrl: product.imageUrl,
         oldPrice: product.oldPrice,
         size: product.size,
+        has_variants: product.has_variants
+
       });
 
       const cardHtml = await productCard.render();

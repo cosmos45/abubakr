@@ -21,9 +21,7 @@ export function initializeStickyHeader() {
     if (scrollTop > lastScrollTop && scrollTop > headerHeight) {
       // Scrolling down
       header.classList.add('sticky-header');
-      header.style.top = `-${topBarHeight}px`;
       if (topBar) topBar.style.display = 'none';
-      document.body.style.paddingTop = `${headerHeight}px`;
     } else if (scrollTop <= 0) {
       // At the top
       header.classList.remove('sticky-header');

@@ -38,6 +38,7 @@ export async function initializeSpecialOffers() {
         imageUrl: product.imageUrl,
         oldPrice: product.oldPrice,
         size: product.size,
+        has_variants: product.has_variants
       });
 
       const cardHtml = await productCard.render();

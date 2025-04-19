@@ -136,7 +136,6 @@ export class GlobalSearch {
           <div class="product-name">${product.name}</div>
           <div class="product-price">£${parseFloat(product.price).toFixed(2)}</div>
           <div class="product-actions">
-            <button class="add-to-cart-btn" data-stock-id="${product.stockId || product.id}">Add to Cart</button>
           </div>
         </div>
       </div>
@@ -145,6 +144,9 @@ export class GlobalSearch {
     this.attachSuggestionListeners();
     this.showSuggestions();
   }
+
+  // <button class="add-to-cart-btn" data-stock-id="${product.stockId || product.id}">Add to Cart</button>
+
 
   renderError() {
     if (!this.suggestionsContainer) return;

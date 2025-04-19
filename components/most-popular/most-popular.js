@@ -33,7 +33,9 @@ export async function initializeMostPopular() {
                 stock_id: product.id,
                 imageUrl: product.imageUrl,
                 oldPrice: product.oldPrice,
-                size: product.size
+                size: product.size,
+                has_variants: product.has_variants
+
             });
             
             const cardHtml = await productCard.render();

@@ -1,4 +1,4 @@
-/* components/product-card/product-card.css */
+/* Base card styling */
 .product-card {
     background: white;
     border: 0.5px solid #000;
@@ -7,85 +7,90 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
-    height: 400px; /* Set a fixed height instead of min-height */
+    height: 400px;
     box-sizing: border-box;
-}
-
-.product-link {
+  }
+  
+  .product-link {
     cursor: pointer;
     text-decoration: none;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-}
-
-.product-image {
+  }
+  
+  .product-image {
     height: 160px;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 0.8rem;
-    overflow: hidden; /* Add this to prevent overflow */
-    position: relative; /* Add this for positioning context */
-}
-
-.product-image img {
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .product-image img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
-    display: block; /* Add this to remove extra space */
-}
-
-.product-name {
+    display: block;
+  }
+  
+  .product-name {
     font-family: Avenir, sans-serif;
     font-size: 0.9rem;
     color: #000;
     margin: 0;
     line-height: 1.4;
-    height: 2.8em; /* Fixed height instead of max-height */
+    height: 2.8em;
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     text-decoration: none;
-}
-
-
-.price-container {
+  }
+  
+  .price-container {
     margin-top: auto;
     margin-bottom: 0.5rem;
-    height: 1.5rem; /* Add fixed height */
+    height: 1.5rem;
     display: flex;
     align-items: center;
-}
-
-
-.price {
+  }
+  
+  .price {
     color: var(--top-bar-green);
     font-size: 1rem;
     font-weight: 500;
     font-family: Avenir, sans-serif;
-}
-
-.old-price {
+  }
+  
+  .old-price {
     text-decoration: line-through;
     color: #999;
     margin-right: 0.5rem;
     font-size: 0.9rem;
-}
-
-.quantity-control {
+  }
+  
+  /* Action containers */
+  .standard-product-actions,
+  .variant-product-actions {
+    margin-top: auto;
+    display: none; /* Change from none to block */
+  }
+  
+  /* Quantity control */
+  .quantity-control {
     display: flex;
     border: 0.5px solid #000;
     height: 40px;
-    margin: 0.5rem 0;
+    margin-bottom: 0.5rem;
     width: 100%;
-    box-sizing: border-box; /* Add this to prevent overflow */
-}
-
-.qty-btn {
+    box-sizing: border-box;
+  }
+  
+  .qty-btn {
     width: 35px;
     height: 35px;
     border: none;
@@ -97,13 +102,13 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-}
-
-.qty-btn:hover {
+  }
+  
+  .qty-btn:hover {
     background: #f5f5f5;
-}
-
-.quantity-control input {
+  }
+  
+  .quantity-control input {
     width: 100%;
     text-align: center;
     border: none;
@@ -111,9 +116,10 @@
     border-right: 0.5px solid #000;
     font-size: 0.9rem;
     font-family: Avenir, sans-serif;
-}
-
-.add-to-cart-btn {
+  }
+  
+  /* Button styling */
+  .select-options-btn, .add-to-cart-btn {
     background: var(--top-bar-green);
     color: white;
     border: none;
@@ -123,55 +129,55 @@
     font-size: 0.9rem;
     font-family: Avenir, sans-serif;
     width: 100%;
-}
-
-.add-to-cart-btn:hover {
+    transition: background-color 0.2s ease;
+    margin-right: 70px;
+  }
+  
+  .select-options-btn:hover, .add-to-cart-btn:hover {
     background: #658c53;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 576px) {
+  }
+  
+  /* Mobile Responsiveness */
+  @media (max-width: 576px) {
     .product-card {
-        padding: 0.6rem;
-        gap: 0.4rem;
-        height: 320px; /* Fixed height instead of min-height */
+      padding: 0.6rem;
+      height: 320px;
     }
     
     .product-image {
-        height: 100px;
-        margin-bottom: 0.4rem;
+      height: 100px;
+      margin-bottom: 0.4rem;
     }
     
     .product-name {
-        font-size: 0.8rem;
-        -webkit-line-clamp: 2;
+      font-size: 0.8rem;
     }
     
     .price {
-        font-size: 0.85rem;
+      font-size: 0.85rem;
     }
     
     .old-price {
-        font-size: 0.75rem;
+      font-size: 0.75rem;
     }
     
     .quantity-control {
-        height: 30px;
-        margin: 0.3rem 0;
+      height: 30px;
     }
     
     .qty-btn {
-        width: 30px;
-        height: 30px;
-        font-size: 0.9rem;
+      width: 30px;
+      height: 30px;
+      font-size: 0.9rem;
     }
     
     .quantity-control input {
-        font-size: 0.8rem;
+      font-size: 0.8rem;
     }
     
-    .add-to-cart-btn {
-        padding: 0.5rem;
-        font-size: 0.8rem;
+    .select-options-btn, .add-to-cart-btn {
+      padding: 0.5rem;
+      font-size: 0.8rem;
     }
-}
+  }
+  

@@ -137,47 +137,93 @@ class CategoryPage {
       console.error("Pagination container not found");
       return;
     }
-
+  
     if (!this.pagination) {
       console.error("Pagination data is missing");
       return;
     }
-
+  
     const { currentPage, lastPage } = this.pagination;
-    console.log("Rendering pagination:", { currentPage, lastPage });
-
+    console.log("Pagination data:", { currentPage, lastPage, total: this.pagination.total, perPage: this.pagination.perPage });
+  
     if (lastPage <= 1) {
       paginationContainer.innerHTML = ""; // Hide pagination if only one page
       return;
     }
-
+  
+    // Determine if we need to show ellipses and which page numbers to display
+    const getElidedPageRange = (current, last) => {
+      // For mobile, show fewer page numbers
+      const isMobile = window.innerWidth < 768;
+      const delta = isMobile ? 1 : 2; // Show fewer pages on mobile
+      
+      let range = [];
+      let rangeWithDots = [];
+      let left = current - delta;
+      let right = current + delta + 1;
+      let l;
+      
+      // Always include first and last page
+      for (let i = 1; i <= last; i++) {
+        if (i === 1 || i === last || (i >= left && i < right)) {
+          range.push(i);
+        }
+      }
+      
+      // Add dots where needed
+      for (let i of range) {
+        if (l) {
+          if (i - l === 2) {
+            rangeWithDots.push(l + 1);
+          } else if (i - l !== 1) {
+            rangeWithDots.push('...');
+          }
+        }
+        rangeWithDots.push(i);
+        l = i;
+      }
+      
+      return rangeWithDots;
+    };
+  
+    const pageRange = getElidedPageRange(currentPage, lastPage);
+  
     let paginationHTML = `
-    <ul class="pagination">
-      <li class="page-item ${currentPage === 1 ? "disabled" : ""}">
-        <a class="page-link" href="#" data-page="${
-          currentPage - 1
-        }">Previous</a>
-      </li>
-  `;
-
-    for (let i = 1; i <= lastPage; i++) {
-      paginationHTML += `
-      <li class="page-item ${i === currentPage ? "active" : ""}">
-        <a class="page-link" href="#" data-page="${i}">${i}</a>
-      </li>
+      <ul class="pagination">
+        <li class="page-item ${currentPage === 1 ? "disabled" : ""}">
+          <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+        </li>
     `;
+  
+    // Render page numbers with ellipses
+    for (const i of pageRange) {
+      if (i === '...') {
+        paginationHTML += `
+          <li class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+        `;
+      } else {
+        paginationHTML += `
+          <li class="page-item ${i === currentPage ? "active" : ""}">
+            <a class="page-link" href="#" data-page="${i}">${i}</a>
+          </li>
+        `;
+      }
     }
-
+  
     paginationHTML += `
-    <li class="page-item ${currentPage === lastPage ? "disabled" : ""}">
-      <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
-    </li>
-  </ul>`;
-
+      <li class="page-item ${currentPage === lastPage ? "disabled" : ""}">
+        <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+      </li>
+    </ul>`;
+  
     paginationContainer.innerHTML = paginationHTML;
     this.initializePaginationEvents();
     this.updateFilterOptionsMaxHeight();
   }
+  
+  
   updateFilterOptionsMaxHeight() {
     const filterOptions = document.querySelectorAll(".filter-options");
     if (filterOptions.length > 0) {
@@ -257,26 +303,34 @@ class CategoryPage {
     });
   }
 
+  
   async fetchCategoryStock(page = 1) {
     try {
       console.debug(
-        `Fetching stock data for category: ${this.categoryName}, page: ${page}`
+        `Fetching product data for category: ${this.categoryName}, page: ${page}`
       );
-
+  
       // Store the requested page
       this.currentPage = page;
-
-      const response = await ProductServiceCategory.getStockByCategory(
+  
+      // Use the new method from categoryData
+      const response = await categoryData.getCategoryProducts(
         this.categoryName,
         this.currentPage
       );
-      console.log("Stock response:", response);
-
+      console.log("Products response:", response);
+  
       if (response && response.products) {
-        this.products = response.products;
+        console.log('res', response.products)
+        // Ensure each product has the has_variants property set
+        this.products = response.products.map(product => ({
+          ...product,
+          has_variants: product.has_variants || false
+        }));
+        
         this.pagination = response.pagination;
         console.log("Pagination data:", this.pagination);
-
+  
         // Render products and pagination
         await this.renderProducts(this.products);
         this.renderPagination();
@@ -284,9 +338,11 @@ class CategoryPage {
         console.error("No products found for the category.");
       }
     } catch (error) {
-      console.error("Error fetching category stock:", error);
+      console.error("Error fetching category products:", error);
     }
   }
+  
+  
 
   showLoading() {
     this.isLoading = true;
@@ -334,14 +390,13 @@ class CategoryPage {
       });
     }
   }
-
   async renderCategoryContent() {
     const container = document.querySelector(".category-page");
     if (!container) return;
-
+  
     // Clear existing content
     container.innerHTML = "";
-
+  
     // Render category header
     const headerHtml = `
       <div class="category-header">
@@ -373,26 +428,31 @@ class CategoryPage {
       </div>
     `;
     container.insertAdjacentHTML("beforeend", headerHtml);
-
+  
     // Render products
     const productsGrid = container.querySelector(".products-grid");
     if (!productsGrid) return;
-
+  
     if (this.products.length > 0) {
       for (const product of this.products) {
         try {
           const productCard = new ProductCard({
             ...product,
+            has_variants: product.has_variants || false, // Add this line to ensure has_variants is set
             addToCart: (quantity) =>
               this.cart.addItemUI({ ...product, quantity }),
           });
           const cardHtml = await productCard.render();
           productsGrid.insertAdjacentHTML("beforeend", cardHtml);
+          
+          // Initialize the card listeners immediately after adding to DOM
+          const newCard = productsGrid.lastElementChild;
+          ProductCard.initializeCardListeners(newCard);
         } catch (error) {
           console.error("Error rendering product card:", error);
         }
       }
-
+  
       // Initialize product card functionality
       this.initializeQuantityControls();
       this.initializeAddToCart();
@@ -401,6 +461,7 @@ class CategoryPage {
         '<div class="no-products">No products found in this category</div>';
     }
   }
+  
 
   setupFilters() {
     const filterContainer = document.querySelector(".filters-sidebar");
@@ -846,58 +907,33 @@ class CategoryPage {
     try {
       // Store the requested page
       this.currentPage = page;
-
-      // Create separate parameters for different filter types
-      const filterParams = {};
-
-      // Track selected categories separately
-      const selectedCategories = [];
-      // Always include the current category unless another is selected
-      selectedCategories.push(this.categoryName);
-
+  
+      // Create filters object from activeFilters Map
+      const filters = {};
+      
       // Process all active filters by type
       this.activeFilters.forEach((values, filterType) => {
-        if (filterType === "Size" || filterType === "Colour") {
-          // Size and Colour go into choices parameter
-          if (!filterParams.choices) {
-            filterParams.choices = [];
-          }
-          filterParams.choices.push(...Array.from(values));
-        } else if (filterType === "Categories") {
-          // Handle category selection - replace the current category
-          if (values.size > 0) {
-            // Clear the default category and use selected ones
-            selectedCategories.length = 0;
-            selectedCategories.push(...Array.from(values));
-          }
-        } else {
-          // For other filter types, add as separate parameters
-          filterParams[filterType] = Array.from(values).join(",");
-        }
+        filters[filterType] = Array.from(values);
       });
-
-      // Convert choices array to comma-separated string
-      if (filterParams.choices && filterParams.choices.length > 0) {
-        filterParams.choices = filterParams.choices.join(",");
-      }
-
-      // Set the categories parameter
-      if (selectedCategories.length > 0) {
-        filterParams.categories = selectedCategories.join(",");
-      }
-
-      console.debug("Filter parameters:", filterParams);
-
-      // Fetch filtered products from API with the current page
-      const response = await this.getFilteredStockByCategory(
-        this.currentPage,
-        filterParams
+  
+      console.debug("Filter parameters:", filters);
+  
+      // Use the new method from categoryData
+      const response = await categoryData.getFilteredCategoryProducts(
+        this.categoryName,
+        filters,
+        this.currentPage
       );
-
+  
       if (response && response.products) {
-        this.products = response.products;
+        // Ensure each product has the has_variants property set
+        this.products = response.products.map(product => ({
+          ...product,
+          has_variants: product.has_variants || false
+        }));
+        
         this.pagination = response.pagination;
-
+  
         // Render filtered products and pagination
         await this.renderProducts(this.products);
         this.renderPagination();
@@ -908,85 +944,94 @@ class CategoryPage {
       console.error("Error applying filters:", error);
     }
   }
-
+  
+  
+  
   async renderFilteredProducts(products) {
     const productsGrid = document.querySelector(".products-grid");
     if (!productsGrid) return;
-
+  
     // Clear existing products
     productsGrid.innerHTML = "";
-
+  
     if (products.length === 0) {
       productsGrid.innerHTML =
         '<div class="no-products">No products match the selected filters</div>';
       return;
     }
-
+  
     // Render each product only once
     const renderedProducts = new Set();
-
+  
     for (const product of products) {
       if (!renderedProducts.has(product.id)) {
         renderedProducts.add(product.id);
         try {
           const productCard = new ProductCard({
             ...product,
+            has_variants: product.has_variants || false, // Add this line to ensure has_variants is set
             addToCart: (quantity) =>
               this.cart.addItem({ ...product, quantity }),
           });
           const cardHtml = await productCard.render();
           productsGrid.insertAdjacentHTML("beforeend", cardHtml);
+          
+          // Initialize the card listeners immediately after adding to DOM
+          const newCard = productsGrid.lastElementChild;
+          ProductCard.initializeCardListeners(newCard);
         } catch (error) {
           console.error("Error rendering product card:", error);
         }
       }
     }
-
+  
     // Initialize controls after all products are rendered
     this.initializeQuantityControls();
     this.initializeAddToCart();
   }
-
+  
   async renderProducts(products) {
     const productsGrid = document.querySelector(".products-grid");
     if (!productsGrid) return;
-
+  
     console.log("Rendering products:", products);
-
+  
     if (products.length === 0) {
       productsGrid.innerHTML =
         '<div class="no-products">No products available in this category</div>';
       return;
     }
-
+  
     productsGrid.innerHTML = "";
     const renderedIds = new Set();
-
+  
     for (const product of products) {
       if (!renderedIds.has(product.id)) {
         renderedIds.add(product.id);
         try {
+          // Ensure has_variants is correctly set
           const productCard = new ProductCard({
             ...product,
+            has_variants: product.has_variants || false, // Ensure this property exists
             addToCart: (quantity) =>
               this.cart.addItem({ ...product, quantity }),
             imageUrl: product.imageUrl || "/assets/images/placeholder.png",
           });
+          
           const cardHtml = await productCard.render();
           productsGrid.insertAdjacentHTML("beforeend", cardHtml);
-          console.log("Rendered product:", product.name);
+          
+          // Initialize the card listeners immediately after adding to DOM
+          const newCard = productsGrid.lastElementChild;
+          ProductCard.initializeCardListeners(newCard);
         } catch (error) {
           console.error("Error rendering product card:", error, product);
         }
       }
     }
-
-    // Initialize quantity controls and add to cart AFTER all products are rendered
-    setTimeout(() => {
-      this.initializeQuantityControls();
-      this.initializeAddToCart();
-    }, 100);
   }
+  
+  
 
   // In CategoryPage class
   initializeQuantityControls() {

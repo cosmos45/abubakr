@@ -9,11 +9,13 @@ export class SearchService {
 
   async init() {
     if (this.initialized) return;
-    
+
     try {
       await this.loadProducts();
       this.initialized = true;
-      console.log(`SearchService initialized with ${this.products.length} products`);
+      console.log(
+        `SearchService initialized with ${this.products.length} products`
+      );
     } catch (error) {
       console.error("Error initializing SearchService:", error);
     }
@@ -21,10 +23,11 @@ export class SearchService {
 
   async loadProducts() {
     try {
-      const response = await axiosServices.get('/commerce/stock');
-      // Correctly access the products array from the response
-      if (response.data && response.data.data && response.data.data.stock && response.data.data.stock.data) {
-        this.products = response.data.data.stock.data;
+      const response = await axiosServices.get("/commerce/products");
+
+      // Updated to match products API response structure
+      if (response.data && response.data && response.data.products.data) {
+        this.products = response.data.products.data;
         console.log("Products loaded:", this.products.length);
       } else {
         console.warn("Unexpected API response structure:", response.data);
@@ -36,48 +39,51 @@ export class SearchService {
     }
   }
 
-  async search(query, categoryId = 'all') {
+  async search(query, categoryId = "all") {
     if (!this.initialized) {
       await this.init();
     }
 
     query = query.toLowerCase().trim();
-    
+
     if (query.length < 3) {
       return [];
     }
 
     try {
-      // Use the API for search
-      const response = await axiosServices.get('/commerce/stock', {
-        params: { query: query }
+      const response = await axiosServices.get("/commerce/products", {
+        params: { query: query },
       });
-      
-      // Correctly access the products from the response
+
+      // Updated to match products API response structure
       let results = [];
-      if (response.data && response.data.stock && response.data.stock.data) {
-        results = response.data.stock.data;
+      if (response.data && response.data && response.data.products.data) {
+        results = response.data.products.data;
         console.log("Search results found:", results.length);
       } else {
-        console.warn("Unexpected search API response structure:", response.data);
+        console.warn(
+          "Unexpected search API response structure:",
+          response.data
+        );
       }
-      
-      // Format results based on the actual API response structure
-      return results.map(product => ({
+
+      // Format results based on product structure instead of stock
+      return results.map((product) => ({
         id: product.uid,
         stockId: product.uid,
-        name: product.name || 'Unknown Product',
+        name: product.name || "Unknown Product",
         price: parseFloat(product.price) || 0,
-        oldPrice: product.retail_price && product.retail_price !== product.price ? 
-                 parseFloat(product.retail_price) : null,
+        oldPrice: product.compare_price,
         imageUrl: this.getProductImageUrl(product),
-        description: product.short_description || '',
-        size: product.size || '',
-        category: product.brand || 'Uncategorized'
+        description: product.short_description || "",
+        size: product.size || "",
+        category: product.categories?.[0] || "Uncategorized",
+        hasVariants: product.choices && product.choices.length > 0,
+        defaultVariantId: product.default_variant?.pvariant__id || null,
       }));
     } catch (error) {
       console.error("Search API error:", error);
-      
+
       // Fallback to local search if API fails
       return this.localSearch(query);
     }
@@ -88,37 +94,38 @@ export class SearchService {
     if (product.attachments && product.attachments.length > 0) {
       return product.attachments[0].path;
     }
-    return '/assets/images/default-product.png';
+    return "/assets/images/default-product.png";
   }
 
   localSearch(query) {
     query = query.toLowerCase().trim();
-    
-    let results = this.products.filter(product => {
-      const name = (product.name || '').toLowerCase();
-      const description = (product.short_description || '').toLowerCase();
-      
+
+    let results = this.products.filter((product) => {
+      const name = (product.name || "").toLowerCase();
+      const description = (product.short_description || "").toLowerCase();
+
       return name.includes(query) || description.includes(query);
     });
-    
-    // Format results based on the actual data structure
-    return results.map(product => ({
+
+    // Updated to match product structure instead of stock
+    return results.map((product) => ({
       id: product.uid,
       stockId: product.uid,
-      name: product.name || 'Unknown Product',
+      name: product.name || "Unknown Product",
       price: parseFloat(product.price) || 0,
-      oldPrice: product.retail_price && product.retail_price !== product.price ? 
-               parseFloat(product.retail_price) : null,
+      oldPrice: product.compare_price,
       imageUrl: this.getProductImageUrl(product),
-      description: product.short_description || '',
-      size: product.size || '',
-      category: product.brand || 'Uncategorized'
+      description: product.short_description || "",
+      size: product.size || "",
+      category: product.categories?.[0] || "Uncategorized",
+      hasVariants: product.choices && product.choices.length > 0,
+      defaultVariantId: product.default_variant?.pvariant__id || null,
     }));
   }
 
   async getAllCategories() {
     try {
-      const response = await axiosServices.get('/commerce/categories');
+      const response = await axiosServices.get("/commerce/categories");
       return response.data.categories || [];
     } catch (error) {
       console.error("Error fetching categories for search:", error);

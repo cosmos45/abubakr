@@ -823,14 +823,14 @@ body.sticky-header {
 }
 
 .category-item:last-child .category-dropdown .category-subdropdown,
-.category-item:nth-last-child(1) .category-dropdown .category-subdropdown {
+.category-item:nth-last-child(2) .category-dropdown .category-subdropdown {
   right: 100%;
   left: auto;
 }
 
 /* Adjust the arrow direction for right-aligned subdropdowns */
 .category-item:last-child .category-dropdown-item:has(.category-subdropdown) > a::after,
-.category-item:nth-last-child(1) .category-dropdown-item:has(.category-subdropdown) > a::after {
+.category-item:nth-last-child(2) .category-dropdown-item:has(.category-subdropdown) > a::after {
   content: '‹';
   position: absolute;
   left: 10px;

@@ -32,6 +32,7 @@ constructor() {
   this.totalDiscount = 0;
   this.discount = null;
 }
+
 async init() {
   if (this.initialized) {
     console.log("Cart already initialized, skipping initialization");
@@ -77,18 +78,17 @@ async init() {
       // Populate items map with all basket items
       if (basketData.items && Array.isArray(basketData.items)) {
         basketData.items.forEach(item => {
-          const imageUrl = item.stock?.attachments?.[0]?.path || '/assets/images/default-product.png';
-          
           const mappedItem = {
-            id: item.stock_id,
-            stock_id: item.stock_id,
+            id: item.stock_id || item.product?.uid,
+            stock_id: item.stock_id || item.product?.uid,
             basket_item_id: item.basket_item__id,
             name: item.name,
             price: parseFloat(item.price),
             quantity: item.quantity,
             totalPrice: parseFloat(item.total),
-            imageUrl: imageUrl,
-            size: item.stock?.size || null
+            // Keep the product and variant objects intact
+            product: item.product || null,
+            variant: item.variant || null
           };
           
           this.items.set(item.basket_item__id.toString(), mappedItem);
@@ -126,6 +126,7 @@ async init() {
     return false;
   }
 }
+
 renderShippingRates() {
   const container = document.getElementById('shipping-rates-container');
   if (!container) return;
@@ -315,117 +316,193 @@ renderShippingRates() {
     }
   }
   
-  async addToBasket(stockId, quantity) {
-    try {
-      // Check if item already exists in basket
-      const existingItem = Array.from(this.items.values()).find(item => 
-        item.stock_id === stockId
-      );
+  // async addToBasket(stockId, quantity) {
+  //   try {
+  //     // Check if item already exists in basket
+  //     const existingItem = Array.from(this.items.values()).find(item => 
+  //       item.stock_id === stockId
+  //     );
   
-      if (existingItem) {
-        // Update quantity if item exists
-        const newQuantity = existingItem.quantity + quantity;
-        await this.updateQuantity(existingItem.basket_item_id, newQuantity);
-        this.showToast('Product quantity updated in basket!');
-      } else {
-        // Add new item if it doesn't exist
-        const formData = new FormData();
-        formData.append('stock', stockId);
-        formData.append('quantity', quantity);
+  //     if (existingItem) {
+  //       // Update quantity if item exists
+  //       const newQuantity = existingItem.quantity + quantity;
+  //       await this.updateQuantity(existingItem.basket_item_id, newQuantity);
+  //       this.showToast('Product quantity updated in basket!');
+  //     } else {
+  //       // Add new item if it doesn't exist
+  //       const formData = new FormData();
+  //       formData.append('stock', stockId);
+  //       formData.append('quantity', quantity);
     
-        const response = await axiosServices.post('/commerce/basket', formData);
+  //       const response = await axiosServices.post('/commerce/basket', formData);
         
-        if (response.status) {
-          this.showToast('Product added to basket successfully!');
-          await this.refreshBasket();
-        }
+  //       if (response.status) {
+  //         this.showToast('Product added to basket successfully!');
+  //         await this.refreshBasket();
+  //       }
+  //     }
+  //     return true;
+  //   } catch (error) {
+  //     console.error('Error adding to basket:', error);
+  //     this.showToast('Failed to add product to basket', 'error');
+  //     return false;
+  //   }
+  // }
+  async addToBasket(productId, quantity = 1, variantId = null) {
+    try {
+      const formData = new FormData();
+      formData.append("product", productId);
+      formData.append("quantity", quantity);
+      
+      // Add variant ID if provided
+      if (variantId) {
+        formData.append("pvariant_id", variantId);
       }
+  
+      const response = await axiosServices.post("/commerce/basket", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      if (response.status) {
+        // Show success toast notification
+        this.showToast(`Product added to your cart successfully!`);
+        
+        // Immediately refresh cart without page reload
+        await this.refreshCart();
+        
+        // Show the cart sidebar
+        this.showCart();
+        
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error adding to basket:", error);
+      this.showToast("Failed to add product to cart", "error");
+      return false;
+    }
+  }
+  // Add this to your Cart class
+initializeCartEvents() {
+  // Listen for cart:refresh events
+  document.addEventListener('cart:refresh', async (event) => {
+    await this.refreshCart();
+  });
+  
+  // Listen for cart:updated events
+  document.addEventListener('cart:updated', () => {
+    this.updateCartCount();
+    this.renderSavedItems();
+    this.updateSubtotal();
+  });
+}
+
+
+  async refreshCart() {
+    try {
+      // Clear any existing refresh timeout
+      if (refreshBasketTimeout) {
+        clearTimeout(refreshBasketTimeout);
+      }
+      
+      // Reset cached responses to force fresh data
+      Cart.basketResponse = null;
+      Cart.basketPromise = null;
+      
+      // Refresh the basket data
+      await this.refreshBasket();
+      
+      // Update UI elements
+      this.updateCartCount();
+      this.renderSavedItems();
+      this.updateSubtotal();
+      
       return true;
     } catch (error) {
-      console.error('Error adding to basket:', error);
-      this.showToast('Failed to add product to basket', 'error');
+      console.error('Error refreshing cart:', error);
       return false;
     }
   }
   
-
- // Add at the top of cart.js
- async refreshBasket() {
-  // If basket is already being refreshed, wait for that promise
-  if (this.refreshPromise) {
+  async refreshBasket() {
+    // If basket is already being refreshed, wait for that promise
+    if (this.refreshPromise) {
+      return this.refreshPromise;
+    }
+    
+    // Create a new refresh promise
+    this.refreshPromise = new Promise(async (resolve) => {
+      try {
+        console.log("Refreshing basket...");
+        const response = await axiosServices.get('/commerce/basket');
+        if (response.status && response.data.basket) {
+          const basketData = response.data.basket;
+          
+          this.subtotal = parseFloat(basketData.sub_total) || 0;
+          this.total = parseFloat(basketData.total) || 0;
+          this.shippingCharges = parseFloat(basketData.shipping_charges) || 0;
+          
+          // Store discount information
+          this.discountAmount = parseFloat(basketData.discount_amount) || 0;
+          this.totalDiscount = parseFloat(basketData.total_discount) || 0;
+          this.discount = basketData.discount || null;
+          
+          // Update selected shipping rate
+          if (basketData.shipping_rate_id && this.shippingRates.length > 0) {
+            this.selectedShippingRate = this.shippingRates.find(
+              rate => rate.shipping_rate__id === basketData.shipping_rate_id
+            );
+          }
+    
+          // Clear existing items map before populating with new data
+          this.items = new Map();
+          
+          // Populate items map with all basket items
+          if (basketData.items && Array.isArray(basketData.items)) {
+            basketData.items.forEach(item => {
+              // Preserve the entire product object including attachments
+              const mappedItem = {
+                id: item.stock_id || item.product?.uid,
+                stock_id: item.stock_id || item.product?.uid,
+                basket_item_id: item.basket_item__id,
+                name: item.name,
+                price: parseFloat(item.price),
+                quantity: item.quantity,
+                totalPrice: parseFloat(item.total),
+                // Keep the product and variant objects intact
+                product: item.product || null,
+                variant: item.variant || null
+              };
+              
+              this.items.set(item.basket_item__id.toString(), mappedItem);
+            });
+          }
+          
+          // Render all items in the cart
+          this.renderSavedItems();
+          this.updateCartCount();
+          this.updateSubtotal();
+          this.renderShippingRates();
+          this.updateDiscountDisplay();
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      } catch (error) {
+        console.error('Error refreshing basket:', error);
+        this.showToast('Failed to refresh basket', 'error');
+        resolve(false);
+      } finally {
+        // Clear the promise reference
+        this.refreshPromise = null;
+      }
+    });
+    
     return this.refreshPromise;
   }
   
-  // Create a new refresh promise
-  this.refreshPromise = new Promise(async (resolve) => {
-    try {
-      console.log("Refreshing basket...");
-      const response = await axiosServices.get('/commerce/basket');
-      if (response.status && response.data.basket) {
-        const basketData = response.data.basket;
-        
-        this.subtotal = parseFloat(basketData.sub_total) || 0;
-        this.total = parseFloat(basketData.total) || 0;
-        this.shippingCharges = parseFloat(basketData.shipping_charges) || 0;
-        
-        // Store discount information
-        this.discountAmount = parseFloat(basketData.discount_amount) || 0;
-        this.totalDiscount = parseFloat(basketData.total_discount) || 0;
-        this.discount = basketData.discount || null;
-        
-        // Update selected shipping rate
-        if (basketData.shipping_rate_id && this.shippingRates.length > 0) {
-          this.selectedShippingRate = this.shippingRates.find(
-            rate => rate.shipping_rate__id === basketData.shipping_rate_id
-          );
-        }
-  
-        // Clear existing items map before populating with new data
-        this.items = new Map();
-        
-        // Populate items map with all basket items
-        if (basketData.items && Array.isArray(basketData.items)) {
-          basketData.items.forEach(item => {
-            const imageUrl = item.stock?.attachments?.[0]?.path || '/assets/images/default-product.png';
-            
-            const mappedItem = {
-              id: item.stock_id,
-              stock_id: item.stock_id,
-              basket_item_id: item.basket_item__id,
-              name: item.name,
-              price: parseFloat(item.price),
-              quantity: item.quantity,
-              totalPrice: parseFloat(item.total),
-              imageUrl: imageUrl,
-              size: item.stock?.size || null
-            };
-            
-            this.items.set(item.basket_item__id.toString(), mappedItem);
-          });
-        }
-        
-        // Render all items in the cart
-        this.renderSavedItems();
-        this.updateCartCount();
-        this.updateSubtotal();
-        this.renderShippingRates();
-        this.updateDiscountDisplay();
-        resolve(true);
-      } else {
-        resolve(false);
-      }
-    } catch (error) {
-      console.error('Error refreshing basket:', error);
-      this.showToast('Failed to refresh basket', 'error');
-      resolve(false);
-    } finally {
-      // Clear the promise reference
-      this.refreshPromise = null;
-    }
-  });
-  
-  return this.refreshPromise;
-}
 updateDiscountDisplay() {
   // Get the order summary container
   const summaryDetails = document.querySelector('.summary-details');
@@ -487,16 +564,24 @@ updateDiscountDisplay() {
 
 
 showToast(message, type = 'success') {
+  // Remove any existing toasts first
+  const existingToasts = document.querySelectorAll('.toast-notification');
+  existingToasts.forEach(toast => toast.remove());
+  
+  // Create new toast element
   const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
+  toast.className = `toast-notification ${type}`;
   toast.innerHTML = `
     <div class="toast-content">
       <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
       <span>${message}</span>
     </div>
   `;
+  
+  // Add to document
   document.body.appendChild(toast);
   
+  // Animate in and out
   setTimeout(() => {
     toast.classList.add('show');
     setTimeout(() => {
@@ -505,6 +590,7 @@ showToast(message, type = 'success') {
     }, 3000);
   }, 100);
 }
+
 
 
   createCartStructure() {
@@ -778,7 +864,7 @@ showToast(message, type = 'success') {
   renderSavedItems() {
     const cartItems = document.querySelector(".cart-items");
     if (!cartItems) return;
-  
+    
     // Clear the cart items container first
     cartItems.innerHTML = "";
     
@@ -793,15 +879,32 @@ showToast(message, type = 'success') {
     
     // Iterate through all items and add them to the cart
     this.items.forEach((item) => {
+      
+      // Extract product image from the product's attachments if available
+      let productImage = '/assets/images/default-product.png';
+      
+      // Check if item has product with attachments
+      if (item.product && item.product.attachments && item.product.attachments.length > 0) {
+        // Get the first attachment path and trim any whitespace or newlines
+        const attachmentPath = item.product.attachments[0].path;
+        if (attachmentPath) {
+          productImage = attachmentPath.trim();
+        }
+      }
+      
       const itemElement = document.createElement('div');
       itemElement.className = 'cart-item';
       itemElement.dataset.basketItemId = item.basket_item_id;
-      itemElement.dataset.productId = item.uid; // Change this to uid
+      itemElement.dataset.productId = item.product?.uid || item.id; // Use product.uid if available
+      
+      // Determine if this is a variant
+      const variantInfo = item.variant ? 
+        `<span class="variant-info">${item.variant.items?.map(i => i.name).join(', ') || ''}</span>` : '';
   
       itemElement.innerHTML = `
         <div class="cart-item-image">
           <img 
-            src="${item.imageUrl}" 
+            src="${productImage}" 
             alt="${item.name}"
             onerror="this.onerror=null; this.src='/assets/images/default-product.png';"
           >
@@ -810,7 +913,7 @@ showToast(message, type = 'success') {
           <h3>${item.name}</h3>
           <div class="price-info">
             <span class="price">£${item.price.toFixed(2)}</span>
-            ${item.size ? `<span class="size">${item.size}</span>` : ''}
+            ${variantInfo}
           </div>
           <div class="quantity-control">
             <button class="qty-btn minus">−</button>
@@ -836,10 +939,11 @@ showToast(message, type = 'success') {
       const isQuantityControl = e.target.closest('.quantity-control');
       const isRemoveButton = e.target.closest('.remove-item');
   
-      // if (!isQuantityControl && !isRemoveButton) {
-      //   const productId = cartItem.dataset.productId;
-      //   window.location.href = `/pages/product/product-page.html?id=${productId}`;
-      // }
+      // Only navigate to product page if not clicking controls
+      if (!isQuantityControl && !isRemoveButton) {
+        const productId = cartItem.dataset.productId;
+        window.location.href = `/pages/product/product-page.html?id=${productId}`;
+      }
     });
     
     // Update cart count and totals
@@ -847,51 +951,67 @@ showToast(message, type = 'success') {
     this.updateSubtotal();
   }
   
+
   
-
-renderCartPage() {
-  const cartItemsContainer = document.getElementById("cart-items-container");
-  if (!cartItemsContainer) return;
-
-  cartItemsContainer.innerHTML = "";
-
-  if (this.items.size === 0) {
-      cartItemsContainer.innerHTML = `
-          <div class="empty-cart">
-              <p>Your cart is empty</p>
-              <a href="/" class="continue-shopping">Continue Shopping</a>
-          </div>`;
-      return;
+  renderCartPage() {
+    const cartItemsContainer = document.getElementById("cart-items-container");
+    if (!cartItemsContainer) return;
+  
+    cartItemsContainer.innerHTML = "";
+  
+    if (this.items.size === 0) {
+        cartItemsContainer.innerHTML = `
+            <div class="empty-cart">
+                <p>Your cart is empty</p>
+                <a href="/" class="continue-shopping">Continue Shopping</a>
+            </div>`;
+        return;
+    }
+  
+    this.items.forEach((item) => {
+        // Extract product image from the product's attachments if available
+        let productImage = '/assets/images/default-product.png';
+        
+        if (item.product && item.product.attachments && item.product.attachments.length > 0) {
+            const attachmentPath = item.product.attachments[0].path;
+            if (attachmentPath) {
+                productImage = attachmentPath.trim();
+            }
+        }
+        
+        // Determine if this is a variant
+        const variantInfo = item.variant ? 
+            `<div class="variant-info">${item.variant.items?.map(i => i.name).join(', ') || ''}</div>` : '';
+        
+        const itemHtml = `
+            <div class="cart-item" data-basket-item-id="${item.basket_item_id}">
+                <img src="${productImage}" alt="${item.name}" 
+                     onerror="this.src='/assets/images/default-product.png'">
+                <div class="cart-item-details">
+                    <h3 class="item-name">${item.name}</h3>
+                    <div class="price-info">
+                        <span class="current-price">£${item.price.toFixed(2)}</span>
+                        ${variantInfo}
+                    </div>
+                    <div class="d-flex align-items-center mt-3">
+                        <div class="quantity-control">
+                            <button class="qty-btn minus">−</button>
+                            <input type="number" value="${item.quantity}" min="1" max="99" readonly>
+                            <button class="qty-btn plus">+</button>
+                        </div>
+                        <span class="item-total">£${item.totalPrice.toFixed(2)}</span>
+                    </div>
+                </div>
+                <button class="remove-item" aria-label="Remove item">×</button>
+            </div>`;
+        cartItemsContainer.insertAdjacentHTML("beforeend", itemHtml);
+    });
+  
+    this.initializeCartPageControls();
+    this.updateCartPageTotals();
+    this.updateDiscountDisplay(); // Make sure discounts are displayed
   }
-
-  this.items.forEach((item) => {
-      const itemHtml = `
-          <div class="cart-item" data-basket-item-id="${item.basket_item_id}">
-              <img src="${item.imageUrl}" alt="${item.name}" 
-                   onerror="this.src='/assets/images/default-product.png'">
-              <div class="cart-item-details">
-                  <h3 class="item-name">${item.name}</h3>
-                  <div class="price-info">
-                      <span class="current-price">£${item.price.toFixed(2)}</span>
-                  </div>
-                  <div class="d-flex align-items-center mt-3">
-                      <div class="quantity-control">
-                          <button class="qty-btn minus">−</button>
-                          <input type="number" value="${item.quantity}" min="1" max="99" readonly>
-                          <button class="qty-btn plus">+</button>
-                      </div>
-                      <span class="item-total">£${item.totalPrice.toFixed(2)}</span>
-                  </div>
-              </div>
-              <button class="remove-item" aria-label="Remove item">×</button>
-          </div>`;
-      cartItemsContainer.insertAdjacentHTML("beforeend", itemHtml);
-  });
-
-  this.initializeCartPageControls();
-  this.updateCartPageTotals();
-  this.updateDiscountDisplay(); // Make sure discounts are displayed
-}
+  
 
 initializeCartPageControls() {
   const cartItems = document.querySelectorAll(".cart-item");
