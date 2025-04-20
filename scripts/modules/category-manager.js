@@ -8,18 +8,30 @@ export class CategoryManager {
 
   async init() {
     this.categories = await categoryData.getActiveCategories();
+    console.log("Categories loaded in CategoryManager:", this.categories);
+    
+    // Call navigation initialization after categories are loaded
+    await this.initializeNavigation();
   }
 
  
-
-  async initializeNavigation() {
-    const navMenu = document.querySelector(".nav-menu");
-    const mobileMenuList = document.querySelector("#mobile-menu-list");
-    
-    if (!navMenu && !mobileMenuList) return;
+async initializeNavigation() {
+  console.log("Initializing navigation...");
+  const navMenu = document.querySelector(".nav-menu");
+  const mobileMenuList = document.querySelector("#mobile-menu-list");
   
+  console.log("Nav menu element:", navMenu);
+  console.log("Mobile menu element:", mobileMenuList);
+  
+  if (!navMenu && !mobileMenuList) {
+    console.error("Navigation elements not found in DOM");
+    return;
+  }
     try {
+      console.log("Fetching featured categories...");
       const allFeaturedCategories = await categoryData.getFeaturedCategories();
+      console.log("Featured categories fetched:", allFeaturedCategories);
+      
       const featuredCategories = allFeaturedCategories.slice(
         0,
         this.maxFeaturedCategories
@@ -55,7 +67,7 @@ export class CategoryManager {
             });
   
             sortedChildren.forEach((childCategory) => {
-              if (childCategory.is_active === 1) {
+              if (childCategory.is_active === true) {
                 const childItem = document.createElement("div");
                 childItem.className = "category-dropdown-item";
                 
@@ -75,7 +87,7 @@ export class CategoryManager {
                   subDropdown.className = "category-subdropdown";
   
                   childCategory.child.forEach((grandChild) => {
-                    if (grandChild.is_active === 1) {
+                    if (grandChild.is_active === true) {
                       const grandChildLink = document.createElement("a");
                       grandChildLink.href = `/pages/category/category-page.html?name=${encodeURIComponent(grandChild.name)}`;
                       grandChildLink.textContent = grandChild.name;
@@ -160,7 +172,7 @@ export class CategoryManager {
             submenuList.className = "mobile-menu-list";
   
             category.child.forEach((childCategory) => {
-              if (childCategory.is_active === 1) {
+              if (childCategory.is_active === true) {
                 const childLi = document.createElement("li");
                 childLi.className = "mobile-menu-item";
                 childLi.dataset.categoryId = childCategory.uid;
@@ -203,7 +215,7 @@ export class CategoryManager {
                   childSubmenuList.className = "mobile-menu-list";
   
                   childCategory.child.forEach((grandChild) => {
-                    if (grandChild.is_active === 1) {
+                    if (grandChild.is_active === true) {
                       const grandChildLi = document.createElement("li");
                       grandChildLi.className = "mobile-menu-item";
   
@@ -308,7 +320,7 @@ export class CategoryManager {
 //   const mobileMainCategories = document.getElementById('mobile-main-categories');
 //   const mobileSubCategories = document.getElementById('mobile-sub-categories');
 //   const mobileSubSubCategories = document.getElementById('mobile-sub-sub-categories');
-//   const level1Title = document.getElementById('level-1-title');
+//   const leveltrueTitle = document.getElementById('level-1-title');
 //   const level2Title = document.getElementById('level-2-title');
   
 //   if (!mobileMainCategories) return;

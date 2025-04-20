@@ -40,7 +40,9 @@ export const categoryData = {
     } catch (error) {
       console.error("Error in fetchCategories:", error);
       return [];
+      
     }
+    
   },
 
   async getCategoryByName(name) {
@@ -82,15 +84,36 @@ export const categoryData = {
 
   async getActiveCategories() {
     const categories = await this.fetchCategories();
-    return categories.filter((cat) => cat.is_active === 1);
+    return categories.filter((cat) => cat.is_active === true);
   },
 
   async getFeaturedCategories() {
-    const categories = await this.fetchCategories();
-    return categories.filter(
-      (cat) => cat.is_active === 1 && cat.is_featured === 1
-    );
-  },
+    try {
+      // Force a fresh fetch to ensure we have the latest data
+      const categories = await this.fetchCategories(true);
+      
+      console.log("All categories before filtering:", categories);
+      
+      // Check if categories exist and filter featured ones
+      const featuredCategories = categories.filter(
+        (cat) => cat.is_active === true && cat.is_featured === true
+      );
+      
+      console.log("Filtered featured categories:", featuredCategories);
+      
+      // If no featured categories found, return all active categories as fallback
+      if (featuredCategories.length === false) {
+        console.warn("No featured categories found, using all active categories as fallback");
+        return categories.filter(cat => cat.is_active === true).slice(0, 8);
+      }
+      
+      return featuredCategories;
+    } catch (error) {
+      console.error("Error in getFeaturedCategories:", error);
+      return [];
+    }
+  }
+,  
 
   async getCategory(uid) {
     const categories = await this.fetchCategories();
