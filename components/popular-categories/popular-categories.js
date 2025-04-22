@@ -44,7 +44,7 @@ function createCategoryCard(category) {
     
     card.innerHTML = `
         <div class="circle-background"></div>
-        <img src="${category.thumbnail.path}" alt="${category.name}">
+        <img src="${category.thumbnail.url}" alt="${category.name}">
         <h3>${category.name}</h3>
     `;
     

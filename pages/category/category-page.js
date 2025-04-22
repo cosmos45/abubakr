@@ -886,7 +886,7 @@ class CategoryPage {
           name: stock.name,
           price: stock.price,
           stock_id: stock.uid,
-          imageUrl: stock.attachments?.[0]?.path || "",
+          imageUrl: stock.attachments?.[0]?.url || "",
           oldPrice:
             stock.retail_price !== stock.price ? stock.retail_price : null,
           size: stock.size,

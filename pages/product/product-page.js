@@ -116,7 +116,7 @@ class ProductPage {
       if (productImage) {
         // Set product image if available
         if (this.product.attachments && this.product.attachments.length > 0) {
-          productImage.src = this.product.attachments[0].path;
+          productImage.src = this.product.attachments[0].url;
         } else {
           productImage.src = "/assets/images/placeholder.jpg";
         }

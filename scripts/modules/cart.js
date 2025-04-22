@@ -886,7 +886,7 @@ showToast(message, type = 'success') {
       // Check if item has product with attachments
       if (item.product && item.product.attachments && item.product.attachments.length > 0) {
         // Get the first attachment path and trim any whitespace or newlines
-        const attachmentPath = item.product.attachments[0].path;
+        const attachmentPath = item.product.attachments[0].url;
         if (attachmentPath) {
           productImage = attachmentPath.trim();
         }
@@ -973,7 +973,7 @@ showToast(message, type = 'success') {
         let productImage = '/assets/images/default-product.png';
         
         if (item.product && item.product.attachments && item.product.attachments.length > 0) {
-            const attachmentPath = item.product.attachments[0].path;
+            const attachmentPath = item.product.attachments[0].url;
             if (attachmentPath) {
                 productImage = attachmentPath.trim();
             }

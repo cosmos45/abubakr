@@ -52,7 +52,7 @@ export class SearchService {
 
     try {
       const response = await axiosServices.get("/commerce/products", {
-        params: { query: query },
+        params: { search: query },
       });
 
       // Updated to match products API response structure
@@ -92,7 +92,7 @@ export class SearchService {
   // Helper method to get the image URL from attachments
   getProductImageUrl(product) {
     if (product.attachments && product.attachments.length > 0) {
-      return product.attachments[0].path;
+      return product.attachments[0].url;
     }
     return "/assets/images/default-product.png";
   }
