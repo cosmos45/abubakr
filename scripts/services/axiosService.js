@@ -1,5 +1,5 @@
 (function () {
-    const backendApi = "https://abubakr.flowpos.co.uk/api/";
+    const backendApi = "https://abubakr.flowpos.me/api/";
     // Create an Axios instance with baseURL and default headers
     const axiosServices = axios.create({
       baseURL: backendApi,

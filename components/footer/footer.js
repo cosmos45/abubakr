@@ -7,7 +7,7 @@ export async function initializeFooter() {
         const categories = getCategoriesCache() || await categoryData.getActiveCategories();
         
         // Filter for featured categories
-        const featuredCategories = categories.filter(cat => cat.is_featured === 1);
+        const featuredCategories = categories.filter(cat => cat.is_featured === true);
         
         await populateFooterMenuCategories(featuredCategories);
         await populateFooterPopularCategories(categories);

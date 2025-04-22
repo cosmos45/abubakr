@@ -41,21 +41,21 @@ class CategoryPage {
     try {
       console.debug(`Initializing category page for: ${this.categoryName}`);
       // Initialize loader
-
+  
       this.cart = new Cart();
       await this.cart.init();
       await this.globalSearch.init();
-
+  
       const category = await categoryData.getCategoryByName(this.categoryName);
       if (!category) {
         console.error(`Category not found: ${this.categoryName}`);
         this.showError("Category not found");
         return;
       }
-
+  
       // Initialize cart and category manager
       await Promise.all([this.cart.init(), this.categoryManager.init()]);
-
+  
       // Load components
       await Promise.all([
         loadComponent("header", "/components/header/header.html"),
@@ -65,10 +65,10 @@ class CategoryPage {
       // Initialize mobile menu
       const mobileMenu = new MobileMenu();
       mobileMenu.init();
-
+  
       // Initialize navigation
       this.categoryManager.initializeNavigation();
-
+  
       // Get category details
       this.category = await categoryData.getCategoryByName(this.categoryName);
       if (!this.category) {
@@ -76,27 +76,29 @@ class CategoryPage {
         this.showError("Category not found");
         return;
       }
-
-      // Fetch real-time stock data
-      await this.fetchCategoryStock();
-
+  
       // Render content
       await this.renderCategoryContent();
-
+  
+      // Fetch real-time stock data - This should trigger pagination rendering
+      await this.fetchCategoryStock();
+  
       // Fetch and render filters
       await this.fetchAndRenderFilters();
-
+  
       this.initializeCartIcon();
-
-      // Hide loader when everything is done
-
       this.initializeAddToCart();
+      
+      // Initialize pagination events
+      this.initializePaginationEvents();
+      
       await initializeFooter();
     } catch (error) {
       console.error("Error initializing category page:", error);
       this.showError("Failed to load category");
     }
   }
+  
 
   async fetchAndRenderFilters() {
     try {
@@ -140,11 +142,12 @@ class CategoryPage {
   
     if (!this.pagination) {
       console.error("Pagination data is missing");
+      paginationContainer.innerHTML = ""; // Clear pagination if no data
       return;
     }
   
     const { currentPage, lastPage } = this.pagination;
-    console.log("Pagination data:", { currentPage, lastPage, total: this.pagination.total, perPage: this.pagination.perPage });
+    console.log("Rendering pagination:", { currentPage, lastPage, total: this.pagination.total, perPage: this.pagination.perPage });
   
     if (lastPage <= 1) {
       paginationContainer.innerHTML = ""; // Hide pagination if only one page
@@ -220,8 +223,8 @@ class CategoryPage {
   
     paginationContainer.innerHTML = paginationHTML;
     this.initializePaginationEvents();
-    this.updateFilterOptionsMaxHeight();
   }
+  
   
   
   updateFilterOptionsMaxHeight() {
@@ -333,14 +336,20 @@ class CategoryPage {
   
         // Render products and pagination
         await this.renderProducts(this.products);
-        this.renderPagination();
+        this.renderPagination(); // This is correctly called
       } else {
         console.error("No products found for the category.");
+        // Even if no products, we should clear the pagination
+        document.querySelector(".pagination-container").innerHTML = "";
       }
     } catch (error) {
       console.error("Error fetching category products:", error);
+      // Clear pagination on error
+      document.querySelector(".pagination-container").innerHTML = "";
     }
   }
+  
+
   
   
 
@@ -926,10 +935,10 @@ class CategoryPage {
       );
   
       if (response && response.products) {
-        // Ensure each product has the has_variants property set
+        // Ensure each product has the has_variants property set correctly
         this.products = response.products.map(product => ({
           ...product,
-          has_variants: product.has_variants || false
+          has_variants: product.hasVariants || product.has_variants || false
         }));
         
         this.pagination = response.pagination;
@@ -944,7 +953,6 @@ class CategoryPage {
       console.error("Error applying filters:", error);
     }
   }
-  
   
   
   async renderFilteredProducts(products) {
@@ -969,7 +977,7 @@ class CategoryPage {
         try {
           const productCard = new ProductCard({
             ...product,
-            has_variants: product.has_variants || false, // Add this line to ensure has_variants is set
+            has_variants: product.has_variants || product.hasVariants || false, // Ensure has_variants is set correctly
             addToCart: (quantity) =>
               this.cart.addItem({ ...product, quantity }),
           });
@@ -990,6 +998,7 @@ class CategoryPage {
     this.initializeAddToCart();
   }
   
+  
   async renderProducts(products) {
     const productsGrid = document.querySelector(".products-grid");
     if (!productsGrid) return;
@@ -1009,10 +1018,14 @@ class CategoryPage {
       if (!renderedIds.has(product.id)) {
         renderedIds.add(product.id);
         try {
-          // Ensure has_variants is correctly set
+          // Ensure has_variants is correctly set and logged
+          const hasVariants = Boolean(product.has_variants || product.hasVariants);
+          console.log(`Product ${product.name} has_variants:`, hasVariants);
+          
           const productCard = new ProductCard({
             ...product,
-            has_variants: product.has_variants || false, // Ensure this property exists
+            has_variants: hasVariants,
+            defaultVariantId: product.defaultVariant?.id || null,
             addToCart: (quantity) =>
               this.cart.addItem({ ...product, quantity }),
             imageUrl: product.imageUrl || "/assets/images/placeholder.png",
@@ -1030,6 +1043,7 @@ class CategoryPage {
       }
     }
   }
+  
   
   
 

@@ -219,7 +219,7 @@ export const categoryData = {
 
   async getFilteredCategoryProducts(categoryName, filters = {}, page = 1) {
     try {
-      // Create separate parameters for different filter types
+      // Construct the params object for the API request
       const filterParams = {
         categories: categoryName,
         page: page,
@@ -276,7 +276,8 @@ export const categoryData = {
           oldPrice: product.compare_price,
           brand: product.brand,
           description: product.short_description,
-          hasVariants: product.has_variants,
+          has_variants: product.has_variants, // Make sure to use the original has_variants property
+          hasVariants: product.has_variants, // Keep both for compatibility
           defaultVariant: product.default_variant,
         }));
   
@@ -295,6 +296,7 @@ export const categoryData = {
       throw error;
     }
   }
+  
 };
 
 // Export the cache for direct access if needed

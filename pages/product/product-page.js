@@ -100,7 +100,8 @@ class ProductPage {
       }
       
       // Determine if product has variants
-      this.hasVariants = this.product.choices && this.product.choices.length > 0;
+      this.hasVariants = this.product.has_variants || 
+                        (this.product.choices && this.product.choices.length > 0);
   
       // Populate page elements with product data
       document.title = `${this.product.name} - Abu Bakr Store`;
@@ -166,6 +167,9 @@ class ProductPage {
         oldPriceElement.textContent = `£${this.product.comparePrice}`;
       }
   
+      // Initialize selectedOptions as an empty object
+      this.selectedOptions = {};
+  
       // Render product options if available
       this.renderProductOptions();
       
@@ -205,7 +209,7 @@ class ProductPage {
             <div class="option-items">
               ${choice.items.map(item => `
                 <button class="option-item" 
-                        data-choice="${choice.pchoice__id}" 
+                        data-choice="${choice.pchoice__id || choice.ctype__id}" 
                         data-item="${item.citem__id}">
                   ${item.name}
                 </button>
@@ -222,13 +226,15 @@ class ProductPage {
           const choiceId = e.target.dataset.choice;
           const itemId = e.target.dataset.item;
     
-          // Update selection UI
+          // Update selection UI - only deactivate buttons in the same choice group
           document.querySelectorAll(`[data-choice="${choiceId}"]`)
             .forEach(btn => btn.classList.remove('active'));
           e.target.classList.add('active');
     
           // Update selected options
           this.selectedOptions[choiceId] = itemId;
+          
+          // Update variant price and availability
           this.updateVariantPrice();
           
           // Check if all options are selected and enable/disable button accordingly
@@ -250,7 +256,7 @@ class ProductPage {
       priceInfo.appendChild(stockStatus);
     }
   }
-
+  
   updateVariantPrice() {
     // If product has no variants, use default variant
     if (!this.hasVariants) {
@@ -272,23 +278,24 @@ class ProductPage {
       this.selectedVariant = variant;
       priceElement.textContent = `£${variant.price}`;
       
-      // Update stock status and button state
+      // Update stock status and button state based on variant availability
       if (variant.is_available) {
-        addToCartBtn.disabled = false;
+        this.enableAddToCartButton();
         stockStatus.className = 'stock-status in-stock';
         stockStatus.innerHTML = '<i class="fas fa-check-circle"></i> In Stock';
       } else {
-        addToCartBtn.disabled = true;
+        this.disableAddToCartButton();
         stockStatus.className = 'stock-status out-of-stock';
         stockStatus.innerHTML = '<i class="fas fa-times-circle"></i> Out of Stock';
       }
     } else {
       // No matching variant found
-      addToCartBtn.disabled = true;
+      this.disableAddToCartButton();
       stockStatus.className = 'stock-status out-of-stock';
       stockStatus.innerHTML = '<i class="fas fa-times-circle"></i> Unavailable';
     }
   }
+  
   validateSelections(updateButtonState = false) {
     // If product has no variants, always return true
     if (!this.hasVariants) {
@@ -297,24 +304,34 @@ class ProductPage {
     
     // Check if product has choices that need to be selected
     if (this.product.choices && this.product.choices.length > 0) {
-      const unselectedOptions = this.product.choices.filter(
-        choice => !this.selectedOptions[choice.pchoice__id]
+      const allChoices = this.product.choices.map(choice => choice.pchoice__id || choice.ctype__id);
+      const selectedChoices = Object.keys(this.selectedOptions);
+      
+      // Check if all required choices have been selected
+      const allSelected = allChoices.every(choiceId => 
+        selectedChoices.includes(choiceId.toString())
       );
-
+      
       if (updateButtonState) {
-        if (unselectedOptions.length === 0) {
-          this.enableAddToCartButton();
+        if (allSelected) {
+          // Only enable if the selected variant is available
+          const variant = ProductService.findMatchingVariant(this.product, this.selectedOptions);
+          if (variant && variant.is_available) {
+            this.enableAddToCartButton();
+          } else {
+            this.disableAddToCartButton();
+          }
         } else {
           this.disableAddToCartButton();
         }
       }
-
-      if (unselectedOptions.length > 0) {
-        return false;
-      }
+      
+      return allSelected;
     }
+    
     return true;
   }
+  
   
   enableAddToCartButton() {
     const addToCartBtn = document.querySelector('.add-to-cart-btn');
@@ -372,11 +389,11 @@ class ProductPage {
       addToCartBtn.addEventListener("click", async () => {
         // For products with variants, validate selections first
         if (this.hasVariants && !this.validateSelections()) {
-          const unselectedOptions = this.product.choices.filter(
-            choice => !this.selectedOptions[choice.pchoice__id]
+          const unselectedChoices = this.product.choices.filter(
+            choice => !this.selectedOptions[choice.pchoice__id || choice.ctype__id]
           );
-          if (unselectedOptions.length > 0) {
-            this.showToast(`Please select ${unselectedOptions[0].label}`);
+          if (unselectedChoices.length > 0) {
+            this.showToast(`Please select ${unselectedChoices[0].label}`);
             return;
           }
         }
@@ -404,7 +421,6 @@ class ProductPage {
     
           // Update button text based on result
           addToCartBtn.textContent = success ? "Added!" : "Add to Cart";
-    
         } catch (error) {
           console.error("Error adding to cart:", error);
           addToCartBtn.textContent = "Error";
@@ -412,8 +428,8 @@ class ProductPage {
         } finally {
           // Re-enable button
           if (this.hasVariants) {
-            // Only re-enable if all selections are made
-            if (this.validateSelections()) {
+            // Only re-enable if all selections are made and variant is available
+            if (this.validateSelections() && this.selectedVariant?.is_available) {
               this.enableAddToCartButton();
             } else {
               this.disableAddToCartButton();
@@ -431,6 +447,7 @@ class ProductPage {
       });
     }
   }
+  
 
   
 
@@ -539,4 +556,5 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Failed to initialize product page:", error);
   });
 });
+
 

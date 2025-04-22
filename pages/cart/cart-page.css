@@ -1,3 +1,47 @@
+
+/* Order Mode Styling */
+.order-mode-container {
+    margin-bottom: 1rem;
+  }
+  
+  .order-mode-options {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+  }
+  
+  .order-mode-btn {
+    flex: 1;
+    padding: 10px 15px;
+    background: white;
+    color: #6B8E4E;
+    border: 1px solid #6B8E4E;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+  
+  .order-mode-btn:hover {
+    background: #f5f5f5;
+  }
+  
+  .order-mode-btn.selected {
+    background: #6B8E4E;
+    color: white;
+  }
+  
+  /* Adjust the order of elements in summary */
+  #order-mode-container {
+    order: 1;
+  }
+  
+  #shipping-rates-container {
+    order: 2;
+  }
+  
+
 /* Shipping Rates */
 .shipping-rates {
     padding: 15px 0;
