@@ -26,6 +26,17 @@ body.loading main {
   max-width: 1400px;
   margin: 0 auto;
 }
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+.category-page {
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
 /* Add to your main CSS file */
 .toast {
   position: fixed;
