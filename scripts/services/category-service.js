@@ -174,6 +174,7 @@ export const categoryData = {
         params: {
           categories: categoryName,
           page: page,
+          limit:12,
         },
       });
   

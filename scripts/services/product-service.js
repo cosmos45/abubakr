@@ -9,6 +9,7 @@ static async getSpecialOffersProducts() {
     const response = await axiosServices.get("/commerce/products", {
       params: {
         categories: "Special Offers",
+        
       },
     });
 
@@ -204,6 +205,8 @@ export class ProductServiceCategory {
         params: {
           categories: categoryName,
           page: page,
+          limit:12,
+
         },
       });
       console.log("products", response);
@@ -250,6 +253,7 @@ export class ProductServiceCategory {
       // Construct the params object for the API request
       const params = {
         page: page,
+        limit:12,
         ...filters, // This will include categories and choices parameters
       };
 

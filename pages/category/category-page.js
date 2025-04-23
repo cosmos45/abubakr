@@ -875,6 +875,7 @@ class CategoryPage {
       // Construct the params object for the API request
       const params = {
         page: page,
+        limit:12,
         ...filters, // This will include categories and choices parameters
       };
 
@@ -931,6 +932,7 @@ class CategoryPage {
       const response = await categoryData.getFilteredCategoryProducts(
         this.categoryName,
         filters,
+        
         this.currentPage
       );
   
