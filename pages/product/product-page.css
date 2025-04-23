@@ -68,7 +68,7 @@
 .toast-notification {
     position: fixed;
     bottom: 20px;  /* Changed from top: 20px to bottom: 20px */
-    right: 20px;
+    left: 20px;
     background: #28a745;
     color: white;
     padding: 15px 25px;

@@ -10,13 +10,136 @@
     margin-bottom: 2rem;
 }
 
+/* Enhanced Order Summary Section */
 .order-details-area-wrap {
     background: #fff;
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    position: relative;
+    border-top: 4px solid green;
+    transition: all 0.3s ease;
 }
 
+.order-details-area-wrap h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eaeaea;
+    color: #333;
+}
+
+.order-details-table {
+    margin-top: 1.5rem;
+    width: 100%;
+}
+
+.order-details-table table {
+    width: 100%;
+}
+
+.order-details-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.order-details-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.order-details-table th,
+.order-details-table td {
+    padding: 1rem 0.5rem;
+    vertical-align: middle;
+}
+
+.order-details-table th {
+    font-weight: 500;
+    text-align: left;
+    color: #555;
+    width: 60%;
+}
+
+.order-details-table td {
+    text-align: right;
+    font-weight: 500;
+    color: #333;
+}
+
+.final-total {
+    border-top: 2px solid #000;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.final-total th,
+.final-total td {
+    padding-top: 1.25rem;
+    padding-bottom: 0.5rem;
+}
+
+.total-amount {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: green;
+}
+
+.order-details-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eaeaea;
+}
+
+.form-check {
+    margin-bottom: 1rem;
+}
+
+.form-check-input {
+    margin-top: 0.3rem;
+}
+
+.form-check-input:checked {
+    background-color: green;
+    border-color: green;
+}
+
+.form-check-label {
+    font-size: 0.9rem;
+    color: #555;
+    padding-left: 0.5rem;
+}
+
+.btn-black {
+    background: green;
+    color: #fff;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 4px;
+    width: 100%;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 1rem;
+}
+
+.btn-black:hover {
+    background: #006400;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-black:active {
+    transform: translateY(0);
+}
+
+.btn-black:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Keep existing styles */
 .form-group {
     margin-bottom: 1.5rem;
 }
@@ -41,40 +164,6 @@ label.required:after {
     background: #f8f9fa;
 }
 
-.order-details-table {
-    margin-top: 1.5rem;
-}
-
-.final-total {
-    border-top: 2px solid #000;
-    font-size: 1.2rem;
-    font-weight: bold;
-}
-
-.btn-black {
-    background:     green;
-    color: #fff;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 4px;
-    width: 100%;
-    transition: all 0.3s ease;
-}
-
-.btn-black:hover {
-    background: #333;
-    color: #fff;
-}
-
-.btn-black:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.form-check-label {
-    font-size: 0.9rem;
-}
-
 .alert {
     margin-top: 1rem;
     display: none;
@@ -82,4 +171,25 @@ label.required:after {
 
 .alert.show {
     display: block;
+}
+
+/* Responsive adjustments for order summary */
+@media (max-width: 991px) {
+    .order-details-area-wrap {
+        margin-top: 2rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .order-details-area-wrap {
+        padding: 1.5rem;
+    }
+    
+    .total-amount {
+        font-size: 1.2rem;
+    }
+    
+    .btn-black {
+        padding: 0.75rem 1.5rem;
+    }
 }

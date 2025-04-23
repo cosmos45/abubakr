@@ -312,11 +312,11 @@ body.sticky-header .header-container {
 
 
   .add-to-cart-btn {
-    background: var(--top-bar-green);
+    background: #28a745;
     color: white;
     border: none;
     border-radius: 2px;
-    padding: 6px 30px;
+    padding: 16px 30px;
     cursor: pointer;
     font-size: 14px;
     white-space: nowrap;
