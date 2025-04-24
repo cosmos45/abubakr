@@ -13,7 +13,6 @@ export async function initializeMostPopular() {
         slider.innerHTML = '<div class="loading">Loading dairy products...</div>';
         
         const dairyProducts = await ProductService.getDairyProducts();
-        console.log('dairyProducts', dairyProducts)
         
         if (!dairyProducts?.length) {
             slider.innerHTML = '<div class="no-products">No dairy products available</div>';

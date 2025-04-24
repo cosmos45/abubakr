@@ -411,7 +411,6 @@ class ProductPage {
           const variantId = this.hasVariants 
             ? this.selectedVariant?.pvariant__id 
             : this.product.default_variant?.pvariant__id;
-          
           // Add to cart using the Cart class method
           const success = await this.cart.addToBasket(
             this.productId, 

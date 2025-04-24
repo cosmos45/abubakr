@@ -2,7 +2,6 @@
 
 export class SearchService {
   constructor() {
-    console.log("Initializing SearchService...");
     this.products = [];
     this.initialized = false;
   }
@@ -13,9 +12,7 @@ export class SearchService {
     try {
       await this.loadProducts();
       this.initialized = true;
-      console.log(
-        `SearchService initialized with ${this.products.length} products`
-      );
+     
     } catch (error) {
       console.error("Error initializing SearchService:", error);
     }
@@ -28,7 +25,6 @@ export class SearchService {
       // Updated to match products API response structure
       if (response.data && response.data && response.data.products.data) {
         this.products = response.data.products.data;
-        console.log("Products loaded:", this.products.length);
       } else {
         console.warn("Unexpected API response structure:", response.data);
         this.products = [];
@@ -59,7 +55,6 @@ export class SearchService {
       let results = [];
       if (response.data && response.data && response.data.products.data) {
         results = response.data.products.data;
-        console.log("Search results found:", results.length);
       } else {
         console.warn(
           "Unexpected search API response structure:",

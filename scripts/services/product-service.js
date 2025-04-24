@@ -15,7 +15,6 @@ static async getSpecialOffersProducts() {
 
 
     if (response.status && response.data.products.data) {
-      console.log('responseNew', response.data.products.data.has_variants)
       return response.data.products.data.map((product) => ({
         id: product.uid,
         name: product.name,
@@ -209,7 +208,6 @@ export class ProductServiceCategory {
 
         },
       });
-      console.log("products", response);
 
       if (response.status && response.data.products.data) {
         const pagination = {
@@ -257,7 +255,6 @@ export class ProductServiceCategory {
         ...filters, // This will include categories and choices parameters
       };
 
-      console.log("API request params:", params);
 
       const response = await axiosServices.get("/commerce/products", {
         params,

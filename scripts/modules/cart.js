@@ -11,7 +11,6 @@ export class Cart {
   constructor() {
     // Check if instance already exists and return it
     if (Cart.instance) {
-      console.log("Cart instance already exists, returning existing instance");
       return Cart.instance;
     }
 
@@ -35,7 +34,6 @@ export class Cart {
 
   async init() {
     if (this.initialized) {
-      console.log("Cart already initialized, skipping initialization");
       return true;
     }
 
@@ -47,13 +45,10 @@ export class Cart {
       // Use cached basket response if available, or fetch it only once
       let basketResponse;
       if (Cart.basketResponse) {
-        console.log("Using cached basket response");
         basketResponse = Cart.basketResponse;
       } else if (Cart.basketPromise) {
-        console.log("Waiting for existing basket request to complete");
         basketResponse = await Cart.basketPromise;
       } else {
-        console.log("Fetching basket data for the first time");
         // Create a promise for the basket request that can be shared
         Cart.basketPromise = axiosServices.get("/commerce/basket");
         basketResponse = await Cart.basketPromise;
@@ -128,7 +123,6 @@ export class Cart {
 
       this.bindEvents();
       this.initialized = true;
-      console.log("Cart initialization completed");
       return true;
     } catch (error) {
       console.error("Error initializing cart:", error);
@@ -242,13 +236,10 @@ export class Cart {
       // Use cached shipping rates if available
       let shippingRatesResponse;
       if (Cart.shippingRatesResponse) {
-        console.log("Using cached shipping rates");
         shippingRatesResponse = Cart.shippingRatesResponse;
       } else if (Cart.shippingRatesPromise) {
-        console.log("Waiting for existing shipping rates request to complete");
         shippingRatesResponse = await Cart.shippingRatesPromise;
       } else {
-        console.log("Fetching shipping rates for the first time");
         // Create a promise for the shipping rates request that can be shared
         Cart.shippingRatesPromise = axiosServices.get(
           "/commerce/shipping-rates"
@@ -535,7 +526,6 @@ export class Cart {
     // Create a new refresh promise
     this.refreshPromise = new Promise(async (resolve) => {
       try {
-        console.log("Refreshing basket...");
         const response = await axiosServices.get("/commerce/basket");
         if (response.status && response.data.basket) {
           const basketData = response.data.basket;
@@ -750,12 +740,7 @@ export class Cart {
     );
     existingDiscountRows.forEach((row) => row.remove());
 
-    console.log("Updating discount display:", {
-      discount: this.discount,
-      discountAmount: this.discountAmount,
-      totalDiscount: this.totalDiscount,
-    });
-
+   
     // Only show discount if there is a discount amount and discount object
     if (this.discount && this.discount.name && this.discountAmount > 0) {
       // Create discount row element

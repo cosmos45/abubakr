@@ -8,7 +8,6 @@ export class CategoryManager {
 
   async init() {
     this.categories = await categoryData.getActiveCategories();
-    console.log("Categories loaded in CategoryManager:", this.categories);
     
     // Call navigation initialization after categories are loaded
     await this.initializeNavigation();
@@ -16,21 +15,16 @@ export class CategoryManager {
 
  
 async initializeNavigation() {
-  console.log("Initializing navigation...");
   const navMenu = document.querySelector(".nav-menu");
   const mobileMenuList = document.querySelector("#mobile-menu-list");
   
-  console.log("Nav menu element:", navMenu);
-  console.log("Mobile menu element:", mobileMenuList);
   
   if (!navMenu && !mobileMenuList) {
     console.error("Navigation elements not found in DOM");
     return;
   }
     try {
-      console.log("Fetching featured categories...");
       const allFeaturedCategories = await categoryData.getFeaturedCategories();
-      console.log("Featured categories fetched:", allFeaturedCategories);
       
       const featuredCategories = allFeaturedCategories.slice(
         0,

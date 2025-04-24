@@ -104,7 +104,6 @@ class CategoryPage {
     try {
       console.debug("Fetching filter data");
       const filterResponse = await FilterService.getFilters();
-      console.log("filters", filterResponse);
 
       if (!filterResponse) {
         console.error("Invalid filter response:", filterResponse);
@@ -147,7 +146,6 @@ class CategoryPage {
     }
   
     const { currentPage, lastPage } = this.pagination;
-    console.log("Rendering pagination:", { currentPage, lastPage, total: this.pagination.total, perPage: this.pagination.perPage });
   
     if (lastPage <= 1) {
       paginationContainer.innerHTML = ""; // Hide pagination if only one page
@@ -233,7 +231,6 @@ class CategoryPage {
       filterOptions.forEach((option) => {
         option.style.maxHeight = "800px";
       });
-      console.log("Filter options max height increased to 600px");
     }
   }
 
@@ -252,7 +249,6 @@ class CategoryPage {
       if (!pageLink) return;
 
       const newPage = parseInt(pageLink.dataset.page);
-      console.log("Pagination clicked, new page:", newPage);
 
       if (
         isNaN(newPage) ||
@@ -264,7 +260,6 @@ class CategoryPage {
       }
 
       this.currentPage = newPage;
-      console.log("Setting current page to:", this.currentPage);
 
       // Check if we have active filters (including category filters)
       if (this.activeFilters.size > 0) {
@@ -321,10 +316,8 @@ class CategoryPage {
         this.categoryName,
         this.currentPage
       );
-      console.log("Products response:", response);
   
       if (response && response.products) {
-        console.log('res', response.products)
         // Ensure each product has the has_variants property set
         this.products = response.products.map(product => ({
           ...product,
@@ -332,7 +325,6 @@ class CategoryPage {
         }));
         
         this.pagination = response.pagination;
-        console.log("Pagination data:", this.pagination);
   
         // Render products and pagination
         await this.renderProducts(this.products);
@@ -528,7 +520,6 @@ class CategoryPage {
   async initializeFilters() {
     try {
       const filterResponse = await FilterService.getFilters();
-      console.log("Filters", filterResponse);
 
       // The API response has a nested data structure
       // filterResponse = {status, message, data}
@@ -879,7 +870,6 @@ class CategoryPage {
         ...filters, // This will include categories and choices parameters
       };
 
-      console.log("API request params:", params);
 
       const response = await axiosServices.get(`/commerce/stock`, { params });
 
@@ -1005,7 +995,6 @@ class CategoryPage {
     const productsGrid = document.querySelector(".products-grid");
     if (!productsGrid) return;
   
-    console.log("Rendering products:", products);
   
     if (products.length === 0) {
       productsGrid.innerHTML =
@@ -1017,20 +1006,26 @@ class CategoryPage {
     const renderedIds = new Set();
   
     for (const product of products) {
-      if (!renderedIds.has(product.id)) {
-        renderedIds.add(product.id);
+      if (!renderedIds.has(product.id || product.uid)) {
+        renderedIds.add(product.id || product.uid);
         try {
-          // Ensure has_variants is correctly set and logged
+          // Ensure has_variants is correctly set
           const hasVariants = Boolean(product.has_variants || product.hasVariants);
-          console.log(`Product ${product.name} has_variants:`, hasVariants);
+          
+          // Always extract the default variant ID, even for products without variants
+          const defaultVariantId = product.default_variant?.pvariant__id || null;
+          
+         
           
           const productCard = new ProductCard({
             ...product,
+            id: product.id || product.uid,
+            stock_id: product.stock_id || product.uid,
             has_variants: hasVariants,
-            defaultVariantId: product.defaultVariant?.id || null,
+            defaultVariantId: defaultVariantId,
             addToCart: (quantity) =>
               this.cart.addItem({ ...product, quantity }),
-            imageUrl: product.imageUrl || "/assets/images/placeholder.png",
+            imageUrl: product.imageUrl || (product.attachments && product.attachments[0] ? product.attachments[0].url : "/assets/images/placeholder.png"),
           });
           
           const cardHtml = await productCard.render();
@@ -1045,6 +1040,8 @@ class CategoryPage {
       }
     }
   }
+  
+  
   
   
   

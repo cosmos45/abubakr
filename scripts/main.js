@@ -39,10 +39,8 @@ async function initializeApp() {
         console.error("Cart failed to initialize");
         return;
       }
-      console.log("Cart initialized successfully");
     } else {
       cart = window.globalCart; // Use existing global reference
-      console.log("Using existing cart instance");
     }
 
     const categoryManager = new CategoryManager();
@@ -439,7 +437,6 @@ function initializeCartIcon() {
 document.addEventListener("DOMContentLoaded", initializeApp);
 
 async function initializeFreshFinds() {
-  console.log("Main.js initializeFreshFinds called");
   const slider = document.getElementById("fresh-finds-slider");
   if (!slider) {
     console.warn("Fresh finds slider not found");
@@ -451,9 +448,7 @@ async function initializeFreshFinds() {
       '<div class="loading">Loading Chinese cuisine products...</div>';
 
     // Use Chinese products instead of Special Offers
-    console.log("Fetching Chinese products from main.js");
     const products = await ProductService.getChineseProducts();
-    console.log("Chinese products:", products);
 
     if (!products?.length) {
       console.warn("No Chinese products available");

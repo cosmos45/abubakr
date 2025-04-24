@@ -9,22 +9,18 @@ export const categoryData = {
     try {
       // If we already have categories and no force refresh, return the cached data
       if (categoriesCache && !forceRefresh) {
-        console.log("Using cached categories data");
         return categoriesCache;
       }
 
       // If there's already a fetch in progress, return that promise
       if (fetchPromise) {
-        console.log("Using existing categories fetch promise");
         return fetchPromise;
       }
 
       // Start a new fetch
-      console.log("Fetching categories from API");
       fetchPromise = axiosServices
         .get("/commerce/categories")
         .then((response) => {
-          console.log("cats", response);
           const categories = response.data.categories || [];
           categoriesCache = categories;
           fetchPromise = null;
@@ -40,9 +36,7 @@ export const categoryData = {
     } catch (error) {
       console.error("Error in fetchCategories:", error);
       return [];
-      
     }
-    
   },
 
   async getCategoryByName(name) {
@@ -91,30 +85,28 @@ export const categoryData = {
     try {
       // Force a fresh fetch to ensure we have the latest data
       const categories = await this.fetchCategories(true);
-      
-      console.log("All categories before filtering:", categories);
-      
+
+
       // Check if categories exist and filter featured ones
       const featuredCategories = categories.filter(
         (cat) => cat.is_active === true && cat.is_featured === true
       );
-      
-      console.log("Filtered featured categories:", featuredCategories);
-      
+
+
       // If no featured categories found, return all active categories as fallback
       if (featuredCategories.length === false) {
-        console.warn("No featured categories found, using all active categories as fallback");
-        return categories.filter(cat => cat.is_active === true).slice(0, 8);
+        console.warn(
+          "No featured categories found, using all active categories as fallback"
+        );
+        return categories.filter((cat) => cat.is_active === true).slice(0, 8);
       }
-      
+
       return featuredCategories;
     } catch (error) {
       console.error("Error in getFeaturedCategories:", error);
       return [];
     }
-  }
-,  
-
+  },
   async getCategory(uid) {
     const categories = await this.fetchCategories();
 
@@ -157,7 +149,6 @@ export const categoryData = {
   // Method to prefetch categories at app startup
   async prefetchCategories() {
     if (!categoriesCache) {
-      console.log("Prefetching categories data");
       return this.fetchCategories();
     }
     return categoriesCache;
@@ -169,26 +160,25 @@ export const categoryData = {
       console.debug(
         `Fetching products for category: ${categoryName}, page: ${page}`
       );
-  
+
       const response = await axiosServices.get("/commerce/products", {
         params: {
           categories: categoryName,
           page: page,
-          limit:12,
+          limit: 12,
         },
       });
-  
+
       if (response.status && response.data.products) {
         const productsData = response.data.products;
-    
-        
+
         const pagination = {
           currentPage: productsData.current_page,
           lastPage: productsData.last_page,
           total: productsData.total,
           perPage: productsData.per_page,
         };
-  
+
         const products = productsData.data.map((product) => ({
           id: product.uid,
           name: product.name,
@@ -201,13 +191,13 @@ export const categoryData = {
           has_variants: product.has_variants,
           defaultVariant: product.default_variant,
         }));
-  
+
         return {
           products,
           pagination,
         };
       }
-  
+
       return {
         products: [],
         pagination: null,
@@ -224,8 +214,9 @@ export const categoryData = {
       const filterParams = {
         categories: categoryName,
         page: page,
+        limit:12,
       };
-  
+
       // Process all active filters
       Object.entries(filters).forEach(([filterType, values]) => {
         if (filterType === "Size" || filterType === "Colour") {
@@ -246,28 +237,29 @@ export const categoryData = {
             : values;
         }
       });
-  
+
       // Convert choices array to comma-separated string if it exists
       if (filterParams.choices && filterParams.choices.length > 0) {
         filterParams.choices = filterParams.choices.join(",");
       }
-  
+
       console.debug("Filter parameters:", filterParams);
-  
+
       const response = await axiosServices.get("/commerce/products", {
         params: filterParams,
+        limit:12,
       });
-  
+
       if (response.status && response.data.products) {
         const productsData = response.data.products;
-        
+
         const pagination = {
           currentPage: productsData.current_page,
           lastPage: productsData.last_page,
           total: productsData.total,
           perPage: productsData.per_page,
         };
-  
+
         const products = productsData.data.map((product) => ({
           id: product.uid,
           name: product.name,
@@ -281,13 +273,13 @@ export const categoryData = {
           hasVariants: product.has_variants, // Keep both for compatibility
           defaultVariant: product.default_variant,
         }));
-  
+
         return {
           products,
           pagination,
         };
       }
-  
+
       return {
         products: [],
         pagination: null,
@@ -296,8 +288,7 @@ export const categoryData = {
       console.error("Error fetching filtered category products:", error);
       throw error;
     }
-  }
-  
+  },
 };
 
 // Export the cache for direct access if needed

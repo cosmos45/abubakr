@@ -43,7 +43,6 @@ export class CheckoutManager {
       }
       async init() {
         try {
-          console.log("CheckoutManager: Initializing...");
           this.loader.show("Initializing checkout...");
           
           // Initialize cart only if not already initialized
@@ -80,7 +79,6 @@ export class CheckoutManager {
       
 
       setupAddressFieldsListeners() {
-        console.log("CheckoutManager: Setting up address fields listeners");
         const addressFields = ["address1", "address2", "city", "county", "postcode", "country"];
         
         addressFields.forEach((field) => {
@@ -96,7 +94,6 @@ export class CheckoutManager {
       }
 
       validateAddressFields() {
-        console.log("CheckoutManager: Validating address fields");
         const address1 = document.getElementById("address1").value.trim();
         const city = document.getElementById("city").value.trim();
         const county = document.getElementById("county").value.trim();
@@ -200,7 +197,6 @@ export class CheckoutManager {
       
 
        populateCustomerFields() {
-        console.log("CheckoutManager: Populating customer fields from checkout data");
         
         if (this.checkoutData?.basket) {
           const basket = this.checkoutData.basket;
@@ -223,7 +219,6 @@ export class CheckoutManager {
             phoneField.value = basket.customer_phone;
           }
           
-          console.log("CheckoutManager: Customer fields populated successfully");
         } else {
           console.log("CheckoutManager: No basket data available to populate customer fields");
         }
@@ -272,7 +267,6 @@ export class CheckoutManager {
         if (!this.checkoutData) {
           const response = await axiosServices.get("/commerce/checkout");
           this.checkoutData = response.data;
-          console.log('checkoutdata', response)
           return this.checkoutData;
           
         }
@@ -280,7 +274,6 @@ export class CheckoutManager {
       }
 
     setupCustomerDetailsListeners() {
-        console.log("CheckoutManager: Setting up customer details listeners");
         const customerFields = ["name", "email", "phone"];
         
         customerFields.forEach((field) => {
@@ -461,7 +454,6 @@ export class CheckoutManager {
           this.cardElement.mount("#card-element");
           this.setupCardValidation();
           
-          console.log("CheckoutManager: Stripe initialized successfully");
         } catch (error) {
           console.error("CheckoutManager: Stripe initialization failed:", error);
           this.showError("Failed to initialize payment system. Please try again later.");
@@ -508,7 +500,6 @@ export class CheckoutManager {
         }
     }
     populateAddressFields() {
-        console.log("CheckoutManager: Populating address fields from checkout data");
         
         if (this.checkoutData?.basket) {
           const basket = this.checkoutData.basket;
@@ -548,9 +539,7 @@ export class CheckoutManager {
               countryField.value = basket.address.country;
             }
             
-            console.log("CheckoutManager: Address fields populated successfully");
           } else {
-            console.log("CheckoutManager: No address data available to populate fields");
           }
         } else {
           console.log("CheckoutManager: No basket data available to populate address fields");
@@ -724,6 +713,5 @@ export class CheckoutManager {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("CheckoutManager: Initializing on page load");
     window.checkoutManager = new CheckoutManager();
 });

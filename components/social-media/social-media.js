@@ -1,5 +1,4 @@
 export function initializeSocialMedia() {
-    console.log("Initializing social media embeds");
     
     // Add loading indicators
     document.querySelectorAll('.embed-placeholder').forEach(placeholder => {

@@ -7,8 +7,12 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    height: 400px;
+    height: 350px;
     box-sizing: border-box;
+      text-align: center; /* Center the product name */
+      margin: 0 0 5px 0; /* Reduced bottom margin */
+
+
   }
   
   .product-link {
@@ -52,11 +56,13 @@
   }
   
   .price-container {
-    margin-top: auto;
-    margin-bottom: 0.5rem;
+    margin-top: 10px; /* Remove top margin to eliminate gap */
+    margin-bottom: 0; /* Remove bottom margin to eliminate gap */
     height: 1.5rem;
     display: flex;
     align-items: center;
+    justify-content: center; /* Center the price container */
+
   }
   
   .price {
@@ -64,6 +70,7 @@
     font-size: 1rem;
     font-weight: 500;
     font-family: Avenir, sans-serif;
+    text-align: center; /* Ensure price text is centered */
   }
   
   .old-price {
@@ -76,7 +83,7 @@
   /* Action containers */
   .standard-product-actions,
   .variant-product-actions {
-    margin-top: auto;
+    margin-top: 0.5rem; /* Add small top margin for spacing */
     display: none; /* Change from none to block */
   }
   
@@ -145,14 +152,14 @@
     }
     
     .product-image {
-      height: 100px;
+      height: 150px;
       margin-bottom: 0.4rem;
     }
     
     .product-name {
       font-size: 0.8rem;
+      margin: 0 0 3px 0; /* Even smaller margin for mobile */
     }
-    
     .price {
       font-size: 0.85rem;
     }
