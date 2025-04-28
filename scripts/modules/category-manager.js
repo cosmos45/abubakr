@@ -8,7 +8,6 @@ export class CategoryManager {
   }
 
   async init() {
-    this.categories = await categoryData.getActiveCategories();
     
     // Call navigation initialization after categories are loaded
     await this.initializeNavigation();

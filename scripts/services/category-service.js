@@ -92,7 +92,7 @@ export const categoryData = {
 
   async getActiveCategories() {
     const categories = await this.fetchCategories();
-    return categories.filter((cat) => cat.is_active === true);
+    return categories.filter((cat) => cat.is_featured === true);
   },
 
   async getFeaturedCategories() {
