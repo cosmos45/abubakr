@@ -1,0 +1,231 @@
+[
+    {
+      "name": "World Foods",
+      "slug": "world-foods",
+      "child": [
+        {
+          "name": "Taste of Africa",
+          "slug": "taste-of-africa",
+          "child": []
+        },
+        {
+          "name": "Taste of the Far East",
+          "slug": "taste-of-the-far-east",
+          "child": []
+        },
+        {
+          "name": "Taste of Middle East",
+          "slug": "taste-of-middle-east",
+          "child": []
+        },
+        {
+          "name": "Taste of Bangladesh",
+          "slug": "taste-of-bangladesh",
+          "child": []
+        },
+        {
+          "name": "Taste Of Punjab",
+          "slug": "taste-of-punjab",
+          "child": []
+        },
+        {
+          "name": "South Indian Range",
+          "slug": "south-indian-range",
+          "child": []
+        },
+        {
+          "name": "Taste of Pakistan",
+          "slug": "taste-of-pakistan",
+          "child": []
+        }
+      ]
+    },
+    {
+      "name": "Home & Health",
+      "slug": "home-health",
+      "child": [
+        {
+          "name": "Homeware",
+          "slug": "homeware",
+          "child": []
+        },
+        {
+          "name": "Cleaning",
+          "slug": "cleaning",
+          "child": []
+        },
+        {
+          "name": "Health & Medicine",
+          "slug": "health-medicine",
+          "child": []
+        },
+        {
+          "name": "Baby & Toddler",
+          "slug": "baby-toddler",
+          "child": []
+        },
+        {
+          "name": "Feminine Care",
+          "slug": "feminine-care",
+          "child": []
+        }
+      ]
+    },
+    {
+      "name": "Fresh Produce",
+      "slug": "fresh-produce",
+      "child": [
+        {
+          "name": "Vegetables",
+          "slug": "vegetables",
+          "child": [
+            {
+              "name": "Potatoes, Sweet Potatoes & Onions",
+              "slug": "potatoes-sweet-potatoes-onions",
+              "child": []
+            },
+            {
+              "name": "Fresh Tomatoes, Cucumbers, Peppers & Salads",
+              "slug": "fresh-tomatoes-cucumbers-peppers-salads",
+              "child": []
+            }
+          ]
+        },
+        {
+          "name": "Fruits",
+          "slug": "fruits",
+          "child": [
+            {
+              "name": "Peaches, Nectarines, Plums & Apricots",
+              "slug": "peaches-nectarines-plums-apricots",
+              "child": []
+            },
+            {
+              "name": "Oranges Lemons & Citrus Fruits",
+              "slug": "oranges-lemons-citrus-fruits",
+              "child": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Rice, Flour & Lentils",
+      "slug": "rice-flour-lentils",
+      "child": [
+        {
+          "name": "Rice",
+          "slug": "rice",
+          "child": [
+            {
+              "name": "Basmati Rice",
+              "slug": "basmati-rice",
+              "child": []
+            },
+            {
+              "name": "Long Grain & Sela Rice",
+              "slug": "long-grain-sela-rice",
+              "child": []
+            }
+          ]
+        },
+        {
+          "name": "Flour",
+          "slug": "flour",
+          "child": [
+            {
+              "name": "Chapatti Flour",
+              "slug": "chapatti-flour",
+              "child": []
+            }
+          ]
+        },
+        {
+          "name": "Lentils and Pulses",
+          "slug": "lentils-and-pulses",
+          "child": [
+            {
+              "name": "Red Lentils",
+              "slug": "red-lentils",
+              "child": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Butcher's Shop",
+      "slug": "butchers-shop",
+      "child": [
+        {
+          "name": "Halal Beef",
+          "slug": "halal-beef",
+          "child": []
+        },
+        {
+          "name": "Steaks",
+          "slug": "steaks",
+          "child": []
+        },
+        {
+          "name": "Mince",
+          "slug": "mince",
+          "child": []
+        }
+      ]
+    },
+    {
+      "name": "Cooking, Table & Rock Salt",
+      "slug": "cooking-table-rock-salt",
+      "child": [
+        {
+          "name": "Pink Salt",
+          "slug": "pink-salt",
+          "child": []
+        },
+        {
+          "name": "Black Salt",
+          "slug": "black-salt",
+          "child": []
+        }
+      ]
+    },
+    {
+      "name": "Salt, Seasoning & Coatings",
+      "slug": "salt-seasoning-coatings",
+      "child": [
+        {
+          "name": "Seasoning and Coatings",
+          "slug": "seasoning-and-coatings",
+          "child": []
+        },
+        {
+          "name": "Flavour Enhancers",
+          "slug": "flavour-enhancers",
+          "child": []
+        }
+      ]
+    },
+    {
+      "name": "Spice Bazaar",
+      "slug": "spice-bazaar",
+      "child": [
+        {
+          "name": "Herbal Spices",
+          "slug": "herbal-spices",
+          "child": []
+        },
+        {
+          "name": "Whole Spices",
+          "slug": "whole-spices",
+          "child": []
+        },
+        {
+          "name": "Ground Spices",
+          "slug": "ground-spices",
+          "child": []
+        }
+      ]
+    }
+  ]
+  

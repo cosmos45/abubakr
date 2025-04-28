@@ -1,4 +1,5 @@
 import { categoryData } from "../services/category-service.js";
+import { navbarCategoryData } from "../services/category-service.js";
 
 export class CategoryManager {
   constructor() {
@@ -24,14 +25,10 @@ async initializeNavigation() {
     return;
   }
     try {
-      const allFeaturedCategories = await categoryData.getFeaturedCategories();
+      // const allFeaturedCategories = await categoryData.getFeaturedCategories();
       
-      const featuredCategories = allFeaturedCategories.slice(
-        0,
-        this.maxFeaturedCategories
-      );
-  
-      // Initialize desktop navigation
+      const featuredCategories = await navbarCategoryData.fetchNavbarCategories();
+      
       if (navMenu) {
         // Clear existing menu items except mobile-profile
         const mobileProfile = navMenu.querySelector(".mobile-profile");
@@ -61,7 +58,7 @@ async initializeNavigation() {
             });
   
             sortedChildren.forEach((childCategory) => {
-              if (childCategory.is_active === true) {
+              if (childCategory) {
                 const childItem = document.createElement("div");
                 childItem.className = "category-dropdown-item";
                 
@@ -81,7 +78,7 @@ async initializeNavigation() {
                   subDropdown.className = "category-subdropdown";
   
                   childCategory.child.forEach((grandChild) => {
-                    if (grandChild.is_active === true) {
+                    if (grandChild) {
                       const grandChildLink = document.createElement("a");
                       grandChildLink.href = `/pages/category/category-page.html?name=${encodeURIComponent(grandChild.name)}`;
                       grandChildLink.textContent = grandChild.name;
@@ -166,7 +163,7 @@ async initializeNavigation() {
             submenuList.className = "mobile-menu-list";
   
             category.child.forEach((childCategory) => {
-              if (childCategory.is_active === true) {
+              if (childCategory) {
                 const childLi = document.createElement("li");
                 childLi.className = "mobile-menu-item";
                 childLi.dataset.categoryId = childCategory.uid;
@@ -209,7 +206,7 @@ async initializeNavigation() {
                   childSubmenuList.className = "mobile-menu-list";
   
                   childCategory.child.forEach((grandChild) => {
-                    if (grandChild.is_active === true) {
+                    if (grandChild) {
                       const grandChildLi = document.createElement("li");
                       grandChildLi.className = "mobile-menu-item";
   

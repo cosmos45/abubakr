@@ -4,6 +4,20 @@
 let categoriesCache = null;
 let fetchPromise = null;
 
+
+
+
+export const navbarCategoryData = {
+  async fetchNavbarCategories() {
+    if (!this.cache) {
+      this.cache = fetch('/scripts/services/navbar-categories.json')
+        .then(res => res.json())
+        .catch(() => []);
+    }
+    return this.cache;
+  }
+};
+
 export const categoryData = {
   async fetchCategories(forceRefresh = false) {
     try {
@@ -61,8 +75,8 @@ export const categoryData = {
 
       // If not found in cache, try direct API call as fallback
       if (!category) {
-        const response = await axiosServices.get("/commerce/categories", {
-          params: { name: name },
+        const response = await axiosServices.get("/commerce/products", {
+          params: { categories: name },
         });
         if (response.status && response.data.categories) {
           return response.data.categories.find((cat) => cat.name === name);
@@ -158,6 +172,9 @@ export const categoryData = {
   async getCategoryProducts(categoryName, page = 1) {
     try {
       console.debug(
+        `Fetching products for category: ${categoryName}, page: ${page}`
+      );
+      console.log(
         `Fetching products for category: ${categoryName}, page: ${page}`
       );
 

@@ -94,7 +94,6 @@ class ProductPage {
       this.setupImageLoader();
   
       this.product = await ProductService.getProductById(this.productId);
-  
       if (!this.product) {
         throw new Error("Product not found");
       }

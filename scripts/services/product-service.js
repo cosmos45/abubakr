@@ -57,6 +57,7 @@ static async getSpecialOffersProducts() {
           categories: product.categories || [],
           has_variants: product.has_variants,
           default_variant: product.default_variant || null,
+          description: product.description || null,
         };
       }
       return null;

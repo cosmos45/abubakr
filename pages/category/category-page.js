@@ -46,13 +46,7 @@ class CategoryPage {
       await this.cart.init();
       await this.globalSearch.init();
   
-      const category = await categoryData.getCategoryByName(this.categoryName);
-      if (!category) {
-        console.error(`Category not found: ${this.categoryName}`);
-        this.showError("Category not found");
-        return;
-      }
-  
+   
       // Initialize cart and category manager
       await Promise.all([this.cart.init(), this.categoryManager.init()]);
   
@@ -61,6 +55,7 @@ class CategoryPage {
         loadComponent("header", "/components/header/header.html"),
         loadComponent("footer", "/components/footer/footer.html"),
       ]);
+      
       initializeStickyHeader();
       // Initialize mobile menu
       const mobileMenu = new MobileMenu();
@@ -72,9 +67,8 @@ class CategoryPage {
       // Get category details
       this.category = await categoryData.getCategoryByName(this.categoryName);
       if (!this.category) {
-        console.error("Category not found:", this.categoryName);
-        this.showError("Category not found");
-        return;
+        // Fallback: still allow page to load, just use the name from the URL
+        this.category = { name: this.categoryName };
       }
   
       // Render content

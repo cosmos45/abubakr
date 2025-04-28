@@ -1,5 +1,6 @@
 // scripts/modules/mobile-menu.js
 import { categoryData } from "../services/category-service.js";
+import { navbarCategoryData } from "../services/category-service.js";
 
 export class MobileMenu {
   constructor() {
@@ -24,13 +25,13 @@ export class MobileMenu {
     if (!mobileMenuList) return;
     
     try {
-      const categories = await categoryData.getFeaturedCategories();
+      const categories = await navbarCategoryData.fetchNavbarCategories();
       
       // Clear existing menu items
       mobileMenuList.innerHTML = "";
       
       // Populate with categories
-      categories.slice(0, 5).forEach((category) => {
+      categories.slice(0, 10).forEach((category) => {
         const li = document.createElement("li");
         li.className = "mobile-menu-item";
         li.dataset.categoryId = category.uid;
@@ -59,11 +60,7 @@ export class MobileMenu {
     }
   }
   
-  createSubmenu(parentLi, category) {
-    // Create submenu implementation
-    // (Add the code to create submenu structure)
-  }
-  
+ 
 // Add this to your MobileMenu class
 setupSubmenuListeners() {
   document.querySelectorAll('.mobile-menu-item').forEach(item => {
@@ -92,17 +89,16 @@ setupSubmenuListeners() {
     }
   });
 }
-
 createSubmenu(parentLi, category) {
   // Create submenu container
   const submenu = document.createElement("div");
   submenu.className = "mobile-submenu";
-  submenu.id = `submenu-${category.uid}`;
-  
+  submenu.id = `submenu-${category.slug}`;  // use slug instead of uid
+
   // Create submenu header
   const submenuHeader = document.createElement("div");
   submenuHeader.className = "mobile-submenu-header";
-  
+
   // Create back button
   const backBtn = document.createElement("button");
   backBtn.className = "mobile-back-btn";
@@ -111,55 +107,54 @@ createSubmenu(parentLi, category) {
     e.preventDefault();
     e.stopPropagation();
     submenu.classList.remove('active');
-    
+
     // Show all parent categories again
     const parentItems = document.querySelectorAll('.mobile-menu-item.parent-active');
     parentItems.forEach(item => {
       item.classList.remove('parent-active');
     });
-    
+
     // Remove current parent marker
     parentLi.classList.remove('current-parent');
   });
-  
+
   // Create title
   const title = document.createElement("h3");
   title.className = "mobile-submenu-title";
   title.textContent = category.name;
-  
+
   // Add header elements to header
   submenuHeader.appendChild(backBtn);
   submenuHeader.appendChild(title);
   submenu.appendChild(submenuHeader);
-  
+
   // Create submenu list
   const submenuList = document.createElement("ul");
   submenuList.className = "mobile-menu-list";
-  
+
   // Add child categories
   category.child.forEach(childCategory => {
-    if (childCategory.is_active === 1) {
-      const childLi = document.createElement("li");
-      childLi.className = "mobile-menu-item";
-      childLi.dataset.categoryId = childCategory.uid;
-      
-      const childA = document.createElement("a");
-      childA.href = childCategory.child?.length > 0 
-        ? "javascript:void(0)" 
-        : `/pages/category/category-page.html?name=${encodeURIComponent(childCategory.name)}`;
-      childA.innerHTML = `${childCategory.name} ${childCategory.child?.length > 0 ? '<i class="fas fa-chevron-right"></i>' : ''}`;
-      
-      childLi.appendChild(childA);
-      
-      // Recursively create grandchild submenu if needed
-      if (childCategory.child?.length > 0) {
-        this.createSubmenu(childLi, childCategory);
-      }
-      
-      submenuList.appendChild(childLi);
+    // No uid check, just use name and slug
+    const childLi = document.createElement("li");
+    childLi.className = "mobile-menu-item";
+    // No data-category-id attribute
+
+    const childA = document.createElement("a");
+    childA.href = childCategory.child?.length > 0 
+      ? "javascript:void(0)" 
+      : `/pages/category/category-page.html?name=${encodeURIComponent(childCategory.name)}`;
+    childA.innerHTML = `${childCategory.name} ${childCategory.child?.length > 0 ? '<i class="fas fa-chevron-right"></i>' : ''}`;
+
+    childLi.appendChild(childA);
+
+    // Recursively create grandchild submenu if needed
+    if (childCategory.child?.length > 0) {
+      this.createSubmenu(childLi, childCategory);
     }
+
+    submenuList.appendChild(childLi);
   });
-  
+
   submenu.appendChild(submenuList);
   parentLi.appendChild(submenu);
 }
