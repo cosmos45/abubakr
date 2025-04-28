@@ -161,10 +161,7 @@ class ProductPage {
       if (skuElement) skuElement.textContent = this.product.sku;
   
       // Display old price if available
-      const oldPriceElement = document.getElementById("product-old-price");
-      if (oldPriceElement && this.product.comparePrice) {
-        oldPriceElement.textContent = `£${this.product.comparePrice}`;
-      }
+     
   
       // Initialize selectedOptions as an empty object
       this.selectedOptions = {};
