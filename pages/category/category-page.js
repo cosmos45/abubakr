@@ -41,7 +41,8 @@ class CategoryPage {
     try {
       console.debug(`Initializing category page for: ${this.categoryName}`);
       // Initialize loader
-  
+      loadComponent("header", "/components/header/header.html")
+
       this.cart = new Cart();
       await this.cart.init();
       await this.globalSearch.init();
@@ -52,7 +53,6 @@ class CategoryPage {
   
       // Load components
       await Promise.all([
-        loadComponent("header", "/components/header/header.html"),
         loadComponent("footer", "/components/footer/footer.html"),
       ]);
       

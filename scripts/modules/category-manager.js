@@ -38,10 +38,19 @@ async initializeNavigation() {
           const li = document.createElement("li");
           li.className = "category-item";
   
+          const isOffers = category.name.trim().toLowerCase() === "offers";
+          if (isOffers) li.classList.add("offers-highlight");
+
           const a = document.createElement("a");
           a.href = `/pages/category/category-page.html?name=${encodeURIComponent(category.name)}`;
           a.textContent = category.name;
-  
+
+          if (isOffers) {
+            a.innerHTML = `<span class="offers-icon"><i class="fas fa-bolt"></i></span> 
+                           <span class="offers-label">${category.name}</span> 
+                           <span class="offers-badge">Hot!</span>`;
+          }
+        
           li.appendChild(a);
   
           // First level dropdown
@@ -116,13 +125,21 @@ async initializeNavigation() {
           const li = document.createElement("li");
           li.className = "mobile-menu-item";
           li.dataset.categoryId = category.uid;
+          const isOffers = category.name.trim().toLowerCase() === "offers";
+  if (isOffers) li.classList.add("offers-highlight");
   
           const a = document.createElement("a");
           // Changed from id to name parameter to match desktop behavior
           a.href = category.child?.length > 0 
-            ? "javascript:void(0)" 
-            : `/pages/category/category-page.html?name=${encodeURIComponent(category.name)}`;
-          a.innerHTML = `${category.name} ${category.child?.length > 0 ? '<i class="fas fa-chevron-right"></i>' : ''}`;
+    ? "javascript:void(0)" 
+    : `/pages/category/category-page.html?name=${encodeURIComponent(category.name)}`;
+  if (isOffers) {
+    a.innerHTML = `<span class="offers-icon"><i class="fas fa-bolt"></i></span> 
+                   <span class="offers-label">${category.name}</span> 
+                   <span class="offers-badge">Hot!</span>`;
+  } else {
+    a.innerHTML = `${category.name} ${category.child?.length > 0 ? '<i class="fas fa-chevron-right"></i>' : ''}`;
+  }
           a.style.fontWeight = "700";
   
           li.appendChild(a);

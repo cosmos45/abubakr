@@ -58,6 +58,7 @@
 .cart-sidebar.active {
     right: 0;
     visibility: visible;
+    z-index: 9999;
 }
 
 .cart-sidebar:not(.active) {

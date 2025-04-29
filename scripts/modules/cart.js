@@ -30,6 +30,8 @@ export class Cart {
     this.discount = null;
 
     this.orderMode = null; // Can be 'delivery' or 'collection'
+    this.initializeCartEvents();
+
   }
 
   async init() {
@@ -909,7 +911,10 @@ export class Cart {
       document.body.style.overflow = "hidden";
 
       const cartTitle = cartSidebar.querySelector(".cart-header h2");
+
+
       if (cartTitle) {
+
         const itemCount = this.getTotalItems();
         cartTitle.textContent = `Cart (${itemCount} items)`;
       }
@@ -1039,20 +1044,21 @@ export class Cart {
   }
 
   updateCartCount() {
-    const countElements = document.querySelectorAll(".cart-count");
-    const uniqueItemCount = this.items.size;
+  // Calculate total products, not unique SKUs
+  const totalCount = this.getTotalItems();
 
-    countElements.forEach((element) => {
-      element.textContent = uniqueItemCount;
-    });
+  // Update every header icon counter
+  document.querySelectorAll(".cart-count").forEach(el => {
+    el.textContent = totalCount;
+  });
 
-    const cartTitle = document.querySelector(".cart-header h2");
-    if (cartTitle) {
-      cartTitle.textContent = `Cart (${uniqueItemCount} ${
-        uniqueItemCount === 1 ? "item" : "items"
-      })`;
-    }
+  // Update side-cart header title
+  const cartTitle = document.querySelector(".cart-header h2");
+  if (cartTitle) {
+    cartTitle.textContent = `Cart (${totalCount} ${totalCount === 1 ? "item" : "items"})`;
   }
+}
+
 
   getTotalItems() {
     let total = 0;

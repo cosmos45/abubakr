@@ -28,6 +28,7 @@ async function initializeApp() {
     // Initialize mobile menu
     const mobileMenu = new MobileMenu();
     mobileMenu.init();
+    loadComponent("header", "/components/header/header.html")
 
     // Initialize cart only once using the singleton pattern
     if (!window.globalCart) {
@@ -53,7 +54,6 @@ async function initializeApp() {
     
     // Load all components
     await Promise.all([
-      loadComponent("header", "/components/header/header.html"),
       loadComponent("carousel-container", "/components/carousel/carousel.html"),
       loadComponent("features-container", "/components/features/features.html"),
       loadComponent(

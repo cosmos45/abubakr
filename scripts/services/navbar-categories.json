@@ -338,6 +338,7 @@
   ]
 }
 ,
+
 {
   "name": "Butcher's Shop",
   "slug": "butchers-shop",
@@ -486,6 +487,7 @@
         }
       ]
     },
+    
     {
       "name": "Marinated Meat",
       "slug": "meat-boxes",
@@ -522,22 +524,7 @@
 }
 
 ,
-    {
-      "name": "Cooking, Table & Rock Salt",
-      "slug": "cooking-table-rock-salt",
-      "child": [
-        {
-          "name": "Pink Salt",
-          "slug": "pink-salt",
-          "child": []
-        },
-        {
-          "name": "Black Salt",
-          "slug": "black-salt",
-          "child": []
-        }
-      ]
-    },
+    
     {
       "name": "Salt, Seasoning & Coatings",
       "slug": "salt-seasoning-coatings",
@@ -550,6 +537,16 @@
         {
           "name": "Flavour Enhancers",
           "slug": "flavour-enhancers",
+          "child": []
+        },
+        {
+          "name": "Pink Salt",
+          "slug": "pink-salt",
+          "child": []
+        },
+        {
+          "name": "Black Salt",
+          "slug": "black-salt",
           "child": []
         }
       ]
@@ -651,6 +648,12 @@
             }
           ]
         }
+      ]
+    },{
+      "name": "Offers",
+      "slug": "offers",
+      "child": [
+        
       ]
     }
     

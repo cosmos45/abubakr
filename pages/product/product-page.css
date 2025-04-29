@@ -1,5 +1,61 @@
 
+/* Zoom Overlay */
+.zoom-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+.zoom-overlay.active {
+  display: flex;
+}
+.zoom-header {
+  position: absolute;
+  top: 1rem; right: 1rem;
+}
+.zoom-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
+}
+.zoom-content {
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
+  border: 2px solid var(--top-bar-green);
+  border-radius: 8px;
+  background: #fff;
+}
+.zoom-content img {
+  display: block;
+  width: 100%;
+  height: auto;
+  cursor: grab;
+  touch-action: none;  /* Enable pinch and pan */
+  transition: transform 0.2s ease;
+}
+.zoom-content img:active {
+  cursor: grabbing;
+}
 
+/* Ensure header/footer remain above overlay controls */
+header, #footer {
+  z-index: 1100;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+  .zoom-close {
+    font-size: 1.5rem;
+  }
+}
 
 /* Add to product-page.css */
 .product-options {

@@ -122,7 +122,9 @@ class ProductPage {
         }
         productImage.alt = this.product.name;
       }
-      
+      const imgContainer = document.querySelector('.product-image');
+const img = document.getElementById('product-image');
+
       const priceElement = document.getElementById("product-price");
       if (priceElement) priceElement.textContent = `£${this.product.price}`;
       
@@ -366,7 +368,15 @@ class ProductPage {
     const minusBtn = document.querySelector(".quantity-control .minus");
     const plusBtn = document.querySelector(".quantity-control .plus");
     const addToCartBtn = document.querySelector(".add-to-cart-btn");
-  
+    
+    const imgContainer = document.querySelector('.product-image');
+    const img = document.getElementById('product-image');
+    if (imgContainer && img) {
+      imgContainer.addEventListener('click', () => {
+        this.showZoomOverlay(img.src, img.alt);
+      });
+    }
+    
     if (minusBtn) {
       minusBtn.addEventListener("click", () => {
         const currentValue = parseInt(quantityInput.value);
@@ -542,7 +552,60 @@ class ProductPage {
     closeBtn?.addEventListener("click", () => this.cart.hideCart());
     overlay?.addEventListener("click", () => this.cart.hideCart());
   }
+  showZoomOverlay(imgSrc, imgAlt) {
+    // Remove any existing overlay
+    const oldOverlay = document.querySelector('.zoom-overlay');
+    if (oldOverlay) oldOverlay.remove();
+  
+    // Create overlay with required Panzoom markup
+    const overlay = document.createElement('div');
+    overlay.className = 'zoom-overlay';
+    overlay.innerHTML = `
+      <div class="zoom-header">
+        <button class="zoom-close">&times;</button>
+      </div>
+      <div class="zoom-content">
+        <div class="f-panzoom" id="zoom-panzoom">
+          <img class="f-panzoom__content" id="zoomed-image" src="${imgSrc}" alt="${imgAlt}" style="max-width:100%; max-height:80vh; display:block; margin:auto;" />
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.classList.add('active');
+
+    const panzoomContainer = overlay.querySelector('#zoom-panzoom');
+    const zoomedImage = overlay.querySelector('#zoomed-image');
+    let panzoomInstance = null;
+  
+    // Wait for the image to load before initializing Panzoom
+    zoomedImage.onload = () => {
+      panzoomInstance = new window.Panzoom(panzoomContainer, {
+        maxScale: 3,
+        contain: 'outside'
+      });
+      // Optional: Enable mouse wheel zoom
+      panzoomContainer.addEventListener('wheel', panzoomInstance.zoomWithWheel);
+    };
+    // If already loaded (from cache), trigger manually
+    if (zoomedImage.complete && zoomedImage.naturalWidth !== 0) {
+      zoomedImage.onload();
+    }
+  
+    overlay.querySelector('.zoom-close').addEventListener('click', () => {
+      overlay.remove();
+      if (panzoomInstance) panzoomInstance.destroy();
+    });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+        if (panzoomInstance) panzoomInstance.destroy();
+      }
+    });
+  }
+  
+
 }
+
 
 // Initialize when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
