@@ -38,47 +38,61 @@ export class Cart {
     if (this.initialized) {
       return true;
     }
-
+  
     try {
       if (!document.querySelector(".cart-sidebar")) {
         this.createCartStructure();
       }
-
-      // Use cached basket response if available, or fetch it only once
+  
+      // Get basket UID from local storage
+      let basketUid = localStorage.getItem('basketUid');
       let basketResponse;
+  
       if (Cart.basketResponse) {
         basketResponse = Cart.basketResponse;
       } else if (Cart.basketPromise) {
         basketResponse = await Cart.basketPromise;
       } else {
         // Create a promise for the basket request that can be shared
-        Cart.basketPromise = axiosServices.get("/commerce/basket");
+        if (basketUid) {
+          // Use existing basket UID
+          Cart.basketPromise = axiosServices.get(`/commerce/baskets/${basketUid}`);
+        } else {
+          // Create a new basket
+          Cart.basketPromise = axiosServices.post("/commerce/baskets", {});
+          const response = await Cart.basketPromise;
+          if (response.status && response.data.basket && response.data.basket.uid) {
+            basketUid = response.data.basket.uid;
+            localStorage.setItem('basketUid', basketUid);
+          }
+        }
+        
         basketResponse = await Cart.basketPromise;
         Cart.basketResponse = basketResponse;
       }
-
+  
       if (basketResponse.status && basketResponse.data.basket) {
         const basketData = basketResponse.data.basket;
-
+  
         this.subtotal = parseFloat(basketData.sub_total) || 0;
         this.total = parseFloat(basketData.total) || 0;
         this.shippingCharges = parseFloat(basketData.shipping_charges) || 0;
-
+  
         // Store discount information
         this.discountAmount = parseFloat(basketData.discount_amount) || 0;
         this.totalDiscount = parseFloat(basketData.total_discount) || 0;
         this.discount = basketData.discount || null;
-
+  
         // Store order mode if present
         if (basketData.order_mode) {
           this.orderMode = basketData.order_mode;
         } else {
           this.orderMode = null; // Explicitly set to null if not present
         }
-
+  
         // Clear existing items map before populating with new data
         this.items = new Map();
-
+  
         // Populate items map with all basket items
         if (basketData.items && Array.isArray(basketData.items)) {
           basketData.items.forEach((item) => {
@@ -94,16 +108,16 @@ export class Cart {
               product: item.product || null,
               variant: item.variant || null,
             };
-
+  
             this.items.set(item.basket_item__id.toString(), mappedItem);
           });
         }
-
+  
         // Render all items in the cart
         this.renderSavedItems();
         this.updateCartCount();
         this.updateSubtotal();
-
+  
         // Pass the basket data to loadShippingRates to avoid a second request
         if (basketData.items && basketData.items.length > 0) {
           await this.loadShippingRates(basketData);
@@ -112,17 +126,17 @@ export class Cart {
           this.selectedShippingRate = null;
           this.renderShippingRates();
         }
-
+  
         // Initialize order mode buttons
         this.renderOrderModeOptions();
-
+  
         // Update discount display
         this.updateDiscountDisplay();
-
+  
         // Update checkout button state
         this.updateCheckoutButtonState();
       }
-
+  
       this.bindEvents();
       this.initialized = true;
       return true;
@@ -135,6 +149,7 @@ export class Cart {
       return false;
     }
   }
+  
 
   renderShippingRates() {
     const container = document.getElementById("shipping-rates-container");
@@ -332,6 +347,11 @@ export class Cart {
 
   async updateShippingRate(shippingRateId) {
     try {
+      const basketUid = localStorage.getItem('basketUid');
+      if (!basketUid) {
+        console.error("No basket UID found in local storage");
+        return;
+      }
       const selectedRate = this.shippingRates.find(
         (rate) => rate.shipping_rate__id === parseInt(shippingRateId)
       );
@@ -346,12 +366,13 @@ export class Cart {
       this.updateCheckoutButtonState();
       this.updateTotalsWithShipping(selectedRate.amount);
 
-      const response = await axiosServices.post("/commerce/basket/update", {
+      const response = await axiosServices.put(`/commerce/baskets/${basketUid}`, {
         shipping_rate_id: shippingRateId,
         shipping_charges: selectedRate.amount,
         sub_total: this.subtotal,
         total: this.subtotal + selectedRate.amount,
       });
+      
 
       if (response.status) {
         await this.refreshBasket();
@@ -444,31 +465,30 @@ export class Cart {
   // }
   async addToBasket(productId, quantity = 1, variantId = null) {
     try {
+      const basketUid = localStorage.getItem('basketUid');
       const formData = new FormData();
       formData.append("product", productId);
       formData.append("quantity", quantity);
-
-      // Add variant ID if provided
+  
       if (variantId) {
         formData.append("pvariant_id", variantId);
       }
-
-      const response = await axiosServices.post("/commerce/basket", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
+  
+      let response;
+      if (basketUid) {
+        response = await axiosServices.post(`/commerce/baskets/${basketUid}/items`, formData);
+      } else {
+        // Create a new basket if none exists
+        response = await axiosServices.post("/commerce/baskets", formData);
+        if (response.status && response.data.basket && response.data.basket.uid) {
+          localStorage.setItem('basketUid', response.data.basket.uid);
+        }
+      }
+  
       if (response.status) {
-        // Show success toast notification
         this.showToast(`Product added to your cart successfully!`);
-
-        // Immediately refresh cart without page reload
         await this.refreshCart();
-
-        // Show the cart sidebar
         this.showCart();
-
         return true;
       }
       return false;
@@ -528,9 +548,15 @@ export class Cart {
     // Create a new refresh promise
     this.refreshPromise = new Promise(async (resolve) => {
       try {
-        const response = await axiosServices.get("/commerce/basket");
-        if (response.status && response.data.basket) {
-          const basketData = response.data.basket;
+          const basketUid = localStorage.getItem('basketUid');
+          if (!basketUid) {
+            console.error("No basket UID found in local storage");
+            resolve(false);
+            return;
+          }
+          const response = await axiosServices.get(`/commerce/baskets/${basketUid}`);
+          if (response.status && response.data.basket) {
+            const basketData = response.data.basket;
 
           this.subtotal = parseFloat(basketData.sub_total) || 0;
           this.total = parseFloat(basketData.total) || 0;
@@ -639,10 +665,15 @@ export class Cart {
 
   async updateOrderMode(mode) {
     try {
+
       // Update UI immediately
       this.orderMode = mode;
       this.renderOrderModeOptions();
-
+  const basketUid = localStorage.getItem('basketUid');
+    if (!basketUid) {
+      console.error("No basket UID found in local storage");
+      return false;
+    }
       // Handle shipping rates based on order mode
       if (mode === "collection") {
         // For collection, clear shipping rate selection
@@ -662,7 +693,7 @@ export class Cart {
         }
 
         // Send update to server - set shipping_rate_id to null for collection
-        const response = await axiosServices.post("/commerce/basket/update", {
+        const response = await axiosServices.put(`/commerce/baskets/${basketUid}`, {
           order_mode: mode,
           shipping_rate_id: null,
           shipping_charges: 0,
@@ -684,7 +715,7 @@ export class Cart {
         }
 
         // Send initial update to server for delivery mode
-        const response = await axiosServices.post("/commerce/basket/update", {
+        const response = await axiosServices.put(`/commerce/baskets/${basketUid}`, {
           order_mode: mode,
           // Don't update shipping_rate_id yet as none is selected
         });
@@ -985,15 +1016,17 @@ export class Cart {
 
   async updateQuantity(basketItemId, newQuantity) {
     try {
-      const formData = new FormData();
-      formData.append("basket_item_id", basketItemId);
-      formData.append("quantity", newQuantity);
-
-      const response = await axiosServices.post(
-        "/commerce/basket/update",
-        formData
+      const basketUid = localStorage.getItem('basketUid');
+      if (!basketUid) {
+        console.error("No basket UID found in local storage");
+        return false;
+      }
+      
+      const response = await axiosServices.put(
+        `/commerce/baskets/${basketUid}/items/${basketItemId}`,
+        { quantity: newQuantity }
       );
-
+  
       if (response.status) {
         await this.refreshBasket();
         this.showToast("Quantity updated successfully!");
@@ -1009,25 +1042,31 @@ export class Cart {
 
   async removeBasketItem(basketItemId) {
     try {
+      const basketUid = localStorage.getItem('basketUid');
+      if (!basketUid) {
+        console.error("No basket UID found in local storage");
+        return false;
+      }
+      
       const response = await axiosServices.delete(
-        `/commerce/basket/${basketItemId}`
+        `/commerce/baskets/${basketUid}/items/${basketItemId}`
       );
-
+  
       if (response.status) {
         await this.refreshBasket();
         this.showToast("Item removed from basket");
-
+  
         // Check if basket is empty after refresh
         if (this.items.size === 0) {
           // Reset shipping related data
           this.selectedShippingRate = null;
           this.shippingCharges = 0;
-
+  
           // Update UI without page reload
           this.renderShippingRates();
           this.updateCheckoutButtonState();
           this.updateTotalsWithShipping(0);
-
+  
           // Hide cart if in sidebar mode
           if (document.querySelector(".cart-sidebar.active")) {
             this.hideCart();

@@ -1,5 +1,5 @@
 (function () {
-  const backendApi = "https://abubakr.flowpos.co.uk/api/";
+  const backendApi = "https://abubakr.flowpos.me/api/";
 
   // Generate and store a UID if it doesn't exist
   function getOrCreateUID() {

@@ -46,9 +46,9 @@ async initializeNavigation() {
           a.textContent = category.name;
 
           if (isOffers) {
-            a.innerHTML = `<span class="offers-icon"><i class="fas fa-bolt"></i></span> 
+            a.innerHTML = `
                            <span class="offers-label">${category.name}</span> 
-                           <span class="offers-badge">Hot!</span>`;
+                          `;
           }
         
           li.appendChild(a);
@@ -134,9 +134,9 @@ async initializeNavigation() {
     ? "javascript:void(0)" 
     : `/pages/category/category-page.html?name=${encodeURIComponent(category.name)}`;
   if (isOffers) {
-    a.innerHTML = `<span class="offers-icon"><i class="fas fa-bolt"></i></span> 
+    a.innerHTML = `
                    <span class="offers-label">${category.name}</span> 
-                   <span class="offers-badge">Hot!</span>`;
+                   `;
   } else {
     a.innerHTML = `${category.name} ${category.child?.length > 0 ? '<i class="fas fa-chevron-right"></i>' : ''}`;
   }

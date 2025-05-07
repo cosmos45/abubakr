@@ -68,9 +68,10 @@ export class HeaderSearch {
     this.searchInput.addEventListener("input", () => {
       const query = this.searchInput.value.trim();
       
-      // Show loading animation when typing
       if (query.length >= 3) {
         this.showLoadingAnimation();
+      } else {
+        this.hideSuggestions();
       }
   
       clearTimeout(debounceTimer);
@@ -83,7 +84,28 @@ export class HeaderSearch {
       }, 300);
     });
   
-    // Remove category change event listener since there's no category select anymore
+    // Add event listener for Enter key press
+    this.searchInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        const query = this.searchInput.value.trim();
+        if (query.length >= 3) {
+          this.navigateToSearchResults(query);
+        }
+      }
+    });
+  
+    // Add event listener for search button click
+    const searchButton = document.getElementById("search-button");
+    if (searchButton) {
+      searchButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        const query = this.searchInput.value.trim();
+        if (query.length >= 3) {
+          this.navigateToSearchResults(query);
+        }
+      });
+    }
   
     // Close suggestions on outside click
     document.addEventListener("click", (e) => {
@@ -92,6 +114,14 @@ export class HeaderSearch {
       }
     });
   }
+  
+  // Add new method to navigate to search results page
+  navigateToSearchResults(query) {
+    console.debug("Navigating to search results for query:", query);
+    const encodedQuery = encodeURIComponent(query);
+    window.location.href = `/pages/category/category-page.html?search=${encodedQuery}`;
+  }
+  
   
 
   showLoadingAnimation() {

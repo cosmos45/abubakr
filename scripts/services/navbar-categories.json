@@ -204,6 +204,113 @@
 }
 ,
 {
+  "name": "Spice Bazaar",
+  "slug": "spice-bazaar",
+  "child": [
+    {
+      "name": "Boxed Spices",
+      "slug": "boxed-spices",
+      "child": [
+        {
+          "name": "Laziza Spices",
+          "slug": "laziza-spices",
+          "child": []
+        },
+        {
+          "name": "National Spices",
+          "slug": "national-spices",
+          "child": []
+        },
+        {
+          "name": "Shan Spices",
+          "slug": "shan-spices",
+          "child": []
+        },
+        {
+          "name": "Tropics Spices",
+          "slug": "tropics-spices",
+          "child": []
+        },
+        {
+          "name": "Malka Gluten Free Spices",
+          "slug": "malka-gluten-free-spices",
+          "child": []
+        },
+        {
+          "name": "Mehran Spices",
+          "slug": "mehran-spices",
+          "child": []
+        }
+      ]
+    },
+    {
+      "name": "Ground, Whole & Herbal",
+      "slug": "ground-whole-herbal",
+      "child": [
+        {
+          "name": "Ground Spices",
+          "slug": "ground-spices",
+          "child": []
+        },
+        {
+          "name": "Whole Spices",
+          "slug": "whole-spices",
+          "child": []
+        },
+        {
+          "name": "Dry Herbs",
+          "slug": "dry-herbs",
+          "child": []
+        },
+        {
+          "name": "Herbal Spices",
+          "slug": "herbal-spices",
+          "child": []
+        }
+      ]
+    },
+    {
+      "name": "Salt, Seasoning & Coatings",
+      "slug": "salt-seasoning-coatings",
+      "child": [
+        {
+          "name": "Cooking, Table & Rock Salt",
+          "slug": "cooking-table-rock-salt",
+          "child": []
+        },
+        {
+          "name": "Black Salt",
+          "slug": "black-salt",
+          "child": []
+        },
+        {
+          "name": "Pink Salt",
+          "slug": "pink-salt",
+          "child": []
+        },
+        {
+          "name": "Flavour Enhancers",
+          "slug": "flavour-enhancers",
+          "child": []
+        },
+        {
+          "name": "Seasoning & Coatings",
+          "slug": "seasoning-coatings",
+          "child": []
+        }
+      ]
+    }
+  ]
+},
+{
+  "name": "Offers",
+  "slug": "offers",
+  "child": [
+    
+  ]
+}
+,
+{
   "name": "Rice, Flour & Lentils",
   "slug": "rice-flour-lentils",
   "child": [
@@ -338,6 +445,7 @@
   ]
 }
 ,
+
 
 {
   "name": "Butcher's Shop",
@@ -549,111 +657,6 @@
           "slug": "black-salt",
           "child": []
         }
-      ]
-    },
-    {
-      "name": "Spice Bazaar",
-      "slug": "spice-bazaar",
-      "child": [
-        {
-          "name": "Boxed Spices",
-          "slug": "boxed-spices",
-          "child": [
-            {
-              "name": "Laziza Spices",
-              "slug": "laziza-spices",
-              "child": []
-            },
-            {
-              "name": "National Spices",
-              "slug": "national-spices",
-              "child": []
-            },
-            {
-              "name": "Shan Spices",
-              "slug": "shan-spices",
-              "child": []
-            },
-            {
-              "name": "Tropics Spices",
-              "slug": "tropics-spices",
-              "child": []
-            },
-            {
-              "name": "Malka Gluten Free Spices",
-              "slug": "malka-gluten-free-spices",
-              "child": []
-            },
-            {
-              "name": "Mehran Spices",
-              "slug": "mehran-spices",
-              "child": []
-            }
-          ]
-        },
-        {
-          "name": "Ground, Whole & Herbal",
-          "slug": "ground-whole-herbal",
-          "child": [
-            {
-              "name": "Ground Spices",
-              "slug": "ground-spices",
-              "child": []
-            },
-            {
-              "name": "Whole Spices",
-              "slug": "whole-spices",
-              "child": []
-            },
-            {
-              "name": "Dry Herbs",
-              "slug": "dry-herbs",
-              "child": []
-            },
-            {
-              "name": "Herbal Spices",
-              "slug": "herbal-spices",
-              "child": []
-            }
-          ]
-        },
-        {
-          "name": "Salt, Seasoning & Coatings",
-          "slug": "salt-seasoning-coatings",
-          "child": [
-            {
-              "name": "Cooking, Table & Rock Salt",
-              "slug": "cooking-table-rock-salt",
-              "child": []
-            },
-            {
-              "name": "Black Salt",
-              "slug": "black-salt",
-              "child": []
-            },
-            {
-              "name": "Pink Salt",
-              "slug": "pink-salt",
-              "child": []
-            },
-            {
-              "name": "Flavour Enhancers",
-              "slug": "flavour-enhancers",
-              "child": []
-            },
-            {
-              "name": "Seasoning & Coatings",
-              "slug": "seasoning-coatings",
-              "child": []
-            }
-          ]
-        }
-      ]
-    },{
-      "name": "Offers",
-      "slug": "offers",
-      "child": [
-        
       ]
     }
     

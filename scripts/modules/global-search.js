@@ -67,6 +67,52 @@ export class GlobalSearch {
       }, 300);
     });
   
+    // Add form submit handler
+    const searchForm = this.searchInput.closest("form");
+    if (searchForm) {
+      console.debug("Search form found, adding submit listener");
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const query = this.searchInput.value.trim();
+        
+        if (query.length >= 3) {
+          console.debug("Form submitted with query:", query);
+          this.navigateToSearchResults(query);
+        }
+      });
+    } else {
+      console.debug("No search form found");
+    }
+  
+    // Add keydown event for Enter key
+    this.searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const query = this.searchInput.value.trim();
+        
+        if (query.length >= 3) {
+          console.debug("Enter key pressed with query:", query);
+          this.navigateToSearchResults(query);
+        }
+      }
+    });
+  
+    // Add click handler for search button
+    const searchButton = document.getElementById("search-button");
+    if (searchButton) {
+      console.debug("Search button found, adding click listener");
+      searchButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        const query = this.searchInput.value.trim();
+        if (query.length >= 3) {
+          console.debug("Search button clicked with query:", query);
+          this.navigateToSearchResults(query);
+        }
+      });
+    } else {
+      console.debug("No search button found");
+    }
+    
     // Focus event to show suggestions if there's text
     this.searchInput.addEventListener("focus", () => {
       const query = this.searchInput.value.trim();
@@ -82,6 +128,14 @@ export class GlobalSearch {
       }
     });
   }
+  
+  // Add navigation method
+  navigateToSearchResults(query) {
+    console.debug("Navigating to search results for query:", query);
+    const encodedQuery = encodeURIComponent(query);
+    window.location.href = `/pages/category/category-page.html?search=${encodedQuery}`;
+  }
+  
 
   showLoadingAnimation() {
     if (!this.suggestionsContainer) return;

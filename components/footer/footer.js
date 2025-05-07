@@ -27,8 +27,11 @@ async function populateFooterMenuCategories(featuredCategories) {
         menuCategoriesContainer.innerHTML = '';
         if (firstItem) menuCategoriesContainer.appendChild(firstItem);
         
+        // Limit to 8 categories
+        const limitedCategories = featuredCategories.slice(0, 8);
+        
         // Add featured categories
-        featuredCategories.forEach(category => {
+        limitedCategories.forEach(category => {
             const listItem = document.createElement('li');
             const link = document.createElement('a');
             link.href = `/pages/category/category-page.html?name=${encodeURIComponent(category.name)}`;

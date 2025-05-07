@@ -15,16 +15,23 @@ import { MobileMenu } from "../../scripts/modules/mobile-menu.js";
 
 class CategoryPage {
   constructor() {
-    this.categoryName = new URLSearchParams(window.location.search).get("name");
-    if (!this.categoryName) {
-      console.error("No category name provided");
-      window.location.href = "/";
+    // Check for search query parameter first
+    this.searchQuery = new URLSearchParams(window.location.search).get("search");
+    
+    // If there's a search query, we'll use that instead of category
+    if (!this.searchQuery) {
+      this.categoryName = new URLSearchParams(window.location.search).get("name");
+      if (!this.categoryName) {
+        console.error("No category name or search query provided");
+        window.location.href = "/";
+      }
+      this.categoryId = new URLSearchParams(window.location.search).get("id");
     }
-    this.categoryId = new URLSearchParams(window.location.search).get("id");
+    
     this.category = null;
     this.products = [];
     this.filters = new Map();
-    this.cart = null; // Initialize as null first
+    this.cart = null;
     this.categoryManager = new CategoryManager();
     this.originalProducts = null;
     this.isLoading = false;
@@ -36,62 +43,147 @@ class CategoryPage {
     this.activeFilters = new Map();
     this.globalSearch = new GlobalSearch();
   }
-
+  
   async init() {
     try {
-      console.debug(`Initializing category page for: ${this.categoryName}`);
-      // Initialize loader
-      loadComponent("header", "/components/header/header.html")
-
       this.cart = new Cart();
       await this.cart.init();
-      await this.globalSearch.init();
-  
-   
-      // Initialize cart and category manager
-      await Promise.all([this.cart.init(), this.categoryManager.init()]);
-  
+      await this.globalSearch.init(true); // Skip cart init since we already did it
+      
       // Load components
       await Promise.all([
+        loadComponent("header", "/components/header/header.html"),
         loadComponent("footer", "/components/footer/footer.html"),
       ]);
       
       initializeStickyHeader();
-      // Initialize mobile menu
       const mobileMenu = new MobileMenu();
       mobileMenu.init();
-  
-      // Initialize navigation
-      this.categoryManager.initializeNavigation();
-  
-      // Get category details
-      this.category = await categoryData.getCategoryByName(this.categoryName);
-      if (!this.category) {
-        // Fallback: still allow page to load, just use the name from the URL
-        this.category = { name: this.categoryName };
+      
+      if (this.searchQuery) {
+        console.debug(`Initializing search results page for query: ${this.searchQuery}`);
+        // For search results, we don't need category data
+        await this.renderSearchContent();
+        await this.fetchSearchResults(1);
+      } else {
+        console.debug(`Initializing category page for: ${this.categoryName}`);
+        // Initialize category manager
+        this.categoryManager.initializeNavigation();
+        
+        // Get category details
+        this.category = await categoryData.getCategoryByName(this.categoryName);
+        if (!this.category) {
+          this.category = { name: this.categoryName };
+        }
+        
+        // Render content
+        await this.renderCategoryContent();
+        await this.fetchCategoryStock();
+        await this.fetchAndRenderFilters();
       }
-  
-      // Render content
-      await this.renderCategoryContent();
-  
-      // Fetch real-time stock data - This should trigger pagination rendering
-      await this.fetchCategoryStock();
-  
-      // Fetch and render filters
-      await this.fetchAndRenderFilters();
-  
+      
       this.initializeCartIcon();
       this.initializeAddToCart();
-      
-      // Initialize pagination events
       this.initializePaginationEvents();
       
       await initializeFooter();
     } catch (error) {
-      console.error("Error initializing category page:", error);
-      this.showError("Failed to load category");
+      console.error("Error initializing page:", error);
+      this.showError(this.searchQuery ? "Failed to load search results" : "Failed to load category");
     }
   }
+  
+  async renderSearchContent() {
+    const container = document.querySelector(".category-page");
+    if (!container) return;
+    
+    // Clear existing content
+    container.innerHTML = "";
+    
+    // Render search header
+    const headerHtml = `
+      <div class="category-header">
+        <div class="breadcrumb">
+          <a href="/">Home</a> /
+          <span>Search Results</span>
+        </div>
+        <h1>Search Results for "${this.searchQuery}"</h1>
+      </div>
+      <div class="category-content">
+        <div class="products-grid">
+          <!-- Products will be added here -->
+        </div>
+      </div>
+      <div class="pagination-container">
+        <!-- Pagination will be rendered here -->
+      </div>
+    `;
+    container.insertAdjacentHTML("beforeend", headerHtml);
+  }
+  
+  async fetchSearchResults(page = 1) {
+    try {
+      console.debug(`Fetching search results for query: ${this.searchQuery}, page: ${page}`);
+      this.currentPage = page;
+      
+      // Show loading state
+      const productsGrid = document.querySelector(".products-grid");
+      if (productsGrid) {
+        productsGrid.innerHTML = `
+          <div class="loading-spinner">
+            <div class="spinner-border text-success" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        `;
+      }
+      
+      // Use the search service to get results
+      const results = await this.globalSearch.searchService.search(this.searchQuery);
+      
+      // Process results to ensure has_variants is properly set
+      const processedResults = results.map(product => ({
+        ...product,
+        has_variants: product.hasVariants || (product.choices && product.choices.length > 0) || false
+      }));
+      
+      // Implement manual pagination
+      const pageSize = 12;
+      const totalResults = processedResults.length;
+      const totalPages = Math.ceil(totalResults / pageSize);
+      
+      // Store pagination data
+      this.pagination = {
+        currentPage: page,
+        lastPage: totalPages,
+        total: totalResults,
+        perPage: pageSize
+      };
+      
+      // Get current page results
+      const startIndex = (page - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      const paginatedResults = processedResults.slice(startIndex, endIndex);
+      
+      // Update products array
+      this.products = paginatedResults;
+      
+      // Render products and pagination
+      await this.renderProducts(this.products);
+      this.renderPagination();
+      
+      // Show no results message if needed
+      if (results.length === 0) {
+        if (productsGrid) {
+          productsGrid.innerHTML = '<div class="no-products">No products found for your search query</div>';
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+      this.showError("Failed to load search results");
+    }
+  }
+  
   
 
   async fetchAndRenderFilters() {
@@ -230,20 +322,19 @@ class CategoryPage {
 
   initializePaginationEvents() {
     const paginationContainer = document.querySelector(".pagination-container");
-
     if (!paginationContainer) {
       console.error("Pagination container not found when initializing events");
       return;
     }
-
+  
     paginationContainer.addEventListener("click", async (e) => {
       e.preventDefault();
-
+  
       const pageLink = e.target.closest(".page-link");
       if (!pageLink) return;
-
+  
       const newPage = parseInt(pageLink.dataset.page);
-
+  
       if (
         isNaN(newPage) ||
         newPage === this.currentPage ||
@@ -252,24 +343,25 @@ class CategoryPage {
       ) {
         return;
       }
-
+  
       this.currentPage = newPage;
-
-      // Check if we have active filters (including category filters)
-      if (this.activeFilters.size > 0) {
-        // If filters are active, apply them with the new page number
+  
+      // Check if this is a search results page or category page
+      if (this.searchQuery) {
+        await this.fetchSearchResults(this.currentPage);
+      } else if (this.activeFilters.size > 0) {
         await this.applyFilters(this.currentPage);
       } else {
-        // If no filters are active, fetch products for the original category
         await this.fetchCategoryStock(this.currentPage);
       }
-
+  
       // Scroll to top of products
       document
         .querySelector(".products-grid")
         ?.scrollIntoView({ behavior: "smooth" });
     });
   }
+  
 
   // Add pagination controls initialization
   initializePaginationControls() {
@@ -350,14 +442,27 @@ class CategoryPage {
   showError(message) {
     const container = document.querySelector(".category-page");
     if (!container) return;
-
-    container.innerHTML = `
-    <div class="alert alert-danger" role="alert">
-      <i class="fas fa-exclamation-triangle"></i> ${message}
-      <p class="mt-2">Please try refreshing the page or contact support if the problem persists.</p>
-    </div>
-  `;
+  
+    if (message === "Failed to load search results") {
+      container.innerHTML = `
+        <div class="category-header">
+          <h1>Search Results</h1>
+        </div>
+        <div class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-triangle"></i> ${message}
+          <p class="mt-2">Please try a different search term or contact support if the problem persists.</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-triangle"></i> ${message}
+          <p class="mt-2">Please try refreshing the page or contact support if the problem persists.</p>
+        </div>
+      `;
+    }
   }
+  
 
   initializeHeaderComponents() {
     const menuToggle = document.querySelector(".mobile-menu-toggle");

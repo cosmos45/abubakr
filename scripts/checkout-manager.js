@@ -107,6 +107,13 @@ export class CheckoutManager {
         console.log("CheckoutManager: Updating customer details and address");
         
         try {
+          // Get basket UID from local storage
+          const basketUid = localStorage.getItem('basketUid');
+          if (!basketUid) {
+            console.error("No basket UID found in local storage");
+            return false;
+          }
+          
           // Get current customer details
           const customerName = document.getElementById("name").value.trim();
           const customerEmail = document.getElementById("email").value.trim();
@@ -148,7 +155,7 @@ export class CheckoutManager {
             }
           };
           
-          const response = await axiosServices.post("/commerce/basket/update", formData);
+          const response = await axiosServices.put(`/commerce/baskets/${basketUid}`, formData);
           
           if (!response.status) {
             throw new Error(response.data.message || "Failed to update customer and address");
@@ -226,52 +233,52 @@ export class CheckoutManager {
     
       async fetchBasketData() {
         try {
-            console.log("CheckoutManager: Fetching basket data");
-            
-            // Use cached basket response if available
-            if (Cart.basketResponse) {
-                console.log("CheckoutManager: Using cached basket data");
-                return Cart.basketResponse.data.basket;
-            }
-            
-            // If no cached response, use the cart instance's data if available
-            if (this.cart.items.size > 0) {
-                console.log("CheckoutManager: Using cart instance data");
-                return {
-                    items: Array.from(this.cart.items.values()),
-                    sub_total: this.cart.subtotal,
-                    total: this.cart.total,
-                    shipping_charges: this.cart.shippingCharges,
-                    shipping_rate_id: this.cart.selectedShippingRate?.shipping_rate__id
-                };
-            }
-            
-            // As a last resort, fetch new data
-            console.log("CheckoutManager: Fetching new basket data");
-            const response = await axiosServices.get("/commerce/basket");
-            Cart.basketResponse = response; // Cache the response
-            
-            if (response.status && response.data.basket) {
-                return response.data.basket;
-            }
+          const basketUid = localStorage.getItem('basketUid');
+          if (!basketUid) {
+            console.error("No basket UID found in local storage");
             return null;
+          }
+          
+          // Use cached basket response if available
+          if (Cart.basketResponse) {
+            return Cart.basketResponse.data.basket;
+          }
+          
+          // Otherwise fetch basket data
+          const response = await axiosServices.get(`/commerce/baskets/${basketUid}`);
+          Cart.basketResponse = response; // Cache the response
+          
+          if (response.status && response.data.basket) {
+            return response.data.basket;
+          }
+          return null;
         } catch (error) {
-            console.error("CheckoutManager: Failed to fetch basket data:", error);
-            return null;
+          console.error("Failed to fetch basket data:", error);
+          return null;
         }
-    }
+      }
     
     
     async fetchCheckoutData() {
-        // Fetch checkout data only once
-        if (!this.checkoutData) {
-          const response = await axiosServices.get("/commerce/checkout");
-          this.checkoutData = response.data;
-          return this.checkoutData;
-          
-        }
+      if (this.checkoutData) {
         return this.checkoutData;
       }
+      
+      try {
+        const basketUid = localStorage.getItem('basketUid');
+        if (!basketUid) {
+          console.error("No basket UID found in local storage");
+          return null;
+        }
+        
+        const response = await axiosServices.get(`/commerce/baskets/${basketUid}/checkout?type=online`);
+        this.checkoutData = response.data;
+        return this.checkoutData;
+      } catch (error) {
+        console.error("Failed to fetch checkout data:", error);
+        throw error;
+      }
+    }
 
     setupCustomerDetailsListeners() {
         const customerFields = ["name", "email", "phone"];
@@ -289,49 +296,40 @@ export class CheckoutManager {
     }
 
     async updateFullBasket() {
-        console.log("CheckoutManager: Updating full basket details");
-        try {
-          // Get current customer details
-          const customerName = document.getElementById("name").value.trim();
-          const customerEmail = document.getElementById("email").value.trim();
-          const customerPhone = document.getElementById("phone").value.trim();
-          
-          console.log("CheckoutManager: Updating basket with full details including customer:", {
-            name: customerName,
-            email: customerEmail,
-            phone: customerPhone
-          });
-          
-          const formData = {
-            customer_name: customerName,
-            customer_email: customerEmail,
-            customer_phone: customerPhone,
-            address: {
-              address_line_1: document.getElementById("address1").value,
-              address_line_2: document.getElementById("address2").value || "",
-              city: document.getElementById("city").value,
-              state: document.getElementById("county").value,
-              postcode: document.getElementById("postcode").value,
-              country: document.getElementById("country").value,
-            }
-          };
-      
-          const response = await axiosServices.post("/commerce/basket/update", formData);
-          
-          if (!response.status) {
-            throw new Error(response.data.message || "Failed to update basket");
-          }
-          
-          // Update local basket data
-          this.basketData = await this.fetchBasketData();
-      
-          return response.status;
-        } catch (error) {
-          console.error("CheckoutManager: Full basket update failed:", error);
+      try {
+        const basketUid = localStorage.getItem('basketUid');
+        if (!basketUid) {
+          console.error("No basket UID found in local storage");
           return false;
         }
+        
+        const formData = {
+          customer_name: document.getElementById("name").value.trim(),
+          customer_email: document.getElementById("email").value.trim(),
+          customer_phone: document.getElementById("phone").value.trim(),
+          address: {
+            address_line_1: document.getElementById("address1").value,
+            address_line_2: document.getElementById("address2").value || "",
+            city: document.getElementById("city").value,
+            state: document.getElementById("county").value,
+            postcode: document.getElementById("postcode").value,
+            country: document.getElementById("country").value,
+          }
+        };
+    
+        const response = await axiosServices.put(`/commerce/baskets/${basketUid}`, formData);
+        
+        if (!response.status) {
+          throw new Error(response.data.message || "Failed to update basket");
+        }
+        
+        this.basketData = await this.fetchBasketData();
+        return response.status;
+      } catch (error) {
+        console.error("Full basket update failed:", error);
+        return false;
       }
-      
+    }
       
     setupCardValidation() {
         if (this.cardElement) {
@@ -369,31 +367,33 @@ export class CheckoutManager {
     }
 
     async validateBasket() {
-        try {
-            // Use cart's basket data if available
-            if (this.cart.items.size > 0) {
-                return true;
-            }
-            
-            // Use cached basket response if available
-            if (Cart.basketResponse && Cart.basketResponse.data?.basket?.items?.length) {
-                return true;
-            }
-            
-            // Otherwise fetch basket data
-            const response = await axiosServices.get("/commerce/basket");
-            Cart.basketResponse = response; // Cache the response
-            
-            if (!response.data?.basket?.items?.length) {
-                window.location.href = "/index.html";
-                return false;
-            }
-    
-            return true;
-        } catch (error) {
-            console.error("CheckoutManager: Failed to validate basket:", error);
-            return false;
+      try {
+        const basketUid = localStorage.getItem('basketUid');
+        if (!basketUid) {
+          console.error("No basket UID found in local storage");
+          window.location.href = "/index.html";
+          return false;
         }
+        
+        // Use cached basket response if available
+        if (Cart.basketResponse && Cart.basketResponse.data?.basket?.items?.length) {
+          return true;
+        }
+        
+        // Otherwise fetch basket data
+        const response = await axiosServices.get(`/commerce/baskets/${basketUid}`);
+        Cart.basketResponse = response; // Cache the response
+        
+        if (!response.data?.basket?.items?.length) {
+          window.location.href = "/index.html";
+          return false;
+        }
+    
+        return true;
+      } catch (error) {
+        console.error("Failed to validate basket:", error);
+        return false;
+      }
     }
     
 
@@ -475,38 +475,43 @@ export class CheckoutManager {
     }
     
     async updateCustomerDetails() {
-        console.log("CheckoutManager: Updating customer details");
-        if (!this.validateCustomerDetails()) return false;
+      if (!this.validateCustomerDetails()) return false;
     
-        try {
-            const customerData = {
-                name: document.getElementById("name").value.trim(),
-                email: document.getElementById("email").value.trim(),
-                phone: document.getElementById("phone").value.trim()
-            };
-    
-            const response = await axiosServices.post("/commerce/basket/update", {customer: customerData});
-            this.customerDetailsUpdated = response.status;
-            
-            // Update local basket data
-            if (response.status) {
-                this.basketData = await this.fetchBasketData();
-            }
-            
-            return response.status;
-        } catch (error) {
-            console.error("CheckoutManager: Customer details update failed:", error);
-            return false;
+      try {
+        const basketUid = localStorage.getItem('basketUid');
+        if (!basketUid) {
+          console.error("No basket UID found in local storage");
+          return false;
         }
+        
+        const customerData = {
+          customer:{
+            name: document.getElementById("name").value.trim(),
+         email: document.getElementById("email").value.trim(),
+         phone: document.getElementById("phone").value.trim(),
+         }
+        };
+    
+        const response = await axiosServices.put(`/commerce/baskets/${basketUid}`, customerData);
+        this.customerDetailsUpdated = response.status;
+        
+        if (response.status) {
+          this.basketData = await this.fetchBasketData();
+        }
+        
+        return response.status;
+      } catch (error) {
+        console.error("Customer details update failed:", error);
+        return false;
+      }
     }
+    
     populateAddressFields() {
         
         if (this.checkoutData?.basket) {
           const basket = this.checkoutData.basket;
           
-          // Only proceed if basket has address data
           if (basket.address) {
-            // Get the form field elements
             const address1Field = document.getElementById("address1");
             const address2Field = document.getElementById("address2");
             const cityField = document.getElementById("city");
@@ -605,14 +610,18 @@ export class CheckoutManager {
     }
     
     async handleOrderSuccess() {
-        try {
-            // Redirect to order confirmation page
-            window.location.href = "/pages/order-confirmation/order-confirmation.html";
-        } catch (error) {
-            console.error("Error handling order success:", error);
-            throw error;
-        }
-    }
+      try {
+          // Clear the basketUid from localStorage after successful payment
+          console.log("CheckoutManager: Removing basket UID from local storage");
+          localStorage.removeItem('basketUid');
+          
+          // Redirect to order confirmation page
+          window.location.href = "/pages/order-confirmation/order-confirmation.html";
+      } catch (error) {
+          console.error("Error handling order success:", error);
+          throw error;
+      }
+  }
 
     async processOrder() {
         try {
